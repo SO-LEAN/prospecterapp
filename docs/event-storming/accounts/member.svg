@@ -4,10 +4,10 @@
 <rect x="0" y="1272" width="1687" height="590" fill="#fbf9f3"/>
 
 
-<g transform="translate(1394 1644) rotate(-0.54 77 88)"><rect width="154" height="176" fill="#cfae7e"/><text x="10" y="16" font-family='system-ui, sans-serif' font-size="10.5" font-weight="600" letter-spacing="1" fill="#4a3516">PERSONAL DATA</text></g>
+<g transform="translate(1394 1464) rotate(-0.54 77 88)"><rect width="154" height="176" fill="#cfae7e"/><text x="10" y="16" font-family='system-ui, sans-serif' font-size="10.5" font-weight="600" letter-spacing="1" fill="#4a3516">PERSONAL DATA</text></g>
 <path class="marker" stroke-width="3.4" d="M1201,1364.3 C1235.0,1365.2 1221.0,1357.3 1255,1358.2"/><path class="marker" stroke-width="3.4" d="M1255,1358.2 L1243.6,1351.9 M1255,1358.2 L1243.3,1363.9"/>
-<path class="marker" stroke-width="3.4" d="M1330,1735.4 C1364.0,1729.5 1362.0,1741.5 1396,1735.6"/><path class="marker" stroke-width="3.4" d="M1396,1735.6 L1383.6,1731.7 M1396,1735.6 L1385.7,1743.5"/>
-<path class="marker" stroke-width="3.4" d="M973,1731.9 C1015.0,1727.8 1015.0,1726.0 1057,1721.9"/><path class="marker" stroke-width="3.4" d="M1057,1721.9 L1044.9,1717.0 M1057,1721.9 L1046.1,1729.0"/>
+<path class="marker" stroke-width="3.4" d="M1330,1555.4 C1364.0,1549.5 1362.0,1561.5 1396,1555.6"/><path class="marker" stroke-width="3.4" d="M1396,1555.6 L1383.6,1551.7 M1396,1555.6 L1385.7,1563.5"/>
+<path class="marker" stroke-width="3.4" d="M973,1551.9 C1015.0,1547.8 1015.0,1546.0 1057,1541.9"/><path class="marker" stroke-width="3.4" d="M1057,1541.9 L1044.9,1537.0 M1057,1541.9 L1046.1,1549.0"/>
 
 
 
@@ -15,16 +15,8 @@
 
 
 
-<g transform="translate(319 1475.9) rotate(-1.64 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="21" fill="#1b2030" text-anchor="middle"><tspan x="66" y="70.5">Members</tspan></text></g>
-<g transform="translate(250 1509) rotate(-0.90 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Prospector</tspan></text></g>
-<g transform="translate(306 1466.6) rotate(-7.63 16 16)"><circle cx="16" cy="16" r="16" fill="#ffe257" stroke="#1b2030" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(5 5) scale(0.7333333333333333)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></g></g>
-
-
-
-
-
-
-
+<g transform="translate(250 1685.9) rotate(-1.64 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="21" fill="#1b2030" text-anchor="middle"><tspan x="66" y="70.5">Members</tspan></text></g>
+<g transform="translate(237 1676.6) rotate(-7.63 16 16)"><circle cx="16" cy="16" r="16" fill="#ffe257" stroke="#1b2030" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(5 5) scale(0.7333333333333333)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></g></g>
 
 
 
@@ -39,10 +31,17 @@
 
 
 
-<g transform="translate(606 1664.6) rotate(1.28 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Register a</tspan><tspan x="66" y="79.8">member</tspan></text></g>
-<g transform="translate(537 1695.4) rotate(3.01 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Platform</tspan><tspan x="35" y="57.3">operator</tspan></text></g>
-<g transform="translate(723 1647.8) rotate(0.77 66 66)"><rect width="132" height="132" rx="1" fill="#fff4ad" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18" fill="#1b2030" text-anchor="middle"><tspan x="66" y="40.4">Member</tspan></text><text font-family='ui-monospace, monospace' font-size="10.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="56.8">registerBy()</tspan></text></g>
-<g transform="translate(838 1668.4) rotate(-1.66 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Member</tspan><tspan x="66" y="79.8">registered</tspan></text></g>
+
+
+
+
+
+
+
+<g transform="translate(606 1484.6) rotate(1.28 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Register a</tspan><tspan x="66" y="79.8">member</tspan></text></g>
+<g transform="translate(537 1515.4) rotate(3.01 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Platform</tspan><tspan x="35" y="57.3">operator</tspan></text></g>
+<g transform="translate(723 1467.8) rotate(0.77 66 66)"><rect width="132" height="132" rx="1" fill="#fff4ad" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18" fill="#1b2030" text-anchor="middle"><tspan x="66" y="40.4">Member</tspan></text><text font-family='ui-monospace, monospace' font-size="10.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="56.8">registerBy()</tspan></text></g>
+<g transform="translate(838 1488.4) rotate(-1.66 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Member</tspan><tspan x="66" y="79.8">registered</tspan></text></g>
 <g transform="translate(1066 1301.1) rotate(0.47 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="43.1">whenever account</tspan><tspan x="66" y="56.2">opened</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.5">Register the</tspan><tspan x="66" y="92.3">founder</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 <g transform="translate(1264 1295.5) rotate(0.90 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Register the</tspan><tspan x="66" y="79.8">founder</tspan></text></g>
 <g transform="translate(1409 1322.5) rotate(-7.55 52 52)"><rect width="104" height="104" rx="1" fill="#ff4d9d" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="22" font-weight="700" fill="#1b2030" text-anchor="middle"><tspan x="52" y="42.5">?!</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="52" y="58.7">No event</tspan><tspan x="52" y="74.9">recorded</tspan></text></g>
@@ -54,9 +53,9 @@
 
 
 
-<g transform="translate(1066 1660.1) rotate(-1.17 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="44.7">whenever member</tspan><tspan x="66" y="57.8">registered</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.9">Publish member</tspan><tspan x="66" y="91.1">registered</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
-<g transform="translate(1195 1668.8) rotate(-1.51 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Member</tspan><tspan x="66" y="79.8">registered</tspan></text><rect x="69.8" y="7" width="57.2" height="14.4" rx="3" fill="none" stroke="#9c1f1f" stroke-width="1.5"/><text font-family='system-ui, sans-serif' font-size="8" font-weight="700" fill="#9c1f1f" text-anchor="middle"><tspan x="98.4" y="15.4">PUBLISHED</tspan></text></g>
-<g transform="translate(1405 1673.3) rotate(2.04 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="44.7">whenever member</tspan><tspan x="66" y="57.8">registered</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.9">Collect the</tspan><tspan x="66" y="91.1">member profile</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
+<g transform="translate(1066 1480.1) rotate(-1.17 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="44.7">whenever member</tspan><tspan x="66" y="57.8">registered</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.9">Publish member</tspan><tspan x="66" y="91.1">registered</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
+<g transform="translate(1195 1488.8) rotate(-1.51 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Member</tspan><tspan x="66" y="79.8">registered</tspan></text><rect x="69.8" y="7" width="57.2" height="14.4" rx="3" fill="none" stroke="#9c1f1f" stroke-width="1.5"/><text font-family='system-ui, sans-serif' font-size="8" font-weight="700" fill="#9c1f1f" text-anchor="middle"><tspan x="98.4" y="15.4">PUBLISHED</tspan></text></g>
+<g transform="translate(1405 1493.3) rotate(2.04 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="44.7">whenever member</tspan><tspan x="66" y="57.8">registered</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.9">Collect the</tspan><tspan x="66" y="91.1">member profile</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 
 <g transform="translate(30 1294) rotate(-2.2)"><rect width="134" height="44" fill="#f0e2a8"/><text x="22" y="32" font-family='"Wall Hand", "Patrick Hand", cursive' font-size="31" fill="#2a2512">Member</text></g>
 
