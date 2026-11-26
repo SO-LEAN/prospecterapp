@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Prospecting;
 
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -82,7 +82,7 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
 
         $named = $this->retriever()->named([$globex->id(), new OrganizationId(self::newIdentity()), $acme->id()]);
 
-        $this->assertEquals([new Candidate($globex->id()->value, 'contact@globex.test'), new Candidate($acme->id()->value, 'ACME SAS')], $named);
+        $this->assertEquals([new CandidateResponse($globex->id()->value, 'contact@globex.test'), new CandidateResponse($acme->id()->value, 'ACME SAS')], $named);
     }
 
     private function retriever(): DesignatedOrganizationRetriever

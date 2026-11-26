@@ -7,6 +7,12 @@ namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganiz
 use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentificationResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizationsOutput;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizationsService;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\OrganizationClues;
 use Prospecter\Core\Prospecting\Domain\Model\CorporateNameKey;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationKeys;
@@ -18,7 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
-final readonly class IdentifyOrganizationsHandler implements QueryHandler
+final readonly class IdentifyOrganizationsHandler implements QueryHandler, IdentifyOrganizationsService
 {
     /**
      * How many organizations whose name begins like the given one are compared by name. That is enough for a name
@@ -37,28 +43,28 @@ final readonly class IdentifyOrganizationsHandler implements QueryHandler
     {
         $accountId = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId))->accountId;
 
-        $output->present(array_map(fn (OrganizationClues $clues): Identification => $this->identify($accountId, $clues), $query->clues));
+        $output->present(array_map(fn (OrganizationClues $clues): IdentificationResponse => $this->identify($accountId, $clues), $query->clues));
     }
 
-    private function identify(AccountId $accountId, OrganizationClues $clues): Identification
+    private function identify(AccountId $accountId, OrganizationClues $clues): IdentificationResponse
     {
         $keys = OrganizationKeys::among($clues->siret, $clues->links, $clues->website, $clues->emails);
         $candidates = $this->designatedOrganizationRetriever->named($this->designatedBy($accountId, $keys));
 
         return match (count($candidates)) {
             0 => $this->identifyByName($accountId, $clues),
-            1 => Identification::known($candidates[0]),
-            default => Identification::toConfirm($candidates),
+            1 => IdentificationResponse::known($candidates[0]),
+            default => IdentificationResponse::toConfirm($candidates),
         };
     }
 
-    private function identifyByName(AccountId $accountId, OrganizationClues $clues): Identification
+    private function identifyByName(AccountId $accountId, OrganizationClues $clues): IdentificationResponse
     {
         $nameKey = CorporateNameKey::of($clues->name);
         $namedAlike = null === $nameKey ? [] : $this->namedAlike($accountId, $nameKey);
         usort($namedAlike, static fn (FoundOrganization $one, FoundOrganization $other): int => self::isIn($other, $clues->city) <=> self::isIn($one, $clues->city));
 
-        return [] === $namedAlike ? Identification::new() : Identification::toConfirm(array_map(self::candidate(...), $namedAlike));
+        return [] === $namedAlike ? IdentificationResponse::new() : IdentificationResponse::toConfirm(array_map(self::candidate(...), $namedAlike));
     }
 
     /**
@@ -78,9 +84,9 @@ final readonly class IdentifyOrganizationsHandler implements QueryHandler
         return null !== $place && SearchKey::of($organization->city)?->value === $place->value;
     }
 
-    private static function candidate(FoundOrganization $organization): Candidate
+    private static function candidate(FoundOrganization $organization): CandidateResponse
     {
-        return new Candidate($organization->id, $organization->fullName);
+        return new CandidateResponse($organization->id, $organization->fullName);
     }
 
     /**

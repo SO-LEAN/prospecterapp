@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations;
+namespace Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations;
 
 /**
  * What an organization's clues designate. They designate one organization of the account (known) or none (new).
  * They can also designate several, or some by their name only. The member must confirm them among the candidates.
  */
-final readonly class Identification
+final readonly class IdentificationResponse
 {
     public const string KNOWN = 'known';
     public const string NEW = 'new';
     public const string TO_CONFIRM = 'toConfirm';
 
     /**
-     * @param list<Candidate> $candidates
+     * @param list<CandidateResponse> $candidates
      */
     private function __construct(
         public string $status,
@@ -23,7 +23,7 @@ final readonly class Identification
     ) {
     }
 
-    public static function known(Candidate $organization): self
+    public static function known(CandidateResponse $organization): self
     {
         return new self(self::KNOWN, [$organization]);
     }
@@ -34,7 +34,7 @@ final readonly class Identification
     }
 
     /**
-     * @param list<Candidate> $candidates
+     * @param list<CandidateResponse> $candidates
      */
     public static function toConfirm(array $candidates): self
     {

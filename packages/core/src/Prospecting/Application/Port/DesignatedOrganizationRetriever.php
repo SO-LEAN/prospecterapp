@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Port;
 
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
@@ -31,7 +31,7 @@ interface DesignatedOrganizationRetriever
     /**
      * @param list<OrganizationId> $ids
      *
-     * @return list<Candidate> in the ids' order, without the organizations that no longer exist
+     * @return list<CandidateResponse> in the ids' order, without the organizations that no longer exist
      */
     public function named(array $ids): array;
 }

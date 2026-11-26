@@ -12,10 +12,10 @@ use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Cand
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Identification as PersonIdentification;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\PersonClues;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Identification;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizations;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\OrganizationClues;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentificationResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\OrganizationClues;
 use Tests\Core\Acceptance\Expect;
 
 /**
@@ -25,7 +25,7 @@ final class IdentificationContext implements Context
 {
     use SharesTheScenario;
 
-    private const array STATUSES = [Identification::KNOWN => 'connue', Identification::NEW => 'nouvelle', Identification::TO_CONFIRM => 'à confirmer'];
+    private const array STATUSES = [IdentificationResponse::KNOWN => 'connue', IdentificationResponse::NEW => 'nouvelle', IdentificationResponse::TO_CONFIRM => 'à confirmer'];
     private const string LIST_SEPARATOR = ', ';
 
     /** @var list<array{statut: string, candidates: string}>|null */
@@ -100,11 +100,11 @@ final class IdentificationContext implements Context
     /**
      * @return array{statut: string, candidates: string}
      */
-    private static function described(Identification|PersonIdentification $identification): array
+    private static function described(IdentificationResponse|PersonIdentification $identification): array
     {
         return [
             'statut' => self::STATUSES[$identification->status],
-            'candidates' => implode(self::LIST_SEPARATOR, array_map(static fn (Candidate|PersonCandidate $candidate): string => $candidate->name, $identification->candidates)),
+            'candidates' => implode(self::LIST_SEPARATOR, array_map(static fn (CandidateResponse|PersonCandidate $candidate): string => $candidate->name, $identification->candidates)),
         ];
     }
 }

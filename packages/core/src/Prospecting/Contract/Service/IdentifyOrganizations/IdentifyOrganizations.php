@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations;
+namespace Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations;
 
 /**
  * Finds which of the account's organizations the clues designate. Each set of clues is an organization as the client

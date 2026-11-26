@@ -7,8 +7,8 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
@@ -52,17 +52,17 @@ final readonly class DynamoDesignatedOrganizationRetriever implements Designated
     {
         $items = $this->prospectingTable->itemsInTheOrderOf(array_map(static fn (OrganizationId $id): string => OrganizationKeys::organization($id->value), $ids), OrganizationKeys::ORGANIZATION);
 
-        return array_map(static fn (array $item): Candidate => self::candidate(Typed::document($item['organization'])), $items);
+        return array_map(static fn (array $item): CandidateResponse => self::candidate(Typed::document($item['organization'])), $items);
     }
 
     /**
      * @param array<string, mixed> $document
      */
-    private static function candidate(array $document): Candidate
+    private static function candidate(array $document): CandidateResponse
     {
         $name = Documents::legalIdentityOf($document['legalIdentity'])->fullName();
 
-        return new Candidate(Typed::string($document['id']), '' === $name ? Typed::string(Typed::document($document['contactDetails'])['email']) : $name);
+        return new CandidateResponse(Typed::string($document['id']), '' === $name ? Typed::string(Typed::document($document['contactDetails'])['email']) : $name);
     }
 
     private function holderOf(string $kind, AccountId $accountId, string $value): ?OrganizationId

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations;
+namespace Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations;
 
 /**
  * An organization as the client sees it. It holds what the client knows about it. Each clue is optional.
