@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactSearchReader;
+use App\Contacts\ContactSearchComposition;
 use App\Contacts\Resource\ContactListResource;
 use App\PersonalData\Input\ContactListQuery;
 use App\Security\User;
@@ -19,13 +19,13 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Searches my organization's contacts. `ContactSearchReader` reads the answer.
+ * Searches my organization's contacts. `ContactSearchComposition` reads the answer.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class SearchContactsController
 {
-    public function __construct(private ContactSearchReader $contacts, private JsonResponses $jsonResponses)
+    public function __construct(private ContactSearchComposition $contacts, private JsonResponses $jsonResponses)
     {
     }
 
