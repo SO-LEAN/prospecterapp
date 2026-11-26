@@ -18,15 +18,15 @@ The repository is public: the standard runners and the cache of GitHub Actions (
 
 - **The API's check runs in four jobs of the CI**: `api-lint` (PHPStan, php-cs-fixer, Rector) and `api-tests-<i>-of-3`. Each of the three runs one share of the test files (`paratest --shard`, the files dealt in turn), in four processes. The `changes` job expands the check `api` that `make changed-checks` names into these jobs. The workflow sets the number of shares once (`API_TEST_JOBS`). The `ci` job passes only when all of them pass.
 - `make check-api` and `make ci` still run the API's lint and tests together on the machine.
-- **Each command-line image is an archive in the cache of GitHub Actions**, keyed by the tag make expects of it (`make images-env`). That tag names the image's `docker/` directory and its user. A job loads the archive (`make image-load`, `docker load`). A tag the cache does not hold yet builds the image and saves its archive.
-- **The tools' caches are kept from one run to the next**: the caches of the PHP lint (PHPStan, Rector, php-cs-fixer) of the core, the API and the storage, PHPStan's result cache of the event storming's analysis, and Vitest's results. Each key starts with a digest of the tool's configuration and the lock files. Each run saves its own cache and restores the latest one of the same configuration.
+- **Each command-line image is an archive in the cache of GitHub Actions**, keyed by the tag make expects of it (`make images-env`). That tag names the image's `docker/` directory and its user. A job loads the archive (`make image-load`, `docker load`). When the cache does not hold the tag yet, the job builds the image and saves its archive.
+- **The tools' caches are kept from one run to the next**: the PHP lint's caches (PHPStan, Rector, php-cs-fixer) in the core, the API and the storage, PHPStan's result cache of the event storming's analysis, and Vitest's results. Each key starts with a digest of the tool's configuration and the lock files. Each run saves its own cache and restores the latest one of the same configuration.
 
 ## Consequences
 
 - With warm caches, a PHP job gets its image in 6 to 13 s instead of some 30 s, and the API's lint takes 3 s instead of a minute.
 - The front's check now sets the CI's length, some 2 minutes: Vitest alone takes about 80 s, and over 130 s on some runners. Splitting it is the next lever.
 - An API change costs three more jobs per run. The runners are free, and the jobs run in parallel.
-- Each run saves a few caches of the tools. A change of a `docker/` directory saves a new image archive, some 310 MB for PHP and 100 MB for Node. GitHub evicts the caches least used once the repository's 10 GB are reached. The dependencies' caches and the current archives are read by every run, so they stay.
+- Each run saves a few of the tools' caches. A change of a `docker/` directory saves a new image archive, some 310 MB for PHP and 100 MB for Node. GitHub evicts the caches least used once the repository's 10 GB are reached. The dependencies' caches and the current archives are read by every run, so they stay.
 - The shares are files dealt in turn, not timed: a share holding the slowest files ends last.
 - The mutation jobs and the journeys still build their images. The same archives can serve them.
 
