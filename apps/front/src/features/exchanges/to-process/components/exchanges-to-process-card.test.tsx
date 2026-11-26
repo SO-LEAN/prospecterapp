@@ -176,9 +176,9 @@ async function showTheCard(items: ExchangeToProcess[], toDos: ToDoToProcess[] = 
       <Suspense>
         <ExchangesToProcessCard
           contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>}
-          toDoLine={(toDo, _now, onTickedOff) => (
+          toDoLine={({ toDo, daysOverdue }, onTickedOff) => (
             <button type="button" onClick={onTickedOff}>
-              {toDo.text}
+              {`${toDo.text}, en retard de ${daysOverdue}`}
             </button>
           )}
         />
@@ -332,7 +332,7 @@ describe('the exchanges to process on the dashboard', () => {
 })
 
 describe('my to-dos to process', () => {
-  it('are listed, the most overdue first, each saying since when', async () => {
+  it('are listed, the most overdue first, each by the line the page gives it, told since when it waits', async () => {
     await showTheCard(
       [],
       [
@@ -344,17 +344,10 @@ describe('my to-dos to process', () => {
 
     const toDos = within(screen.getByRole('region', { name: 'Actions à faire' })).getAllByRole('listitem')
     expect(toDos.map((toDo) => toDo.textContent)).toEqual([
-      expect.stringMatching(/^En retard de 3 joursRelancer/),
-      expect.stringMatching(/^En retard d’un jourEnvoyer mon CV/),
-      expect.stringMatching(/^Pour aujourd’huiPréparer la proposition/),
+      'Relancer, en retard de 3',
+      'Envoyer mon CV, en retard de 1',
+      'Préparer la proposition, en retard de 0',
     ])
-    expect(toDos.map((toDo) => toDo.hasAttribute('data-late'))).toEqual([true, true, false])
-  })
-
-  it('are shown by the line the page gives them', async () => {
-    await showTheCard([], [aToDoToProcess('Envoyer mon CV', '2026-11-12', 1)])
-
-    expect(screen.getByRole('button', { name: 'Envoyer mon CV' })).toBeInTheDocument()
   })
 })
 
