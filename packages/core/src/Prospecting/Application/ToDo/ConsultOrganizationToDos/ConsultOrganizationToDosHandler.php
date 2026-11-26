@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ToDo\ConsultOrganizationToDos;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
+use Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ToDoListOutput;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
@@ -16,6 +17,7 @@ final readonly class ConsultOrganizationToDosHandler implements QueryHandler
     public function __construct(
         private ToDoListRetriever $toDoListRetriever,
         private OrganizationSheetRetriever $organizationSheetRetriever,
+        private PersonsOfToDos $personsOfToDos,
     ) {
     }
 
@@ -23,6 +25,8 @@ final readonly class ConsultOrganizationToDosHandler implements QueryHandler
     {
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $output->present(ToDoList::inOrder($this->toDoListRetriever->keptFor(new OrganizationId($organization->id))));
+        $toDos = ToDoList::inOrder($this->toDoListRetriever->keptFor(new OrganizationId($organization->id)));
+
+        $output->present($toDos, $this->personsOfToDos->shownTo($query->prospectorId, $toDos->toDos));
     }
 }

@@ -10,6 +10,7 @@ namespace Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo;
 final readonly class ConsultToDo
 {
     public function __construct(
+        public string $prospectorId,
         public string $id,
     ) {
     }

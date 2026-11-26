@@ -106,6 +106,7 @@ services:
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline: ~
+    Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
     Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~
@@ -164,6 +165,7 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\ConsultHeldExchangesHandler'
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\Contact\NameContacts\NameContactsHandler'
+    Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersonsService: '@Prospecter\Core\PersonalData\Application\Person\DescribePersons\DescribePersonsHandler'
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler'
     Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\Contact\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\Contact\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
@@ -256,6 +258,7 @@ services:
     App\Campaigns\Persistence\DynamoFactRepository:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
+    Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever: '@App\Prospecting\AntiCorruption\AccountsAndPersonalDataPersonDescriptions'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'

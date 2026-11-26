@@ -36,7 +36,7 @@ final readonly class ShowToDoTool
     #[McpTool(name: 'get-todo', description: 'Get a to-do. Needs the right to manage personal data. Returns its text, its due date, its holder, its contact or organization, and whether it is done.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
-        $toDo = $this->toDos->read($id);
+        $toDo = $this->toDos->read($this->access->member()->memberId(), $id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ToDoVoter::ACCESS, $toDo);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);

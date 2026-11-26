@@ -441,12 +441,11 @@ use Prospecter\Core\Prospecting\Application\ToDo\KeepToDosOfAttachedContact\Keep
 use Prospecter\Core\Prospecting\Application\ToDo\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ToDo\NoteOrganizationToDo\NoteOrganizationToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\NoteToDo\NoteToDoHandler;
+use Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ReviseToDo\ReviseToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\StopKeepingToDos\StopKeepingToDosHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\TickOffToDo\TickOffToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\UntickToDo\UntickToDoHandler;
-use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
@@ -503,6 +502,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsAndPersonalDataMembers;
+use Tests\Core\Double\AccountsAndPersonalDataPersonDescriptions;
 use Tests\Core\Double\AccountsCampaigners;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -686,6 +686,8 @@ final class Application
     private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
     private readonly NameContactsHandler $nameContactsService;
     private readonly DescribePersonsHandler $describePersonsService;
+    private readonly AccountsAndPersonalDataPersonDescriptions $personDescriptions;
+    private readonly PersonsOfToDos $personsOfToDos;
     private readonly PresentMembersHandler $presentMembersService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
@@ -812,6 +814,8 @@ final class Application
         $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
         $this->describePersonsService = new DescribePersonsHandler($this->personCardRetriever, $this->readers);
+        $this->personDescriptions = new AccountsAndPersonalDataPersonDescriptions($this->consultMembersService, $this->describePersonsService);
+        $this->personsOfToDos = new PersonsOfToDos($this->personDescriptions);
         $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
         $this->connectingMembers = new AccountsAndPersonalDataMembers($this->consultMembersService, $this->presentMembersService);
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
@@ -1223,32 +1227,32 @@ final class Application
         return $this->ask(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->identifications : null;
     }
 
-    public function consultToDo(ConsultToDo $query): ?ToDoInList
+    public function consultToDo(ConsultToDo $query): ?KeptToDo
     {
         $kept = new KeptToDo();
 
-        return $this->ask(new ConsultToDoHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDo : null;
+        return $this->ask(new ConsultToDoHandler($this->toDoListRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultToDos(ConsultToDos $query): ?ToDoList
+    public function consultToDos(ConsultToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultToDosHandler($this->toDoListRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultToDosHandler($this->toDoListRetriever, $this->prospectors, $this->contactOrganizations, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultOrganizationToDos(ConsultOrganizationToDos $query): ?ToDoList
+    public function consultOrganizationToDos(ConsultOrganizationToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultMyToDos(ConsultMyToDos $query): ?ToDoList
+    public function consultMyToDos(ConsultMyToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultMyToDosHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultMyToDosHandler($this->toDoListRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
     public function consultTimeline(ConsultTimeline $query): ?Timeline

@@ -13,7 +13,8 @@ use App\Shared\Resource\LinkResource;
 use App\ToDos\Resource\ToDoContactResource;
 use App\ToDos\Resource\ToDoLinksResource;
 use App\ToDos\Resource\ToDoResource;
-use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\PersonDescription;
+use Prospecter\Core\Prospecting\Application\PersonsShown;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
@@ -37,12 +38,11 @@ final readonly class ToDoResourceFactory
     }
 
     /**
-     * @param array<string, PersonCard> $persons        the contacts and the holders, by person id
-     * @param array<string, string>     $personOfMember each holder's person id, by member id
+     * @param PersonsShown $persons the to-do's contact and holder
      */
-    public function of(ToDoInList $toDo, array $persons, array $personOfMember): ToDoResource
+    public function of(ToDoInList $toDo, PersonsShown $persons): ToDoResource
     {
-        $holder = $persons[$personOfMember[$toDo->heldBy] ?? ''] ?? null;
+        $holder = $persons->members[$toDo->heldBy] ?? null;
 
         return new ToDoResource(
             id: $toDo->id,
@@ -51,12 +51,12 @@ final readonly class ToDoResourceFactory
             dueAt: $toDo->dueAt,
             doneAt: $toDo->doneAt?->format(\DateTimeInterface::ATOM),
             heldBy: new AuthorResource(self::nameOf($holder), $holder?->email),
-            contact: null === $toDo->personId ? null : new ToDoContactResource($toDo->personId, self::nameOf($persons[$toDo->personId] ?? null)),
+            contact: null === $toDo->personId ? null : new ToDoContactResource($toDo->personId, self::nameOf($persons->contacts[$toDo->personId] ?? null)),
             links: $this->linksOf($toDo),
         );
     }
 
-    private static function nameOf(?PersonCard $person): PersonNameResource
+    private static function nameOf(?PersonDescription $person): PersonNameResource
     {
         return new PersonNameResource($person?->firstName, $person?->lastName);
     }
