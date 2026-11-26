@@ -142,9 +142,12 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
       | Initech       | unknownOrganization |
 
   Scénario: Connectors dit à un autre contexte ce que son membre peut rattraper, pour plusieurs contacts et organisations
+    Soit l'organisation "Initech SAS" qui utilise Prospecter
+    Et l'organisation "Initech" d'e-mail "contact@initech.fr" appartient à "Initech SAS"
     Quand un autre contexte demande à Connectors ce que je peux rattraper avec :
-      | Ada Lovelace |
       | Personne     |
+      | Ada Lovelace |
+      | Initech      |
       | Globex       |
       | ACME         |
     Alors Connectors répond le rattrapage :
@@ -175,3 +178,4 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
       | empêchement                                |
       | je coupe l'import de mes e-mails Gmail     |
       | je perds le droit aux données personnelles |
+      | j'ai déconnecté mon compte Google          |
