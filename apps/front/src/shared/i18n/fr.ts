@@ -285,13 +285,14 @@ export const fr = {
   contacts: {
     title: 'Contacts',
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
+    new: 'Nouveau contact',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     possibleDuplicates: {
       explanation: 'Ce contact ressemble, par son nom, à un autre de son organisation :',
     },
     empty: {
       title: 'Aucun contact',
-      description: 'Les contacts s’enregistrent depuis la fiche de l’organisation où ils travaillent.',
+      description: 'Les contacts que vous enregistrez apparaissent ici.',
     },
     noResult: { title: 'Aucun résultat', description: 'Aucun contact ne correspond à « {{query}} ».' },
     unnamed: 'Contact sans nom',

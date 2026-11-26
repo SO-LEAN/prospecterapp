@@ -20,6 +20,7 @@ import { Route as AppCampaignsIndexRouteImport } from './../routes/_app/campaign
 import { Route as AppCampaignsCampaignIdRouteImport } from './../routes/_app/campaigns/$campaignId'
 import { Route as AppCampaignsNewRouteImport } from './../routes/_app/campaigns/new'
 import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
+import { Route as AppContactsNewRouteImport } from './../routes/_app/contacts/new'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
 import { Route as AppContactsContactIdIndexRouteImport } from './../routes/_app/contacts/$contactId/index'
@@ -80,6 +81,11 @@ const AppContactsIndexRoute = AppContactsIndexRouteImport.update({
   path: '/contacts/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppContactsNewRoute = AppContactsNewRouteImport.update({
+  id: '/contacts/new',
+  path: '/contacts/new',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
   id: '/organizations/',
   path: '/organizations/',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/booking/$code': typeof BookingCodeRoute
   '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/campaigns/new': typeof AppCampaignsNewRoute
+  '/contacts/new': typeof AppContactsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/campaigns/': typeof AppCampaignsIndexRoute
   '/contacts/': typeof AppContactsIndexRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/campaigns/new': typeof AppCampaignsNewRoute
+  '/contacts/new': typeof AppContactsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/campaigns': typeof AppCampaignsIndexRoute
   '/contacts': typeof AppContactsIndexRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/_app/campaigns/new': typeof AppCampaignsNewRoute
+  '/_app/contacts/new': typeof AppContactsNewRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
   '/_app/campaigns/': typeof AppCampaignsIndexRoute
   '/_app/contacts/': typeof AppContactsIndexRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/booking/$code'
     | '/campaigns/$campaignId'
     | '/campaigns/new'
+    | '/contacts/new'
     | '/organizations/new'
     | '/campaigns/'
     | '/contacts/'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/'
     | '/campaigns/$campaignId'
     | '/campaigns/new'
+    | '/contacts/new'
     | '/organizations/new'
     | '/campaigns'
     | '/contacts'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/campaigns/$campaignId'
     | '/_app/campaigns/new'
+    | '/_app/contacts/new'
     | '/_app/organizations/new'
     | '/_app/campaigns/'
     | '/_app/contacts/'
@@ -302,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppContactsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/contacts/new': {
+      id: '/_app/contacts/new'
+      path: '/contacts/new'
+      fullPath: '/contacts/new'
+      preLoaderRoute: typeof AppContactsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/organizations/': {
       id: '/_app/organizations/'
       path: '/organizations'
@@ -347,6 +366,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppCampaignsCampaignIdRoute: typeof AppCampaignsCampaignIdRoute
   AppCampaignsNewRoute: typeof AppCampaignsNewRoute
+  AppContactsNewRoute: typeof AppContactsNewRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
   AppCampaignsIndexRoute: typeof AppCampaignsIndexRoute
   AppContactsIndexRoute: typeof AppContactsIndexRoute
@@ -363,6 +383,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppCampaignsCampaignIdRoute: AppCampaignsCampaignIdRoute,
   AppCampaignsNewRoute: AppCampaignsNewRoute,
+  AppContactsNewRoute: AppContactsNewRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
   AppCampaignsIndexRoute: AppCampaignsIndexRoute,
   AppContactsIndexRoute: AppContactsIndexRoute,
