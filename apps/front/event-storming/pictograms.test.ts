@@ -93,6 +93,43 @@ describe('the pictograms of a post-it', () => {
     ]).toEqual([[2, 3, 4, 0, 1], 66, [5, 6, 7]])
   })
 
+  it('shows the pictograms back its width holds, then a « +n » that lists the others', () => {
+    const pictograms = pictogramsOf({ ...sticky, jumps: [...jumps(7, true), ...jumps(2)] })
+
+    expect([
+      pictograms.shown.map(({ index, side }) => [index, side]),
+      pictograms.more?.offset,
+      pictograms.more?.hidden.map(({ index }) => index),
+    ]).toEqual([
+      [
+        [0, 'left'],
+        [1, 'left'],
+        [2, 'left'],
+        [3, 'left'],
+      ],
+      -9,
+      [4, 5, 6, 7, 8],
+    ])
+  })
+
+  it('gathers the last pictogram back with the others in the « +n » when its width holds the pictograms back only', () => {
+    const pictograms = pictogramsOf({ ...sticky, jumps: [...jumps(5, true), ...jumps(1)] })
+
+    expect([
+      pictograms.shown.map(({ index }) => index),
+      pictograms.more?.hidden.map(({ index }) => index),
+    ]).toEqual([
+      [0, 1, 2, 3],
+      [4, 5],
+    ])
+  })
+
+  it('shows every pictogram back that its width just holds, without a « +n »', () => {
+    const pictograms = pictogramsOf({ ...sticky, jumps: jumps(5, true) })
+
+    expect([pictograms.shown.length, pictograms.more]).toEqual([5, null])
+  })
+
   it('stands the smaller pictograms of a port inside its strip', () => {
     const port = wallOf(BOOKING).notes.find((note) => note.port)
     if (port === undefined) throw new Error('No port on the wall')

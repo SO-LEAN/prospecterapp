@@ -48,6 +48,14 @@ export function pictogramsOf(note: Note): Pictograms {
       }))
   const left = onItsSide('left')
   const right = onItsSide('right')
+  const roomBack = roomOnTheLeft(note, row, start)
+  if (left.length > roomBack || (left.length === roomBack && right.length > 0)) {
+    const kept = roomBack - 1
+    return {
+      shown: left.slice(0, kept),
+      more: { offset: offsetOf(row, 'right', 0), hidden: [...left.slice(kept), ...right] },
+    }
+  }
   const room = roomOnTheRight(note, row, left)
   if (right.length <= room) return { shown: [...right, ...left], more: null }
   const kept = room - 1
@@ -77,6 +85,11 @@ function roomOnTheRight(note: Note, row: Row, back: Pictogram[]): number {
   const last = back.at(-1)
   const limit = Math.max(last === undefined ? row.edge : last.offset + row.size, badgesEndOf(note))
   return Math.floor((note.w - row.edge - row.size - limit) / row.pitch.right) + 1
+}
+
+/** How many pictograms back stand from where they start before they reach the right edge. */
+function roomOnTheLeft(note: Note, row: Row, start: number): number {
+  return Math.floor((note.w - row.edge - row.size - start) / row.pitch.left) + 1
 }
 
 function badgesEndOf(note: Note): number {
