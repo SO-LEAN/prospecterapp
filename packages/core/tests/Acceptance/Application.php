@@ -590,6 +590,7 @@ use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAndProspectingAddressees;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondentAddresses;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondents;
+use Tests\Core\Double\PersonalDataContactEmails;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
@@ -1379,7 +1380,7 @@ final class Application
     {
         $kept = new KeptProposedOrganization();
 
-        return $this->ask(new ProposeOrganizationToAttachHandler(new InMemoryProposedOrganizationRetriever($this->database), $this->prospectors), $query, $kept) ? $kept->organization : null;
+        return $this->ask(new ProposeOrganizationToAttachHandler(new InMemoryProposedOrganizationRetriever($this->database), $this->prospectors, new PersonalDataContactEmails(new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers))), $query, $kept) ? $kept->organization : null;
     }
 
     /**

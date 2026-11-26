@@ -20,6 +20,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Prospecting/AntiCorruption/AccountsProspectors.php',
         'Prospecting/AntiCorruption/AccountsAndPersonalDataPersonDescriptions.php',
         'Prospecting/AntiCorruption/ConnectorsMailCatchUps.php',
+        'Prospecting/AntiCorruption/PersonalDataContactEmails.php',
         'Prospecting/AntiCorruption/PersonalDataKnownContacts.php',
         'Prospecting/AntiCorruption/CampaignsCampaignRecipients.php',
         'Prospecting/AntiCorruption/CampaignsCampaignNames.php',

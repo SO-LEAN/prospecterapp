@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ProposedOrganizationReader;
+use App\Contacts\ProposedOrganizationPresenter;
 use App\Contacts\Resource\ProposedOrganizationResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowProposedOrganizationController
 {
-    public function __construct(private ProposedOrganizationReader $proposedOrganizationReader, private JsonResponses $jsonResponses)
+    public function __construct(private QueryHandler $proposeOrganizationToAttach, private JsonResponses $jsonResponses)
     {
     }
 
@@ -34,6 +36,9 @@ final readonly class ShowProposedOrganizationController
     #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->proposedOrganizationReader->read($user->memberId(), $id));
+        $presenter = new ProposedOrganizationPresenter();
+        $this->proposeOrganizationToAttach->__invoke(new ProposeOrganizationToAttach($user->memberId(), $id), $presenter);
+
+        return $this->jsonResponses->of($presenter->resource);
     }
 }

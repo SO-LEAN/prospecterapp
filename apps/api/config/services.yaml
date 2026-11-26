@@ -262,6 +262,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever: '@App\Prospecting\AntiCorruption\AccountsAndPersonalDataPersonDescriptions'
     Prospecter\Core\Prospecting\Application\Port\MailCatchUpRetriever: '@App\Prospecting\AntiCorruption\ConnectorsMailCatchUps'
+    Prospecter\Core\Prospecting\Application\Port\ContactEmailRetriever: '@App\Prospecting\AntiCorruption\PersonalDataContactEmails'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'
