@@ -30,8 +30,8 @@ Everything runs in Docker, driven by make (ADR 0015, 0080). MiniStack emulates t
   - Each stack keeps its own MiniStack data.
   - An old tag stays until `make images-prune`, which runs on demand only. It removes the `prospecter-php`, `-node`, `-nginx` and `-lambda-deploy` tags that no checkout of `git worktree list` expects from its own `docker/`: those of an old build context, or of a removed worktree. It keeps the `local` tag. It also keeps a tag that a container still uses, and says so.
 - A worktree's containers join the systemd slice `prospecter-agents.slice` (`cgroup_parent`, and Playwright's `--cgroup-parent`). `make agents-slice` writes the slice's budget once, with sudo, for all worktrees together: `AGENTS_CPUS` (10 CPUs), `AGENTS_MEMORY_GB` (40), and a `CPUWeight` of 50, behind the rest of the machine. Without the slice, only each container's bounds apply (`cpus`, `mem_limit` in `docker-compose.agents.yml`, Playwright's `E2E_BOUNDS` in `apps/front/Makefile`). Each bound is about twice the peak measured during a whole `make ci` with the journeys (2026-11-14):
-  - php 2 GB (1.1 GB: PHPStan and Rector in 2 workers. As many workers as processors, 12 from the host, doubled its memory and saved no time);
-  - node 2 GB (1.1 GB);
+  - php 2 GB (1.1 GB: PHPStan and Rector in 2 workers. As many workers as processors, 12 from the host, doubled its memory and saved no time), and 2 processors, more for a mutation asked in more threads (`INFECTION_THREADS`);
+  - node 2 GB (1.1 GB), and 2 processors, more for a mutation asked in more test runners (`MUTATION_WORKERS`, `docs/architecture/tests.md`);
   - nginx 64 MB (18 MB);
   - MiniStack 12 GB. It used 5.4 GB alone and over 8 GB beside another worktree, during the reactions to stopping prospecting. It then ran some 85 functions at once and kept them until it stopped. That was before the worker was capped at 10 invocations at once. Since then it uses 3.8 GB (`make check-e2e FRESH=1`, 2026-11-16, ADR 0131). `make check-e2e FRESH=1` restarts it (ADR 0121);
   - the tests' MiniStack 512 MB (280 MB);
