@@ -28,6 +28,11 @@ const HOSTS_TO_THE_STACK = STACK_ADDRESS
   ? [`--host-resolver-rules=MAP ${PUBLIC_HOST} ${STACK_ADDRESS}, MAP *.${PUBLIC_HOST} ${STACK_ADDRESS}`]
   : []
 const CHROME = { ...devices['Desktop Chrome'], launchOptions: { args: HOSTS_TO_THE_STACK } }
+/**
+ * The merge queue keeps the video of a journey that failed (ADR 0220): no one watches the runner. On the machine, the
+ * trace is enough, and recording every journey would take processors from the other checkouts.
+ */
+const VIDEO = process.env.CI ? 'retain-on-failure' : 'off'
 
 /** End-to-end journeys against the running local stack (`make start`), real sign-in on Cognito (MiniStack) included. */
 export default defineConfig({
@@ -44,6 +49,7 @@ export default defineConfig({
     locale: 'fr-FR',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    video: VIDEO,
   },
   projects: [
     { name: 'together-longest', use: CHROME, testMatch: LONGEST },
