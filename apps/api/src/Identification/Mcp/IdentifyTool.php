@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace App\Identification\Mcp;
 
-use App\Identification\IdentificationReader;
+use App\Identification\IdentificationsPresenter;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Mcp\Server\Capability\Attribute\Schema;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\IdentifyPersonsAndOrganizations;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\PersonAtOrganization;
+use Prospecter\Core\PersonalData\Application\Identification\OrganizationClues;
+use Prospecter\Core\PersonalData\Application\Identification\PersonClues;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Tells which persons and organizations Prospecter knows, before an AI creates any (ADR 0173). Like `get-me`, it has
  * no endpoint, because no screen needs it yet.
  *
- * @phpstan-import-type PersonCluesArray from IdentificationReader
- * @phpstan-import-type OrganizationCluesArray from IdentificationReader
+ * @phpstan-type OrganizationCluesArray array{name?: string, siret?: string, links?: list<string>, website?: string, emails?: list<string>, city?: string}
+ * @phpstan-type PersonCluesArray array{firstName?: string, lastName?: string, links?: list<string>, emails?: list<string>, phoneNumbers?: list<string>, organization?: int}
  */
 final readonly class IdentifyTool
 {
@@ -54,7 +59,7 @@ final readonly class IdentifyTool
         'additionalProperties' => false,
     ];
 
-    public function __construct(private ToolAccess $access, private IdentificationReader $identifications, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private QueryHandler $identifyPersonsAndOrganizations, private ToolResults $results)
     {
     }
 
@@ -73,6 +78,38 @@ final readonly class IdentifyTool
     ): array {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
 
-        return $this->results->of($this->identifications->identify($this->access->member()->memberId(), $persons, $organizations));
+        $presenter = new IdentificationsPresenter();
+        $this->identifyPersonsAndOrganizations->__invoke(new IdentifyPersonsAndOrganizations($this->access->member()->memberId(), array_map(self::person(...), $persons), array_map(self::organization(...), $organizations)), $presenter);
+
+        return $this->results->of($presenter->resource);
+    }
+
+    /**
+     * @param PersonCluesArray $person
+     */
+    private static function person(array $person): PersonAtOrganization
+    {
+        return new PersonAtOrganization(new PersonClues(
+            firstName: $person['firstName'] ?? null,
+            lastName: $person['lastName'] ?? null,
+            links: $person['links'] ?? [],
+            emails: $person['emails'] ?? [],
+            phoneNumbers: $person['phoneNumbers'] ?? [],
+        ), $person['organization'] ?? null);
+    }
+
+    /**
+     * @param OrganizationCluesArray $organization
+     */
+    private static function organization(array $organization): OrganizationClues
+    {
+        return new OrganizationClues(
+            name: $organization['name'] ?? null,
+            siret: $organization['siret'] ?? null,
+            links: $organization['links'] ?? [],
+            website: $organization['website'] ?? null,
+            emails: $organization['emails'] ?? [],
+            city: $organization['city'] ?? null,
+        );
     }
 }
