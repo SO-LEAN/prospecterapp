@@ -18,7 +18,7 @@ use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
 /**
  * Presents a slice of an organization's timeline, or of its exchanges to redact. Each exchange names who took part:
  * the person, or the organization itself. The person may still be its contact, or may be removed or forgotten. One
- * presenter serves one call. It gets the slice's persons and keeps the resource (ADR 0085).
+ * presenter serves one call. It names the persons as the query read them, and keeps the resource (ADR 0085, 0217).
  */
 final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
 {
