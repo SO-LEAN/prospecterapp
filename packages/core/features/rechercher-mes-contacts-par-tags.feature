@@ -71,6 +71,16 @@ Fonctionnalité: Rechercher mes contacts par tags
       | Ada    | Lovelace |
     Et c'est la dernière tranche
 
+  Scénario: Un contact effacé n'est plus trouvé par ses tags, avant même que ses tags soient oubliés
+    Soit les réactions aux gestes n'ont pas encore suivi
+    Quand j'efface la fiche de "Ada Lovelace"
+    Et je cherche mes contacts tagués "#ESN" par tranches de 1
+    Alors la liste des contacts affiche :
+      | prénom | nom    |
+      | Grace  | Hopper |
+    Et c'est la dernière tranche
+    Et 1 contact est trouvé
+
   Scénario: Le tag choisi est écrit comme un tag
     Quand je cherche mes contacts tagués "esn"
     Alors 2 contacts sont trouvés

@@ -707,6 +707,8 @@ final class Application
     private readonly InMemoryTagsRetriever $tagsRetriever;
     private readonly AccountsTaggers $taggers;
     private readonly TaggableHolders $taggableHolders;
+
+    private readonly PersonalDataTaggableContacts $taggableContacts;
     public readonly InMemoryCampaignsFactRepository $campaignsFacts;
     private readonly CampaignsFactRecorder $campaignsFactRecorder;
     private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
@@ -837,7 +839,8 @@ final class Application
         $this->taggings = new InMemoryTaggingRepository($database);
         $this->tagsRetriever = new InMemoryTagsRetriever($database);
         $this->taggers = new AccountsTaggers($this->consultMembersService);
-        $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), new PersonalDataTaggableContacts($this->whichAreContactsService));
+        $this->taggableContacts = new PersonalDataTaggableContacts($this->whichAreContactsService);
+        $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), $this->taggableContacts);
         $this->campaignsFacts = new InMemoryCampaignsFactRepository($database);
         $this->campaignsFactRecorder = new CampaignsFactRecorder($this->campaignsFacts);
         $this->contactTagsRetriever = new InMemoryContactTagsRetriever($database);
@@ -1151,7 +1154,7 @@ final class Application
     {
         $kept = new KeptTaggedContactPage();
 
-        return $this->ask(new SearchContactsByTagsHandler($this->taggedContactsRetriever, $this->taggers), $query, $kept) ? $kept->page : null;
+        return $this->ask(new SearchContactsByTagsHandler($this->taggedContactsRetriever, $this->taggers, $this->taggableContacts), $query, $kept) ? $kept->page : null;
     }
 
     public function consultSuggestedTags(ConsultSuggestedTags $query): ?SuggestedTags
