@@ -139,6 +139,12 @@ describe('the contacts to attach to process', () => {
     expect(days).toHaveClass('border', 'bg-muted', 'text-muted-foreground')
   })
 
+  it('shapes the days left as a small rounded chip', async () => {
+    await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+    expect(screen.getByTitle('Effacé dans 32 jours')).toHaveClass('rounded-md', 'px-1.5', 'py-0.5', 'text-xs')
+  })
+
   it('says the day before in red', async () => {
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 19))]} />)
 
