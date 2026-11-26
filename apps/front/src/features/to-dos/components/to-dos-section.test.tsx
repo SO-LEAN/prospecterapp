@@ -56,6 +56,7 @@ async function renderTheCard(
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <ToDosCard list={list} onNote={onNote} withTheirContact={withTheirContact} onTickedOff={onTickedOff} />
+      <Toaster />
     </QueryClientProvider>,
   )
 }
@@ -239,6 +240,20 @@ describe('ToDosCard', () => {
       ['get', '/api/me/calendar'],
       ['get', '/api/me/exchanges-to-process'],
     ])
+  })
+
+  it('ticks a to-do off on a card without a toast, the to-do staying among those done', async () => {
+    const toDo = aToDo({})
+    const onTickedOff = vi.fn()
+    theApi.mockResolvedValue(
+      Response.json({ ...toDo, doneAt: '2026-11-13T10:00:00+00:00', _links: { untick: link('', 'DELETE') } }),
+    )
+    await renderTheCard(listOf([toDo]), undefined, false, onTickedOff)
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /^Cocher/ }))
+
+    await waitFor(() => expect(onTickedOff).toHaveBeenCalledWith(toDo))
+    expect(screen.queryByText('Action faite')).not.toBeInTheDocument()
   })
 
   it('revises a to-do from its menu, from what it was', async () => {
