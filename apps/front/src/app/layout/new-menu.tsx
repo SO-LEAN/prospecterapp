@@ -16,8 +16,8 @@ import {
 } from '@/shared/ui/dropdown-menu'
 
 /**
- * « Nouveau », at the top of every page: it opens the creation forms that exist. An exchange noted or planned from
- * here is first given who it is with, by the search.
+ * « Nouveau », at the top of every page: it opens the creation forms that exist. To note or plan an exchange from
+ * here, the member first chooses its contact or organization with the search.
  */
 export function NewMenu() {
   const { t } = useTranslation()
