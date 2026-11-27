@@ -8,7 +8,6 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
@@ -55,7 +54,7 @@ final class OrganizationsOfContactsContext implements Context
     {
         $contacts = Expect::present($this->contactsOfTheOrganization, sprintf('The contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
 
-        Expect::same(array_column($expected->getColumnsHash(), 'contact'), array_map(fn (string $contact): string => $this->scenario->nameOfPerson(new PersonId($contact)), $contacts->contactIds));
+        Expect::same(array_map($this->scenario->personIdOf(...), array_column($expected->getColumnsHash(), 'contact')), $contacts->contactIds);
     }
 
     #[When('je consulte les organisations de mes contacts :')]
