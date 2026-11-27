@@ -71,7 +71,7 @@ export function TimelineCard<Item>({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-base">{t('exchanges.title')}</CardTitle>
+        <CardTitle>{t('exchanges.title')}</CardTitle>
         {(filter || catchUp || noteExchange || planExchange) && (
           <CardAction className="flex flex-wrap justify-end gap-2">
             {filter}

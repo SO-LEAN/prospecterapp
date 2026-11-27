@@ -69,7 +69,7 @@ function OpenSwitch({ page }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('booking.title')}</CardTitle>
+        <CardTitle>{t('booking.title')}</CardTitle>
         <CardDescription>{t('booking.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-4 text-sm">

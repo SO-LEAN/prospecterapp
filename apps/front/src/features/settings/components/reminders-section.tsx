@@ -38,7 +38,7 @@ export function RemindersSection({ reminders }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('settings.reminders.title')}</CardTitle>
+        <CardTitle>{t('settings.reminders.title')}</CardTitle>
         <CardDescription>{t('settings.reminders.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 text-sm">

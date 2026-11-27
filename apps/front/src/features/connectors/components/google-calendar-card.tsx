@@ -43,7 +43,7 @@ export function GoogleCalendarCard({ connection, offered, unchecked = false, goT
           <GoogleLogo className="size-6" />
         </span>
         <div className="min-w-0 space-y-1.5">
-          <CardTitle className="text-base">{t('settings.connectors.google.title')}</CardTitle>
+          <CardTitle>{t('settings.connectors.google.title')}</CardTitle>
           <CardDescription>{t('settings.connectors.google.description')}</CardDescription>
         </div>
       </CardHeader>

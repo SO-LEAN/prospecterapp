@@ -29,7 +29,7 @@ export function LinkCard({ page }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('booking.link.title')}</CardTitle>
+        <CardTitle>{t('booking.link.title')}</CardTitle>
         <CardDescription>{t('booking.link.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">

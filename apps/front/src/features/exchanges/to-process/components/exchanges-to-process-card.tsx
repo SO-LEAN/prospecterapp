@@ -60,7 +60,7 @@ export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAtt
       {countOf(toProcess) > 0 && (
         <Card className="border-warning">
           <CardHeader>
-            <CardTitle className="text-base">{t('toProcess.title')}</CardTitle>
+            <CardTitle>{t('toProcess.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 empty:hidden">

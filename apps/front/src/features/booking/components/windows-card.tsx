@@ -40,7 +40,7 @@ export function WindowsCard({ page }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('booking.windows.title')}</CardTitle>
+        <CardTitle>{t('booking.windows.title')}</CardTitle>
         <CardDescription>{t('booking.windows.description', { timeZone })}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">

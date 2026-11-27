@@ -18,7 +18,7 @@ export function InactivePeriodsCard({ page }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('booking.periods.title')}</CardTitle>
+        <CardTitle>{t('booking.periods.title')}</CardTitle>
         <CardDescription>{t('booking.periods.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">

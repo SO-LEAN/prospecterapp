@@ -71,7 +71,7 @@ export function PictureSection({ account }: { account: Account }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('account.sections.picture')}</CardTitle>
+        <CardTitle>{t('account.sections.picture')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ImageUpload
@@ -281,7 +281,7 @@ export function MyOrganizationLogoSection({ account }: { account: Account }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('account.sections.organizationLogo')}</CardTitle>
+        <CardTitle>{t('account.sections.organizationLogo')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ImageUpload
