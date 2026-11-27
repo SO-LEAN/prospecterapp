@@ -88,7 +88,9 @@ export function formatUpcoming(moment: string, now = new Date()): string {
   const days = Math.round((startOfDay(new Date(moment)) - startOfDay(now)) / DAY_MS)
   const absolute = formatMoment(moment, now)
 
-  return days <= LAST_DAY_SAID_FROM_NOW ? `${absolute} (${relativeDayFormat.format(days, 'day')})` : absolute
+  return days >= 0 && days <= LAST_DAY_SAID_FROM_NOW
+    ? `${absolute} (${relativeDayFormat.format(days, 'day')})`
+    : absolute
 }
 
 const MINUTE_MS = 60_000

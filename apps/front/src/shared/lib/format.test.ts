@@ -127,6 +127,14 @@ describe('formatUpcoming', () => {
     expect(formatUpcoming(at('2026-11-26T14:00'), NOW)).toBe('jeu. 26 nov. · 14h00 (demain)')
   })
 
+  it('says today beside the date', () => {
+    expect(formatUpcoming(at('2026-11-25T16:30'), NOW)).toBe('mer. 25 nov. · 16h30 (aujourd’hui)')
+  })
+
+  it('says the date alone for a day already past', () => {
+    expect(formatUpcoming(at('2026-11-24T14:00'), NOW)).toBe('mar. 24 nov. · 14h00')
+  })
+
   it('says the day from now until the day after tomorrow', () => {
     expect(formatUpcoming(at('2026-11-27T10:00'), NOW)).toBe('ven. 27 nov. · 10h00 (après-demain)')
   })
