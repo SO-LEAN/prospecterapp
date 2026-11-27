@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import MapGL, { type MapRef, Marker, type MarkerEvent, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import { useResolvedTheme } from '@/shared/stores/preferences'
 import type { MapMarker } from './geo-map'
+import { MarkerPin } from './marker-pin'
 
 const openFreeMapStyles = {
   light: 'https://tiles.openfreemap.org/styles/positron',
@@ -105,13 +106,7 @@ export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
             disabled={!renderPopup}
             className="group grid place-items-center outline-none"
           >
-            <span className="grid size-9 place-items-center overflow-hidden rounded-full border-2 border-background bg-primary font-semibold text-primary-foreground text-xs shadow-lg ring-primary/30 transition group-hover:scale-110 group-focus-visible:ring-4">
-              {marker.imageUrl ? (
-                <img src={marker.imageUrl} alt="" className="size-full object-cover" />
-              ) : (
-                marker.label.slice(0, 2).toUpperCase()
-              )}
-            </span>
+            <MarkerPin label={marker.label} imageUrl={marker.imageUrl} />
             <span className="-mt-1 size-2 rotate-45 bg-primary" />
           </button>
         </Marker>
