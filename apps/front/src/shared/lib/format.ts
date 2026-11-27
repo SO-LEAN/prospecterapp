@@ -144,6 +144,11 @@ export function formatWeekTitle(first: Date, last: Date): string {
   })
 }
 
+/** "mar. 17 nov. · S47": a day with the ISO number of its week, telling where the member is in the year */
+export function formatDayAndWeek(day: Date, now = new Date()): string {
+  return i18n.t('dates.dayAndWeek', { day: formatDay(day, now), number: isoWeekOf(day) })
+}
+
 /** "16", "30 nov." when the week ends in another month, "28 déc. 2026" in another year: what the last day does not say */
 function firstDayOfTheWeek(first: Date, last: Date): string {
   if (first.getFullYear() !== last.getFullYear()) return dayOfMonthAndYearFormat.format(first)

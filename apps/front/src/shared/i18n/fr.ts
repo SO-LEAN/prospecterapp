@@ -95,6 +95,7 @@ export const fr = {
     range: '{{start}} à {{end}}',
     upcoming: '{{moment}} ({{relative}})',
     week: '{{first}} au {{last}} · S{{number}}',
+    dayAndWeek: '{{day}} · S{{number}}',
   },
   errors: {
     title: 'Une erreur est survenue',
