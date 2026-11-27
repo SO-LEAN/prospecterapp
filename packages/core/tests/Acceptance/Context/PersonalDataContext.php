@@ -90,12 +90,6 @@ final class PersonalDataContext implements Context
         $this->aContactWith($name, $organization, new ContactDetails(new Email($email)));
     }
 
-    #[Given('le contact :name de :organization a le téléphone :phoneNumber et parle :language')]
-    public function aContactWithThePhoneNumberAndTheLanguage(string $name, string $organization, string $phoneNumber, string $language): void
-    {
-        $this->aContactWith($name, $organization, new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber), language: $language));
-    }
-
     #[Given('le contact :name de :organization a le téléphone :phoneNumber')]
     public function aContactWithThePhoneNumber(string $name, string $organization, string $phoneNumber): void
     {

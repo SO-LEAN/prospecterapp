@@ -165,7 +165,6 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\ConsultHeldExchangesHandler'
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\Contact\NameContacts\NameContactsHandler'
-    Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersonsService: '@Prospecter\Core\PersonalData\Application\Person\DescribePersons\DescribePersonsHandler'
     Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntentsService: '@Prospecter\Core\Connectors\Application\MailImport\WhichMailCatchUpIntents\WhichMailCatchUpIntentsHandler'
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler'
     Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizationsService: '@Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizationsHandler'
