@@ -1,0 +1,16 @@
+# The files of the front a generator wrote and nobody changed since, one path from the front per line. The mutation
+# leaves them out (the front's Makefile, MUTATED_CODE), and so do the parts a pull request mutates
+# (make/changed-checks.sh). A shadcn component stays here while it is shadcn's. Take it out once it has a line written
+# by hand: its changed lines are then mutated.
+src/app/routeTree.gen.ts
+src/shared/ui/alert.tsx
+src/shared/ui/badge.tsx
+src/shared/ui/button.tsx
+src/shared/ui/card.tsx
+src/shared/ui/input.tsx
+src/shared/ui/label.tsx
+src/shared/ui/popover.tsx
+src/shared/ui/skeleton.tsx
+src/shared/ui/switch.tsx
+src/shared/ui/textarea.tsx
+src/shared/ui/tooltip.tsx

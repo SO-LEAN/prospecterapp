@@ -30,6 +30,13 @@ checks_of() {
 	esac
 }
 
+# The files of the front a generator wrote, which the front's Makefile does not mutate either
+FRONT_GENERATED_FILES="$(dirname "$0")/../apps/front/mutation/generated-files"
+
+is_generated_in_front() {
+	grep -qxF "${1#apps/front/}" "$FRONT_GENERATED_FILES"
+}
+
 # The parts the CI of a pull request mutates (ADR 0219), named mutation-<part>: those whose mutated code a file is,
 # the code that make mutation-<part> mutates, its tests and generated files left out. make ci runs none.
 mutations_of() {
@@ -37,8 +44,8 @@ mutations_of() {
 	packages/core/src/*.php | packages/phpstan-rules/EventStorming/*.php) echo mutation-core ;;
 	apps/front/event-storming/*.test.ts | apps/front/event-storming/test/* | apps/front/event-storming/generate.ts) ;;
 	apps/front/event-storming/*.ts) echo mutation-event-storming ;;
-	apps/front/src/*.test.ts | apps/front/src/*.test.tsx | apps/front/src/*.d.ts | apps/front/src/test/* | apps/front/src/app/routeTree.gen.ts | apps/front/src/shared/ui/*) ;;
-	apps/front/src/*.ts | apps/front/src/*.tsx) echo mutation-front ;;
+	apps/front/src/*.test.ts | apps/front/src/*.test.tsx | apps/front/src/*.d.ts | apps/front/src/test/*) ;;
+	apps/front/src/*.ts | apps/front/src/*.tsx) is_generated_in_front "$1" || echo mutation-front ;;
 	esac
 }
 
