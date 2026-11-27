@@ -33,9 +33,9 @@ export function StatCard({ label, value, icon, destination }: Props) {
         label,
         destination: destination.name,
       })}
-      className="group block rounded-xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group block h-full rounded-xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
-      <Card className="transition group-hover:border-primary/40 group-hover:shadow-md">
+      <Card className="h-full transition group-hover:border-primary/40 group-hover:shadow-md">
         <Figure label={label} value={value} icon={icon}>
           <ChevronRight
             className="ml-auto size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
