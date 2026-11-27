@@ -20,7 +20,6 @@ import {
   type PlanValues,
   planFields,
   planSchema,
-  QUICK_DURATIONS,
   SHORTCUTS,
   type Slot,
   slotOf,
@@ -37,6 +36,7 @@ import {
 import { ITSELF } from '../schema'
 import { Choice, Choices, type Interlocutors } from './exchange-form'
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+import { QuickDurations } from './quick-durations'
 import { VideoCallLinkInput } from './video-call-link-input'
 
 type Props = {
@@ -162,7 +162,7 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedP
           {...form.register('durationInMinutes', { valueAsNumber: true })}
         />
       </FormField>
-      <QuickDurations form={form} />
+      <PlanDurations form={form} />
 
       <Overlaps form={form} />
 
@@ -235,29 +235,15 @@ function MeetLink({ form, googleConnected }: { form: UseFormReturn<PlanValues>; 
   )
 }
 
-/** The usual durations, one click each. The current duration is pressed. */
-function QuickDurations({ form }: { form: UseFormReturn<PlanValues> }) {
-  const { t } = useTranslation()
+/** The usual durations, one click each, for the exchange being planned. */
+function PlanDurations({ form }: { form: UseFormReturn<PlanValues> }) {
   const durationInMinutes = useWatch({ control: form.control, name: 'durationInMinutes' })
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {QUICK_DURATIONS.map((minutes) => {
-        const chosen = durationInMinutes === minutes
-        return (
-          <Button
-            key={minutes}
-            type="button"
-            size="sm"
-            variant={chosen ? 'secondary' : 'outline'}
-            aria-pressed={chosen}
-            onClick={() => form.setValue('durationInMinutes', minutes, { shouldValidate: true })}
-          >
-            {t(`exchanges.durations.${minutes}`)}
-          </Button>
-        )
-      })}
-    </div>
+    <QuickDurations
+      chosen={durationInMinutes}
+      onChoose={(minutes) => form.setValue('durationInMinutes', minutes, { shouldValidate: true })}
+    />
   )
 }
 
