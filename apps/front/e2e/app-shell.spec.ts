@@ -10,6 +10,6 @@ test('signed in, the logo keeps its size in the sidebar and in the mobile header
   await expect(sidebarLogo).toHaveCSS('width', `${SIDEBAR_LOGO_SIDE}px`)
 
   await page.setViewportSize({ width: 375, height: 812 })
-  const mobileHeaderLogo = page.getByRole('banner').locator('svg[viewBox="385 65 300 300"]')
+  const mobileHeaderLogo = page.getByRole('banner').locator('svg[viewBox="0 0 64 64"]')
   await expect(mobileHeaderLogo).toHaveCSS('width', `${MOBILE_HEADER_LOGO_SIDE}px`)
 })

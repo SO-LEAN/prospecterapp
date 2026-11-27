@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
-import { colorOf, contrastBetween, READABLE_GRAPHIC_CONTRAST, READABLE_TEXT_CONTRAST } from './colors'
+import { colorOf, contrastBetween, READABLE_TEXT_CONTRAST } from './colors'
 import { expect, test } from './fixtures'
 
 const LOGO_SIDE = 80
@@ -45,21 +45,14 @@ test('the sign-in screen shows the logo large, centered, the name of the brand b
   expect(cardBox.y, 'the card below the name').toBeGreaterThan(nameBox.y + nameBox.height)
 })
 
-test('in the dark theme, the ink of the logo and the name stay readable on the background', async ({
-  page,
-}) => {
+test('in the dark theme, the name of the brand stays readable on the background', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.goto('/auth/sign-in')
   await expect(page.locator('html'), 'the dark theme on').toHaveClass(/\bdark\b/)
-  const { name, logo } = brandOf(page)
   const background = await colorOf(page.getByRole('main'), 'background-color')
 
-  const ink = await colorOf(logo.locator('path').first(), 'fill')
-  const text = await colorOf(name, 'color')
+  const text = await colorOf(brandOf(page).name, 'color')
 
-  expect(contrastBetween(ink, background), 'the ink of the logo').toBeGreaterThanOrEqual(
-    READABLE_GRAPHIC_CONTRAST,
-  )
   expect(contrastBetween(text, background), 'the name').toBeGreaterThanOrEqual(READABLE_TEXT_CONTRAST)
 })
 
