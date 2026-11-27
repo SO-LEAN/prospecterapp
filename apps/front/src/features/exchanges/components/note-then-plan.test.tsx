@@ -60,10 +60,7 @@ async function renderWith(card: ReactNode, queryClient: QueryClient) {
 
 /** Logs the meeting, then plans what follows for tomorrow at 9. */
 async function noteThenPlan(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: 'Noter un échange' }))
-  await user.click(screen.getByLabelText('Rendez-vous'))
-  await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
-  await user.click(await screen.findByRole('button', { name: 'Planifier la suite' }))
+  await noteThenChooseToPlan(user)
   await user.click(screen.getByRole('button', { name: 'Demain 9h' }))
   await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 }
@@ -82,17 +79,89 @@ afterEach(() => {
   theApi.mockReset()
 })
 
+/** The contact's card, its timeline empty. */
+async function renderTheContactCard() {
+  const queryClient = aCache()
+  const timeline = anEmptyTimeline(`/api/contacts/${ADA}/exchanges`)
+  queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
+  queryClient.setQueryData(upcomingQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
+  return renderWith(<ExchangesSection contactId={ADA} contactName="Ada Lovelace" />, queryClient)
+}
+
+/** The organization's card, its timeline empty. */
+async function renderTheOrganizationCard() {
+  const queryClient = aCache()
+  const timeline: OrganizationTimeline = {
+    items: [],
+    toRedact: 0,
+    _links: anEmptyTimeline(`/api/organizations/${ACME}/exchanges`)._links,
+  }
+  queryClient.setQueryData(organizationTimelineQuery(ACME).queryKey, {
+    pages: [timeline],
+    pageParams: [undefined],
+  })
+  queryClient.setQueryData(organizationUpcomingQuery(ACME).queryKey, {
+    pages: [timeline],
+    pageParams: [undefined],
+  })
+  return renderWith(
+    <OrganizationExchangesSection
+      organizationId={ACME}
+      interlocutors={{ organization: 'ACME', contacts: [] }}
+    />,
+    queryClient,
+  )
+}
+
+/** Logs the meeting, then chooses to plan what follows. */
+async function noteThenChooseToPlan(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Noter un échange' }))
+  await user.click(screen.getByLabelText('Rendez-vous'))
+  await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+  await user.click(await screen.findByRole('button', { name: 'Planifier la suite' }))
+}
+
 describe('noting an exchange, then planning what follows', () => {
+  it('titles the window after the planning of what follows', async () => {
+    theApiAnswers()
+    const user = await renderTheContactCard()
+
+    await noteThenChooseToPlan(user)
+
+    const window = screen.getByRole('dialog', { name: 'Planifier la suite' })
+    expect(window).toHaveAccessibleDescription(
+      'Un appel, un rendez-vous ou une visio à venir avec Ada Lovelace.',
+    )
+    expect(screen.queryByRole('dialog', { name: 'Noter un échange' })).not.toBeInTheDocument()
+  })
+
+  it('titles the window after the planning of what follows on the organization card too', async () => {
+    theApiAnswers()
+    const user = await renderTheOrganizationCard()
+
+    await noteThenChooseToPlan(user)
+
+    expect(screen.getByRole('dialog', { name: 'Planifier la suite' })).toHaveAccessibleDescription(
+      'Un appel, un rendez-vous ou une visio à venir avec ACME.',
+    )
+  })
+
+  it('titles the window after the noting again once it is opened again', async () => {
+    theApiAnswers()
+    const user = await renderTheContactCard()
+
+    await noteThenChooseToPlan(user)
+    await user.click(screen.getByRole('button', { name: 'Annuler' }))
+    await user.click(screen.getByRole('button', { name: 'Noter un échange' }))
+
+    expect(screen.getByRole('dialog', { name: 'Noter un échange' })).toHaveAccessibleDescription(
+      'Un appel, un message ou un rendez-vous avec Ada Lovelace.',
+    )
+  })
+
   it('plans with the contact of the card', async () => {
     theApiAnswers()
-    const queryClient = aCache()
-    const timeline = anEmptyTimeline(`/api/contacts/${ADA}/exchanges`)
-    queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
-    queryClient.setQueryData(upcomingQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
-    const user = await renderWith(
-      <ExchangesSection contactId={ADA} contactName="Ada Lovelace" />,
-      queryClient,
-    )
+    const user = await renderTheContactCard()
 
     await noteThenPlan(user)
 
@@ -104,27 +173,7 @@ describe('noting an exchange, then planning what follows', () => {
 
   it('plans with the organization of the card, the interlocutor the exchange was noted with', async () => {
     theApiAnswers()
-    const queryClient = aCache()
-    const timeline: OrganizationTimeline = {
-      items: [],
-      toRedact: 0,
-      _links: anEmptyTimeline(`/api/organizations/${ACME}/exchanges`)._links,
-    }
-    queryClient.setQueryData(organizationTimelineQuery(ACME).queryKey, {
-      pages: [timeline],
-      pageParams: [undefined],
-    })
-    queryClient.setQueryData(organizationUpcomingQuery(ACME).queryKey, {
-      pages: [timeline],
-      pageParams: [undefined],
-    })
-    const user = await renderWith(
-      <OrganizationExchangesSection
-        organizationId={ACME}
-        interlocutors={{ organization: 'ACME', contacts: [] }}
-      />,
-      queryClient,
-    )
+    const user = await renderTheOrganizationCard()
 
     await noteThenPlan(user)
 

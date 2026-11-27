@@ -140,8 +140,9 @@ export function OrganizationExchangesSection({
       noteExchange={
         mayNote && (
           <NoteExchangeDialog name={interlocutors.organization}>
-            {(close) => (
+            {(close, planTheFollowUp) => (
               <NoteThenFollowUp
+                onPlanning={planTheFollowUp}
                 interlocutors={interlocutors}
                 close={close}
                 note={async (exchange, personId, files) => {
