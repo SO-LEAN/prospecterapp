@@ -12,6 +12,12 @@ describe('TypeTile', () => {
     expect(tile.querySelector('.lucide-phone')).toBeInTheDocument()
   })
 
+  it('is a 26 px rounded tile, its icon centred', () => {
+    render(<TypeTile channel="call" direction="outbound" />)
+
+    expect(screen.getByRole('img')).toHaveClass('size-6.5', 'rounded-md', 'items-center', 'justify-center')
+  })
+
   it.each<[Channel, string, string, string]>([
     ['meeting', 'Rendez-vous', 'meeting', 'calendar-days'],
     ['videoCall', 'Visio', 'video', 'video'],

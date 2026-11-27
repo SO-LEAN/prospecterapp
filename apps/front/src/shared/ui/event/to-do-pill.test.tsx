@@ -12,6 +12,12 @@ describe('ToDoPill', () => {
     expect(screen.getByRole('img', { name: 'À faire' }).querySelector('.lucide-square')).toBeInTheDocument()
   })
 
+  it('lays a to-do out as a small rounded row, as an exchange', () => {
+    render(<ToDoPill done={false}>Relancer</ToDoPill>)
+
+    expect(thePill()).toHaveClass('flex', 'items-center', 'rounded-md', 'px-1.5', 'text-xs')
+  })
+
   it('fills a done to-do, its text faded and struck through', () => {
     render(<ToDoPill done>Relancer</ToDoPill>)
 

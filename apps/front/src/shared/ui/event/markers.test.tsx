@@ -20,6 +20,12 @@ describe('ExchangeMarkers', () => {
     expect(screen.getByText('IA')).toHaveAccessibleDescription('Créé par une IA')
   })
 
+  it('keeps its markers small, never squeezed', () => {
+    render(<ExchangeMarkers exchange={{ ...NOTHING_TO_MARK, createdByAnAI: true }} />)
+
+    expect(screen.getByText('IA')).toHaveClass('shrink-0', 'px-1', 'text-[0.65rem]')
+  })
+
   it('marks nothing when the API gives no marker', () => {
     const { container } = render(<ExchangeMarkers exchange={NOTHING_TO_MARK} />)
 
@@ -35,9 +41,10 @@ describe('ExchangeMarkers', () => {
   it('marks an exchange booked through the public link with a link', () => {
     render(<ExchangeMarkers exchange={{ ...NOTHING_TO_MARK, bookedByLink: true }} />)
 
-    expect(
-      screen.getByRole('img', { name: 'Réservé par lien' }).querySelector('.lucide-link'),
-    ).toBeInTheDocument()
+    const marker = screen.getByRole('img', { name: 'Réservé par lien' })
+    expect(marker.querySelector('.lucide-link')).toBeInTheDocument()
+    expect(marker).toHaveAttribute('aria-label', 'Réservé par lien')
+    expect(marker).toHaveAttribute('title', 'Réservé par lien')
   })
 
   it('marks an exchange whose contact waits to be attached « À rattacher »', () => {
@@ -87,6 +94,7 @@ describe('ExchangeMarkers', () => {
 
     const marker = screen.getByRole('img', { name: /^Synchronisé avec Google le lun\. 16 nov\. · / })
     expect(marker.querySelector('.lucide-circle-check')).toBeInTheDocument()
+    expect(marker).toHaveClass('flex', 'items-center', 'shrink-0')
   })
 
   it('marks an exchange waiting for Google with a clock', () => {
