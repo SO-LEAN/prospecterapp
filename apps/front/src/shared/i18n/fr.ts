@@ -615,6 +615,18 @@ export const fr = {
     changePicture: 'Changer la photo',
     changeLogo: 'Changer le logo',
   },
+  catalogue: {
+    title: 'Catalogue des événements',
+    description: 'Chaque canal, chaque statut et chaque marqueur, à vérifier en clair et en sombre.',
+    channelsAndStatuses: 'Canal et statut',
+    channel: 'Canal',
+    sample: '11h00',
+    tiles: 'Tuiles de type',
+    toDos: 'Actions à faire',
+    toDoSample: 'Relancer',
+    markers: 'Marqueurs',
+    campaignSample: 'Salon',
+  },
   events: {
     tile: '{{channel}}, {{direction}}',
     directions: { inbound: 'entrant', outbound: 'sortant' },
