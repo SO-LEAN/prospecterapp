@@ -75,10 +75,10 @@ final class WhatIsToProcessContext implements Context
         Expect::same($day, $toAttach->erasableFrom->setTimezone($this->application->readerClock())->format('d/m/Y'));
     }
 
-    #[Then('/^il n\'y a plus "(?<name>[^"]+)" à rattacher$/')]
-    public function thereIsNoLongerAContactToAttach(string $name): void
+    #[Then('les contacts à rattacher sont, le prochain effacé d\'abord :')]
+    public function theContactsToAttachAre(TableNode $table): void
     {
-        Expect::same([], array_values(array_filter($this->toProcess()->contactsToAttach, fn (ContactToAttachInList $contact): bool => $contact->personId === $this->scenario->personIdOf($name))));
+        Expect::same(array_map($this->scenario->personIdOf(...), array_column($table->getColumnsHash(), 'contact')), array_map(static fn (ContactToAttachInList $contact): string => $contact->personId, $this->toProcess()->contactsToAttach));
     }
 
     #[Then('ils sont, du plus ancien au plus récent :')]
