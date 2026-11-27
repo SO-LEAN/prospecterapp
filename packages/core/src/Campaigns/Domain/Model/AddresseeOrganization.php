@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 /**
- * An organization a contact works for: its name, and when the contact was attached to it. An attachment recorded
- * before that moment was kept has none.
+ * An organization a contact works for: its name, and when the contact was attached to it. An attachment that
+ * Prospecting recorded before it kept the moment has none.
  */
 final readonly class AddresseeOrganization
 {

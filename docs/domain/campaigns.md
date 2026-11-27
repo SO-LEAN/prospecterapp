@@ -159,7 +159,7 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
   - the repositories `TaggingRepository`, `FactRepository` and `CampaignRepository`;
   - the ports, implemented by anticorruption layers:
     - from Accounts: `Campaigners` (a member's account), `Taggers` (a member's account), and `TaggedAccounts` (the accounts whose tags are rebuilt, and among which a campaign is erased);
-    - from PersonalData: `AddresseeNames` (a contact's name, title and job); from Prospecting: `AddresseeOrganizations` (the organizations a contact works for, and when they were attached to each). `Addressees` puts them together into what a message calls a contact. Its `{organization}` is the organization the contact was attached to most recently (`AddresseeOrganization`); an attachment stored before its moment was kept counts as the oldest;
+    - from PersonalData: `AddresseeNames` (a contact's name, title and job); from Prospecting: `AddresseeOrganizations` (the organizations a contact works for, and when they were attached to each). `Addressees` puts them together into what a message calls a contact. Its `{organization}` is the organization the contact was attached to most recently (`AddresseeOrganization`); an attachment that Prospecting stored before it kept the moment counts as the oldest;
     - from Prospecting: `TaggableOrganizations`, `OrganizationsAndTheirContacts`, and `CampaignExchanges` (which recipients have an exchange of the campaign, ADR 0195);
     - from PersonalData: `TaggableContacts` and `ContactsReach`.
 - `src/Campaigns/Application`, in three modules (ADR 0206):
