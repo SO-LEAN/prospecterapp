@@ -3,9 +3,13 @@ language js
 or {
   `new Intl.DateTimeFormat($...)`,
   `new Intl.RelativeTimeFormat($...)`,
+  `Intl.DateTimeFormat($...).format($...)`,
+  `Intl.DateTimeFormat($...).formatToParts($...)`,
+  `Intl.DateTimeFormat($...).formatRange($...)`,
+  `Intl.RelativeTimeFormat($...).format($...)`,
   `$_.toLocaleDateString($...)`,
   `$_.toLocaleTimeString($...)`,
   `$_.toLocaleString($...)`
 } as $written where {
-  register_diagnostic(span=$written, message="A date or an hour shown is written by shared/lib/format.ts, one way for each case (docs/architecture/front.md).")
+  register_diagnostic(span=$written, message="A date or an hour shown comes from shared/lib/format.ts, one function for each case (docs/architecture/front.md).")
 }
