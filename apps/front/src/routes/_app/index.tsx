@@ -8,6 +8,7 @@ import { accountQuery } from '@/features/account/queries'
 import { ContactSummary } from '@/features/contacts/components/contact-summary'
 import { ContactsToAttachSection } from '@/features/contacts-to-attach/components/contacts-to-attach-section'
 import { DashboardFigures } from '@/features/dashboard/components/dashboard-figures'
+import { ORGANIZATIONS_MAP } from '@/features/dashboard/organizations-map'
 import { dashboardQuery } from '@/features/dashboard/queries'
 import { startOfDay } from '@/features/exchanges/calendar/dates'
 import { MyDayCards, MyDaySkeleton } from '@/features/exchanges/my-day/components/my-day-cards'
@@ -89,7 +90,7 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
+        <Card id={ORGANIZATIONS_MAP} className="scroll-mt-6 lg:col-span-3">
           <CardHeader>
             <CardTitle className="text-base">{t('dashboard.map.title')}</CardTitle>
           </CardHeader>
