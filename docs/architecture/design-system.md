@@ -29,7 +29,7 @@ The tokens are defined in OKLCH in `apps/front/src/app/styles.css` (`:root` and 
 | `gold`, `gold-soft`, `gold-foreground` | what has value: the « Nouveau » button, the active page, the action to take. Never a background fill. The text on the gold is always `gold-foreground`, the gold's ink. In the dark theme, the text on `gold-soft` is the gold itself |
 | `event-call`, `event-meeting`, `event-video`, `event-written`, `event-todo`, each with its `-soft` background | the family of an exchange, by its channel (calls, meetings, video calls, the written channels), and the to-dos |
 | `day-weekend`, `day-holiday`, `day-holiday-soft`, `day-vacation`, `day-vacation-soft` | the calendar's context. It never carries an event on its own |
-| `sidebar*` | navigation panel |
+| `sidebar*` | the navigation panel, ink in both themes. Its texts use `sidebar-foreground` and `sidebar-muted-foreground`, never the page's muted text, which is written for the paper |
 | `chart-1..5` | data visualisation |
 
 The light theme takes its values from the UI/UX audit's palette. Two rules hold for every token in `:root`, and `app/styles.test.ts` checks them with the values:
@@ -64,7 +64,10 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 - `shared/ui/map/geo-map.tsx`: a lazy MapLibre map with avatar markers, fitted to show all of them.
 - `shared/ui/unlocated-badge.tsx`: "Non géolocalisée" next to an address that the geocoder could not place. It uses the `warning` token on the stroke and the icon, and `foreground` on the text for contrast. `ExplainedUnlocatedBadge` explains why on hover, focus or press. `UnlocatedBadge` stands alone inside a link (a list card).
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
-- `app/layout/`: the app shell (collapsible sidebar, mobile sheet, sticky blurred header, user menu with a theme switch).
+- `app/layout/`: the app shell, as the audit draws it:
+  - the ink sidebar, 232 px wide (`w-58`), folded to its icons on 64 px (`w-16`), each folded entry named by a tooltip. The folded state is a device preference, kept with the theme. The sidebar shows the logo, then my account's name, then the navigation. A gold mark at the left of an entry says the page shown. Its foot holds « Réglages » and my avatar, whose menu offers my account, the theme, the architecture where the instance serves it, and the sign-out;
+  - the mobile sheet, which holds the same navigation;
+  - the top bar, 52 px high (`h-13`), sticky and blurred. It shows the breadcrumb (my account, then the section of the page shown, a link back to it from a page inside it), the current day with its week (« mar. 17 nov. · S47 », `formatDayAndWeek`), and « Nouveau » in gold.
 
 ## Logo
 

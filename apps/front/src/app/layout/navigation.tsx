@@ -34,7 +34,7 @@ type Item = {
   link?: keyof Account['_links']
 }
 
-const items: Item[] = [
+export const MAIN_ENTRIES: Item[] = [
   { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true, count: ToProcessCount },
   { to: '/organizations', label: 'nav.organizations', icon: Building2, count: OrganizationsCount },
   { to: '/contacts', label: 'nav.contacts', icon: UsersRound, count: ContactsCount },
@@ -57,7 +57,7 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
   const { t } = useTranslation()
   const toggleSidebar = usePreferences((state) => state.toggleSidebar)
   const account = useQuery(accountQuery())
-  const reachable = items.filter((item) => !item.link || account.data?._links[item.link] !== undefined)
+  const reachable = MAIN_ENTRIES.filter((item) => !item.link || account.data?._links[item.link] !== undefined)
 
   return (
     <div className="flex h-full flex-col gap-6 p-3 text-sidebar-foreground">
