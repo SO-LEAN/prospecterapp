@@ -63,6 +63,16 @@ describe('the rule of the dates written once', () => {
     expect(linesRefused(module)).toEqual([1, 2, 3, 4, 5, 6])
   })
 
+  it('refuses a formatter called without new, whatever it writes', () => {
+    const module = [
+      `const parts = Intl.DateTimeFormat('fr-FR').formatToParts(moment)`,
+      `const range = Intl.DateTimeFormat('fr-FR').formatRange(start, end)`,
+      `const later = Intl.RelativeTimeFormat('fr-FR').format(1, 'day')`,
+    ].join('\n')
+
+    expect(linesRefused(module)).toEqual([1, 2, 3])
+  })
+
   it('accepts reading the time zone of the browser and writing a number', () => {
     const module = [
       `const zone = Intl.DateTimeFormat().resolvedOptions().timeZone`,
