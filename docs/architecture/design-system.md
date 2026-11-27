@@ -45,7 +45,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 
 ## Components
 
-- `shared/ui/*`: shadcn components (button, input, select, card, dialog, dropdown-menu, popover, sheet, tooltip, badge, avatar, skeleton, alert, separator, sonner…). They are project code: adapt them, but keep their API. Add new ones with `pnpm dlx shadcn@latest add <name>` (`components.json` makes it write into `shared/ui`), then fix the `cn` import if the generator gets it wrong. Add the new component to `apps/front/mutation/generated-files`, so that the mutation leaves it out. Take a component out of that list when you write a line of it by hand (`docs/architecture/tests.md`).
+- `shared/ui/*`: the components written by hand, and the shadcn components (button, input, select, card, dialog, dropdown-menu, popover, sheet, tooltip, badge, avatar, skeleton, alert, separator, sonner…). They are project code: adapt them, but keep their API. Add new ones with `pnpm dlx shadcn@latest add <name>` (`components.json` makes it write into `shared/ui`), then fix the `cn` import if the generator gets it wrong. Add the new component to `apps/front/mutation/generated-files`, so that the mutation leaves it out. Take a component out of that list when you write a line of it by hand (`docs/architecture/tests.md`).
 - `shared/ui/form/`: `Field` (label + control + hint/error, pinned to the top of its cell so that a row's fields stay aligned when one has a hint or an error), `CountrySelect` (French names, frequent countries first), `ImageUpload` (drag and drop, preview, client-side checks matching the API: JPEG/PNG/WebP, 2 MB).
 - `shared/ui/feedback/`:
   - `FullPageMessage`, `EmptyState`;
