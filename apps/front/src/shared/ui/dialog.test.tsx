@@ -21,11 +21,14 @@ describe('Dialog', () => {
     renderTheDialog()
 
     expect(theSlot('dialog-content')).toHaveClass(
+      'animate-in',
       'duration-220',
       'ease-enter',
       'fade-in-0',
       'slide-in-from-bottom-6',
       'data-[state=closed]:duration-160',
+      'data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0',
       'data-[state=closed]:ease-exit',
       'data-[state=closed]:slide-out-to-bottom-6',
     )
@@ -37,7 +40,11 @@ describe('Dialog', () => {
 
     expect(theSlot('dialog-overlay')).toHaveClass(
       'backdrop-blur-[3px]',
+      'animate-in',
+      'fade-in-0',
       'duration-220',
+      'data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0',
       'data-[state=closed]:duration-160',
     )
   })

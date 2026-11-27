@@ -77,14 +77,20 @@ describe('what floats over the page', () => {
   it.each(FLOATING)('opens a %s in 160 ms, fading in and growing from 0.97', (slot, floating) => {
     const content = opened(slot, floating)
 
-    expect(content).toHaveClass('duration-160', 'ease-enter', 'fade-in-0', 'zoom-in-97')
+    expect(content).toHaveClass('animate-in', 'duration-160', 'ease-enter', 'fade-in-0', 'zoom-in-97')
     expect(content?.className).not.toMatch(/slide-in-from/)
   })
 
   it.each(FLOATING)('closes a %s in 160 ms, fading out and shrinking to 0.97', (slot, floating) => {
     const content = opened(slot, floating)
 
-    expect(content).toHaveClass('data-[state=closed]:ease-exit', 'data-[state=closed]:zoom-out-97')
+    expect(content).toHaveClass(
+      'data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0',
+      'data-[state=closed]:ease-exit',
+      'data-[state=closed]:zoom-out-97',
+    )
+    expect(content?.className).not.toMatch(/data-\[state=closed\]:duration-/)
   })
 
   it.each(FLOATING.filter(([slot]) => slot !== 'tooltip-content'))(
