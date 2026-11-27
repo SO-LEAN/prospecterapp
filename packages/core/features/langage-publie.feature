@@ -204,6 +204,17 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors Prospecting ne répond aucune organisation
 
+  Scénario: Prospecting dit quand un contact a été rattaché à chacune de ses organisations
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et nous sommes le 24/11/2026 à 9h00
+    Et le contact "Ada Lovelace" est aussi contact de "Globex"
+    Quand un autre contexte demande à Prospecting les organisations, pour "SOLEAN IT", de :
+      | Ada Lovelace |
+    Alors Prospecting répond les rattachements :
+      | contact      | organisation | rattaché le      |
+      | Ada Lovelace | ACME         | 15/10/2026 09:00 |
+      | Ada Lovelace | Globex       | 24/11/2026 09:00 |
+
   Scénario: Prospecting dit quelles organisations d'un compte des indices désignent, dans l'ordre demandé
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à Prospecting, pour "Grace Hopper", quelles organisations désignent les noms :

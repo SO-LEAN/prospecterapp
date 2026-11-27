@@ -73,6 +73,8 @@ final class Organization implements ReleasesEvents
     private ?Website $website = null;
     /** @var list<ContactId> */
     private array $contacts = [];
+    /** @var array<string, \DateTimeImmutable> when each contact was last attached, by person id; none before it was kept */
+    private array $attachedAt = [];
     /** @var list<OrganizationId> */
     private array $possibleDuplicates = [];
     /** @var list<OrganizationId> */
@@ -432,6 +434,7 @@ final class Organization implements ReleasesEvents
         }
 
         $this->contacts[] = $contact;
+        $this->attachedAt[$contact->value] = $at;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactAdded($this->accountId, $by, $this->id, $contact, $at));
     }

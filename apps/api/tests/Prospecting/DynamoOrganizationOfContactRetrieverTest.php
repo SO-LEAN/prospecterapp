@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Prospecting;
 
+use App\Prospecting\Persistence\OrganizationKeys;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
@@ -24,6 +26,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
 {
+    private const string ATTACHED_AT = '2026-11-24 09:00 UTC';
+
     public function testEachContactComesWithTheOrganizationsOfTheAccountNamingThem(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
@@ -40,6 +44,31 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
         $this->assertSame([$acme->id()->value], self::idsOf($organizations[$grace->value]));
         $this->assertSame('ACME', $organizations[$grace->value][0]->fullName);
         $this->assertSame([], $organizations[$alone->value]);
+    }
+
+    public function testEachOrganizationSaysWhenTheContactWasAttachedToIt(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $ada = new ContactId(self::newIdentity());
+        $acme = $this->prospect($prospector, 'ACME');
+        $acme->addContact($ada, $prospector->id, new \DateTimeImmutable(self::ATTACHED_AT));
+        self::service(OrganizationRepository::class)->save($acme);
+
+        $organizations = self::service(OrganizationOfContactRetriever::class)->ofContacts([$ada], $prospector->accountId);
+
+        $this->assertEquals(new \DateTimeImmutable(self::ATTACHED_AT), $organizations[$ada->value][0]->attachedAt);
+    }
+
+    public function testAnAttachmentWrittenBeforeTheMomentWasKeptHasNone(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $ada = new ContactId(self::newIdentity());
+        $acme = $this->prospect($prospector, 'ACME', $ada);
+        $this->writtenBeforeTheMoments($acme);
+
+        $organizations = self::service(OrganizationOfContactRetriever::class)->ofContacts([$ada], $prospector->accountId);
+
+        $this->assertEquals([[$acme->id()->value, 'ACME', null]], array_map(static fn (OrganizationOfContact $organization): array => [$organization->id, $organization->fullName, $organization->attachedAt], $organizations[$ada->value]));
     }
 
     private function prospect(Prospector $prospector, string $corporateName, ContactId ...$contacts): Organization
@@ -63,5 +92,17 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
     private static function idsOf(array $organizations): array
     {
         return array_map(static fn (OrganizationOfContact $organization): string => $organization->id, $organizations);
+    }
+
+    /**
+     * Its document as it was written before Prospecter kept when each contact was attached.
+     */
+    private function writtenBeforeTheMoments(Organization $organization): void
+    {
+        $item = self::storedItem(self::tableOf('prospecting'), OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
+        $document = Typed::document($item['organization']);
+        unset($document['attachedAt']);
+        $item['organization'] = $document;
+        self::tableOf('prospecting')->batch([$item], []);
     }
 }

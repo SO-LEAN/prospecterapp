@@ -56,6 +56,7 @@ final class OrganizationDocument
             'observations' => Typed::stringOrNull($state['observations']),
             'logo' => Documents::file(Typed::objectOrNull($state['logo'], File::class)),
             'contacts' => array_map(static fn (ContactId $contact): string => $contact->value, Typed::objects($state['contacts'], ContactId::class)),
+            'attachedAt' => array_map(static fn (mixed $moment): string => Documents::moment(Typed::object($moment, \DateTimeImmutable::class)), Typed::document($state['attachedAt'])),
             'possibleDuplicates' => array_map(static fn (OrganizationId $duplicate): string => $duplicate->value, Typed::objects($state['possibleDuplicates'], OrganizationId::class)),
             'notDuplicates' => array_map(static fn (OrganizationId $checked): string => $checked->value, Typed::objects($state['notDuplicates'], OrganizationId::class)),
             'origin' => Typed::object($state['origin'], Origin::class)->value,
@@ -87,12 +88,25 @@ final class OrganizationDocument
             'observations' => Typed::stringOrNull($document['observations']),
             'logo' => Documents::fileOf($document['logo']),
             'contacts' => array_map(static fn (string $contact): ContactId => new ContactId($contact), Typed::strings($document['contacts'])),
+            'attachedAt' => self::attachedAtOf($document),
             'possibleDuplicates' => array_map(static fn (string $duplicate): OrganizationId => new OrganizationId($duplicate), Typed::strings($document['possibleDuplicates'] ?? [])),
             'notDuplicates' => array_map(static fn (string $checked): OrganizationId => new OrganizationId($checked), Typed::strings($document['notDuplicates'] ?? [])),
             'origin' => Documents::originOf($document),
             'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
             'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
+    }
+
+    /**
+     * When each contact was attached, by person id. A document written before Prospecter kept the moment has none.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, \DateTimeImmutable>
+     */
+    public static function attachedAtOf(array $document): array
+    {
+        return array_map(static fn (mixed $moment): \DateTimeImmutable => Documents::momentOf(Typed::string($moment)), Typed::document($document['attachedAt'] ?? []));
     }
 
     /**
