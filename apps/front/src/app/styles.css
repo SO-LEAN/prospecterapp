@@ -236,6 +236,14 @@
   --radius-card: 16px;
   --radius-dialog: 18px;
 
+  /*
+   * Motion: 120 ms for a hover (standard), 160 ms for a menu or a tooltip (enter), 220 ms for a dialog or a panel
+   * (enter), 160 ms for what leaves (exit). Nothing a gesture starts lasts more than 300 ms.
+   */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
   /* Three levels: at rest (the cards), floating (the menus, a card's preview), lifted (the dialogs, the panels). */
   --shadow-rest:
     0 1px 2px color-mix(in oklch, var(--shadow-ink) 6%, transparent),
@@ -290,5 +298,26 @@
     &:is(:disabled, [aria-disabled="true"], [data-disabled]) {
       cursor: not-allowed;
     }
+  }
+}
+
+/*
+ * Under prefers-reduced-motion, what appears or leaves only fades: it neither slides, grows, turns nor blurs. Outside
+ * any layer, these declarations win over the utilities that set the same variables.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-enter-rotate: 0;
+    --tw-enter-blur: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-exit-scale: 1;
+    --tw-exit-rotate: 0;
+    --tw-exit-blur: 0;
   }
 }
