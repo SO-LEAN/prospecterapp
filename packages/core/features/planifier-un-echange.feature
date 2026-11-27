@@ -120,6 +120,15 @@ Fonctionnalité: Planifier un échange
       | interlocuteur | canal       | de               | à                |
       | Ada Lovelace  | Rendez-vous | 17/11/2026 14:00 | 17/11/2026 14:30 |
 
+  Scénario: Ce qui chevauche un créneau nomme un contact et ses organisations, ou l'organisation elle-même
+    Soit j'ai planifié un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et j'ai planifié un appel avec "ACME" le 17/11/2026 à 14h15
+    Quand je regarde ce qui chevauche le 17/11/2026 à 14h15 pour 30 minutes
+    Alors je vois ces échanges qui le chevauchent :
+      | canal       | montré avec  | ses organisations |
+      | Rendez-vous | Ada Lovelace | ACME              |
+      | Appel       | ACME         |                   |
+
   Scénario: Un échange qui finit quand le créneau commence ne le chevauche pas
     Soit j'ai planifié un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00
     Quand je regarde ce qui chevauche le 17/11/2026 à 14h30 pour 30 minutes

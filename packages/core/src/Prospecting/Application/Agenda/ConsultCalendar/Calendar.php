@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar;
 
+use Prospecter\Core\Prospecting\Application\Agenda\Interlocutors;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
@@ -20,7 +21,7 @@ final readonly class Calendar
      *                                            moment: a planned exchange whose slot has ended, or a to-do not done
      *                                            whose hour or day has passed
      */
-    public function __construct(public array $exchanges, public array $movable, public array $toDos, public array $late)
+    public function __construct(public array $exchanges, public array $movable, public array $toDos, public array $late, public Interlocutors $interlocutors)
     {
     }
 }

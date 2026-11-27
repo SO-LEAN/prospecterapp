@@ -30,6 +30,7 @@ use Tests\Core\Acceptance\Vocabulary;
 final class CalendarContext implements Context
 {
     use SharesTheScenario;
+    use DescribesInterlocutors;
 
     private const string ANY_PLANNED = 'un appel|un rendez-vous|une visio';
 
@@ -165,6 +166,7 @@ final class CalendarContext implements Context
             'signalé' => $exchange->textFlagged ? 'oui' : 'non',
             'statut' => Vocabulary::describeStatus($exchange->status),
             'déplaçable' => in_array($exchange->id, $this->calendar()->movable, true) ? 'oui' : 'non',
+            ...self::shownInterlocutorOf($exchange, $this->calendar()->interlocutors),
         ];
     }
 }

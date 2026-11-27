@@ -118,9 +118,9 @@ Fonctionnalité: Les échanges d'un contact retiré ou effacé
     Quand j'efface la fiche de "Ada Lovelace"
     Alors la timeline de "ACME" signale 2 échanges à rendre conformes
     Et les échanges à rendre conformes de "ACME" sont, du plus récent au plus ancien :
-      | moment           | canal  |
-      | 20/10/2026 10:30 | Appel  |
-      | 20/10/2026 10:00 | E-mail |
+      | moment           | canal  | nommé   |
+      | 20/10/2026 10:30 | Appel  | inconnu |
+      | 20/10/2026 10:00 | E-mail | inconnu |
 
   Scénario: Un échange rendu conforme n'est plus signalé par l'organisation
     Soit j'efface la fiche de "Ada Lovelace"

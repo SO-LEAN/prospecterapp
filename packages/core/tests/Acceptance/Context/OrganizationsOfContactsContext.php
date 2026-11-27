@@ -10,7 +10,11 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\OrganizationContacts;
+use Prospecter\Core\Prospecting\Application\PersonDescription;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The organizations of several contacts at once, as a list of contacts names them.
@@ -24,6 +28,33 @@ final class OrganizationsOfContactsContext implements Context
 
     /** @var array<string, list<OrganizationOfContact>> */
     private array $organizations = [];
+
+    private ?OrganizationContacts $contactsOfTheOrganization = null;
+
+    #[When('je consulte les contacts de :name')]
+    public function iConsultTheContactsOf(string $name): void
+    {
+        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->scenario->idOf($name)));
+    }
+
+    #[When('je consulte les contacts d\'une organisation inconnue')]
+    public function iConsultTheContactsOfAnUnknownOrganization(): void
+    {
+        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->application->newIdentity()));
+    }
+
+    #[Then('ses contacts sont :')]
+    public function itsContactsAre(TableNode $expected): void
+    {
+        $contacts = Expect::present($this->contactsOfTheOrganization, sprintf('The contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same($expected->getColumnsHash(), array_map(static fn (PersonDescription $contact): array => [
+            'contact' => trim(sprintf('%s %s', $contact->firstName, $contact->lastName)),
+            'masqué' => Vocabulary::describeYesOrNo($contact->masked),
+            'fonction' => (string) $contact->jobTitle,
+            'e-mail' => (string) $contact->email,
+        ], $contacts->contacts));
+    }
 
     #[When('je consulte les organisations de mes contacts :')]
     public function iConsultTheOrganizationsOfMyContacts(TableNode $contacts): void

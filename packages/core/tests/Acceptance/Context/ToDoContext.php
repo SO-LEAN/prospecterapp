@@ -9,6 +9,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\Prospecting\Application\PersonDescription;
+use Prospecter\Core\Prospecting\Application\PersonsShown;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultOrganizationToDos\ConsultOrganizationToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDo;
@@ -40,6 +42,7 @@ final class ToDoContext implements Context
     /** @var list<ToDoInList>|null */
     private ?array $mine = null;
     private ?ToDoInList $consulted = null;
+    private PersonsShown $shown;
 
     #[Given('/^(?<done>j\'ai noté|je note) à faire pour "(?<for>[^"]+)" "(?<text>[^"]*)" pour le (?<day>\S+)(?: à (?<time>\S+))?$/')]
     public function iNoteAToDo(string $done, string $for, string $text, string $day, string $time = ''): void
@@ -99,13 +102,17 @@ final class ToDoContext implements Context
     #[When('je consulte mes actions à faire')]
     public function iConsultMyToDos(): void
     {
-        $this->mine = $this->application->consultMyToDos(new ConsultMyToDos($this->application->signedIn()))?->toDos;
+        $kept = $this->application->consultMyToDos(new ConsultMyToDos($this->application->signedIn()));
+        $this->mine = $kept?->toDos->toDos;
+        $this->shown = $kept->persons ?? new PersonsShown();
     }
 
     #[When('je la consulte')]
     public function iConsultIt(): void
     {
-        $this->consulted = $this->application->consultToDo(new ConsultToDo($this->theToDo()));
+        $kept = $this->application->consultToDo(new ConsultToDo($this->application->signedIn(), $this->theToDo()));
+        $this->consulted = $kept?->toDo;
+        $this->shown = $kept->persons ?? new PersonsShown();
     }
 
     #[Then('je peux sur l\'action à faire :')]
@@ -114,6 +121,14 @@ final class ToDoContext implements Context
         $consulted = Expect::present($this->consulted, sprintf('The to-do was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($consulted->possibleIntents));
+    }
+
+    #[Then('elle est pour :contact, tenue par :holder')]
+    public function itIsForHeldBy(string $contact, string $holder): void
+    {
+        $consulted = Expect::present($this->consulted, sprintf('The to-do was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same([$contact, $holder], [$this->describe($consulted)['contact'], $this->describe($consulted)['tenue par']]);
     }
 
     #[When('l\'action à faire à effacer est publiée de nouveau')]
@@ -128,7 +143,9 @@ final class ToDoContext implements Context
     {
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(static fn (ToDoInList $toDo): array => array_replace($columns, array_intersect_key(self::describe($toDo), $columns)), $this->toDosOf($name)));
+        $toDos = $this->toDosOf($name);
+
+        Expect::same($table->getColumnsHash(), array_map(fn (ToDoInList $toDo): array => array_replace($columns, array_intersect_key($this->describe($toDo), $columns)), $toDos));
     }
 
     #[Then('mes actions à faire sont :')]
@@ -136,7 +153,7 @@ final class ToDoContext implements Context
     {
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(static fn (ToDoInList $toDo): array => array_replace($columns, array_intersect_key(self::describe($toDo), $columns)), $this->mine()));
+        Expect::same($table->getColumnsHash(), array_map(fn (ToDoInList $toDo): array => array_replace($columns, array_intersect_key($this->describe($toDo), $columns)), $this->mine()));
     }
 
     #[Then('/^son échéance est le (?<day>\S+) à (?<time>\S+)$/')]
@@ -231,11 +248,12 @@ final class ToDoContext implements Context
     private function toDosOf(string $name): array
     {
         $toDos = $this->scenario->isAnOrganization($name)
-            ? $this->application->consultOrganizationToDos(new ConsultOrganizationToDos($this->scenario->idOf($name)))
+            ? $this->application->consultOrganizationToDos(new ConsultOrganizationToDos($this->application->signedIn(), $this->scenario->idOf($name)))
             : $this->application->consultToDos(new ConsultToDos($this->application->signedIn(), $this->scenario->personIdOf($name)));
         $toDos = Expect::present($toDos, sprintf('The to-dos were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $this->shown = $toDos->persons;
 
-        return $toDos->toDos;
+        return $toDos->toDos->toDos;
     }
 
     /**
@@ -261,7 +279,7 @@ final class ToDoContext implements Context
     /**
      * @return array<string, string>
      */
-    private static function describe(ToDoInList $toDo): array
+    private function describe(ToDoInList $toDo): array
     {
         $day = \DateTimeImmutable::createFromFormat('!Y-m-d', $toDo->dueOn);
 
@@ -269,6 +287,19 @@ final class ToDoContext implements Context
             'échéance' => trim(sprintf('%s %s', false === $day ? $toDo->dueOn : $day->format(self::FRENCH_DAY), $toDo->dueAt ?? '')),
             'texte' => $toDo->text,
             'faite' => Vocabulary::describeYesOrNo($toDo->isDone()),
+            'contact' => null === $toDo->personId ? '' : self::named($this->shown->contacts[$toDo->personId] ?? null),
+            'tenue par' => self::named($this->shown->members[$toDo->heldBy] ?? null, withEmail: true),
         ];
+    }
+
+    private static function named(?PersonDescription $person, bool $withEmail = false): string
+    {
+        if (null === $person) {
+            return 'personne';
+        }
+
+        $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
+
+        return $withEmail && null !== $person->email ? sprintf('%s <%s>', $name, $person->email) : $name;
     }
 }

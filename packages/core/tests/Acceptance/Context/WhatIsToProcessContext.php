@@ -24,6 +24,7 @@ use Tests\Core\Acceptance\Vocabulary;
 final class WhatIsToProcessContext implements Context
 {
     use SharesTheScenario;
+    use DescribesInterlocutors;
 
     private ?WhatIsToProcess $toProcess = null;
 
@@ -105,6 +106,7 @@ final class WhatIsToProcessContext implements Context
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'avec' => null === $exchange->personId ? '' : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId)),
+            ...self::shownInterlocutorOf($exchange, $this->toProcess()->interlocutors),
         ];
     }
 }

@@ -88,9 +88,14 @@ final class ContactToAttachContext implements Context
     #[When('/^je regarde à quelle organisation (?:la|le) rattacher$/')]
     public function iLookWhereToAttach(): void
     {
-        $email = (string) $this->scenario->personNamed($this->lastMet)->contactDetails()->email;
-        $this->proposed = $this->application->proposeOrganizationToAttach(new ProposeOrganizationToAttach($this->application->signedIn(), $email));
+        $this->iLookWhereToAttachTheContact($this->lastMet);
         Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
+    }
+
+    #[When('je regarde à quelle organisation rattacher :contact')]
+    public function iLookWhereToAttachTheContact(string $contact): void
+    {
+        $this->proposed = $this->application->proposeOrganizationToAttach(new ProposeOrganizationToAttach($this->application->signedIn(), $this->scenario->personIdOf($contact)));
     }
 
     #[Then(':organization est proposée')]

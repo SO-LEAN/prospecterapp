@@ -163,6 +163,7 @@ use Prospecter\Core\Connectors\Application\MailImport\ReadMailboxHistory\ReadMai
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatch;
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatchHandler;
 use Prospecter\Core\Connectors\Application\MailImport\StopMailImport\StopMailImportHandler;
+use Prospecter\Core\Connectors\Application\MailImport\WhichMailCatchUpIntents\WhichMailCatchUpIntentsHandler;
 use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
@@ -170,6 +171,8 @@ use Prospecter\Core\Connectors\Application\Policy\ReadMailboxHistoryPolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
+use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\KeptMailCatchUpIntentsOfMany;
+use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntents;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\PersonalData\Application\Contact\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\Contact\CompareWithContact\CompareWithContact;
@@ -214,6 +217,7 @@ use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\KeptPerson;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
+use Prospecter\Core\PersonalData\Application\Person\DescribePersons\DescribePersonsHandler;
 use Prospecter\Core\PersonalData\Application\Person\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
@@ -227,6 +231,9 @@ use Prospecter\Core\PersonalData\Application\Policy\SuspectDuplicateInReturnPoli
 use Prospecter\Core\PersonalData\Application\Profile\CollectTheFounderProfile\CollectTheFounderProfileHandler;
 use Prospecter\Core\PersonalData\Application\Profile\CollectTheMemberProfile\CollectTheMemberProfileHandler;
 use Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler;
+use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersons;
+use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\KeptPersonDescriptions;
+use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\PersonDescriptionResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
@@ -244,6 +251,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\W
 use Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion as ContactDuplicateSuspicion;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness as PersonReferenceUniqueness;
+use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\ConsultCalendarHandler;
@@ -285,6 +293,10 @@ use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContac
 use Prospecter\Core\Prospecting\Application\Contact\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattached;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattachedHandler;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\KeptOrganizationContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContactsHandler;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\OrganizationContacts;
 use Prospecter\Core\Prospecting\Application\Contact\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\KeptProposedOrganization;
 use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposedOrganization;
@@ -305,6 +317,7 @@ use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExch
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\Participants;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeVenue\CorrectExchangeVenueHandler;
@@ -416,7 +429,9 @@ use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\Kept
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\Timeline\KeptOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\KeptTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDosHandler;
@@ -434,12 +449,11 @@ use Prospecter\Core\Prospecting\Application\ToDo\KeepToDosOfAttachedContact\Keep
 use Prospecter\Core\Prospecting\Application\ToDo\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ToDo\NoteOrganizationToDo\NoteOrganizationToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\NoteToDo\NoteToDoHandler;
+use Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ReviseToDo\ReviseToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\StopKeepingToDos\StopKeepingToDosHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\TickOffToDo\TickOffToDoHandler;
 use Prospecter\Core\Prospecting\Application\ToDo\UntickToDo\UntickToDoHandler;
-use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
@@ -496,6 +510,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsAndPersonalDataMembers;
+use Tests\Core\Double\AccountsAndPersonalDataPersonDescriptions;
 use Tests\Core\Double\AccountsCampaigners;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -507,6 +522,7 @@ use Tests\Core\Double\BookingBookers;
 use Tests\Core\Double\CampaignsCampaignNames;
 use Tests\Core\Double\CampaignsCampaignRecipients;
 use Tests\Core\Double\ConnectorsConnectedCalendars;
+use Tests\Core\Double\ConnectorsMailCatchUps;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
@@ -574,6 +590,7 @@ use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAndProspectingAddressees;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondentAddresses;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondents;
+use Tests\Core\Double\PersonalDataContactEmails;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
@@ -678,6 +695,10 @@ final class Application
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
     private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
     private readonly NameContactsHandler $nameContactsService;
+    private readonly DescribePersonsHandler $describePersonsService;
+    private readonly AccountsAndPersonalDataPersonDescriptions $personDescriptions;
+    private readonly PersonsOfToDos $personsOfToDos;
+    private readonly AgendaInterlocutors $agendaInterlocutors;
     private readonly PresentMembersHandler $presentMembersService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
@@ -803,6 +824,10 @@ final class Application
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
+        $this->describePersonsService = new DescribePersonsHandler($this->personCardRetriever, $this->readers);
+        $this->personDescriptions = new AccountsAndPersonalDataPersonDescriptions($this->consultMembersService, $this->describePersonsService);
+        $this->personsOfToDos = new PersonsOfToDos($this->personDescriptions);
+        $this->agendaInterlocutors = new AgendaInterlocutors($this->personDescriptions, $this->organizationSheetRetriever, new InMemoryOrganizationOfContactRetriever($database));
         $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
         $this->connectingMembers = new AccountsAndPersonalDataMembers($this->consultMembersService, $this->presentMembersService);
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
@@ -1011,6 +1036,14 @@ final class Application
         return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn(), $this->now), $kept) ? $kept : null;
     }
 
+    public function whichMailCatchUpIntents(WhichMailCatchUpIntents $query): KeptMailCatchUpIntentsOfMany
+    {
+        $kept = new KeptMailCatchUpIntentsOfMany();
+        (new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))($query, $kept);
+
+        return $kept;
+    }
+
     /**
      * @return list<string>|null
      */
@@ -1206,32 +1239,39 @@ final class Application
         return $this->ask(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->identifications : null;
     }
 
-    public function consultToDo(ConsultToDo $query): ?ToDoInList
+    public function consultToDo(ConsultToDo $query): ?KeptToDo
     {
         $kept = new KeptToDo();
 
-        return $this->ask(new ConsultToDoHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDo : null;
+        return $this->ask(new ConsultToDoHandler($this->toDoListRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultToDos(ConsultToDos $query): ?ToDoList
+    public function consultToDos(ConsultToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultToDosHandler($this->toDoListRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultToDosHandler($this->toDoListRetriever, $this->prospectors, $this->contactOrganizations, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultOrganizationToDos(ConsultOrganizationToDos $query): ?ToDoList
+    public function consultOrganizationToDos(ConsultOrganizationToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
-    public function consultMyToDos(ConsultMyToDos $query): ?ToDoList
+    public function listOrganizationContacts(ListOrganizationContacts $query): ?OrganizationContacts
+    {
+        $kept = new KeptOrganizationContacts();
+
+        return $this->ask(new ListOrganizationContactsHandler($this->organizationSheetRetriever, $this->personDescriptions), $query, $kept) ? $kept->contacts : null;
+    }
+
+    public function consultMyToDos(ConsultMyToDos $query): ?KeptToDoList
     {
         $kept = new KeptToDoList();
 
-        return $this->ask(new ConsultMyToDosHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDos : null;
+        return $this->ask(new ConsultMyToDosHandler($this->toDoListRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
     }
 
     public function consultTimeline(ConsultTimeline $query): ?Timeline
@@ -1241,18 +1281,18 @@ final class Application
         return $this->ask(new ConsultTimelineHandler($this->timelineRetriever, $this->prospectors, $this->campaignsOfTimeline, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?Timeline
+    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline, $this->personDescriptions, new ConnectorsMailCatchUps(new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?Timeline
+    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->personDescriptions), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultUpcomingExchanges(ConsultUpcomingExchanges $query): ?Timeline
@@ -1262,11 +1302,11 @@ final class Application
         return $this->ask(new ConsultUpcomingExchangesHandler($this->timelineRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultOrganizationUpcomingExchanges(ConsultOrganizationUpcomingExchanges $query): ?Timeline
+    public function consultOrganizationUpcomingExchanges(ConsultOrganizationUpcomingExchanges $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->personDescriptions), $query, $kept) ? $kept->timeline : null;
     }
 
     /**
@@ -1295,28 +1335,28 @@ final class Application
     {
         $kept = new KeptOverlappingExchanges();
 
-        return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->overlapping : null;
+        return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->overlapping : null;
     }
 
     public function consultCalendar(ConsultCalendar $query): ?Calendar
     {
         $kept = new KeptCalendar();
 
-        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
+        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->toDoListRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->calendar : null;
     }
 
     public function consultMyDay(ConsultMyDay $query): ?MyDay
     {
         $kept = new KeptMyDay();
 
-        return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->myDay : null;
+        return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->myDay : null;
     }
 
     public function consultWhatIsToProcess(ConsultWhatIsToProcess $query): ?WhatIsToProcess
     {
         $kept = new KeptWhatIsToProcess();
 
-        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever, $this->agendaInterlocutors), $query, $kept) ? $kept->toProcess : null;
     }
 
     /**
@@ -1340,7 +1380,7 @@ final class Application
     {
         $kept = new KeptProposedOrganization();
 
-        return $this->ask(new ProposeOrganizationToAttachHandler(new InMemoryProposedOrganizationRetriever($this->database), $this->prospectors), $query, $kept) ? $kept->organization : null;
+        return $this->ask(new ProposeOrganizationToAttachHandler(new InMemoryProposedOrganizationRetriever($this->database), $this->prospectors, new PersonalDataContactEmails(new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers))), $query, $kept) ? $kept->organization : null;
     }
 
     /**
@@ -1374,7 +1414,14 @@ final class Application
     {
         $kept = new KeptExchange();
 
-        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames), $query, $kept) ? $kept->exchange : null;
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames, $this->personDescriptions, $this->organizationSheetRetriever), $query, $kept) ? $kept->exchange : null;
+    }
+
+    public function consultExchangeParticipants(ConsultExchange $query): ?Participants
+    {
+        $kept = new KeptExchange();
+
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames, $this->personDescriptions, $this->organizationSheetRetriever), $query, $kept) ? $kept->participants : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
@@ -1588,6 +1635,17 @@ final class Application
         ($this->presentMembersService)($query, $kept);
 
         return $kept->members;
+    }
+
+    /**
+     * @return list<PersonDescriptionResponse>
+     */
+    public function describePersons(DescribePersons $query): array
+    {
+        $kept = new KeptPersonDescriptions();
+        ($this->describePersonsService)($query, $kept);
+
+        return $kept->persons;
     }
 
     /**

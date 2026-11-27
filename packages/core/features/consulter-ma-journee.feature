@@ -18,6 +18,16 @@ Fonctionnalité: Consulter ma journée
     Alors il montre aujourd'hui l'appel de 9h00 puis la visio de 16h00
     Et les 5 prochains rendez-vous, du plus proche au plus lointain
 
+  Scénario: Le tableau de bord nomme qui je vois aujourd'hui, et ses organisations
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et "Ada Lovelace" est un contact de "Globex"
+    Et j'ai planifié avec "Ada Lovelace" un appel le 13/11/2026 à 9h00, une visio le 13/11/2026 à 16h00 et 0 rendez-vous les jours suivants
+    Quand je consulte le tableau de bord
+    Alors il montre aujourd'hui, avec :
+      | échange           | montré avec  | ses organisations |
+      | l'appel de 9h00   | Ada Lovelace | ACME, Globex      |
+      | la visio de 16h00 | Ada Lovelace | ACME, Globex      |
+
   Scénario: Un échange planifié dont l'heure est passée est à traiter
     Soit j'ai planifié avec "Ada Lovelace" un appel le 13/11/2026 à 9h00, une visio le 13/11/2026 à 16h00 et 0 rendez-vous les jours suivants
     Quand je consulte le tableau de bord
