@@ -8,6 +8,7 @@ use App\Campaigning\Resource\CampaignLinksResource;
 use App\Campaigning\Resource\CampaignListResource;
 use App\Campaigning\Resource\CampaignProgressResource;
 use App\Campaigning\Resource\CampaignResource;
+use App\Contacts\PersonsOfAView;
 use App\Exchanges\Resource\AuthorResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
@@ -21,7 +22,7 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Composes the team's campaigns (ADR 0217). Campaigns keeps them, counts their targets and links them. Accounts and
- * PersonalData name their authors (`CampaignAuthors`), joined by the authors' member ids. A command returns nothing, so
+ * PersonalData name their authors (`PersonsOfAView`), joined by the authors' member ids. A command returns nothing, so
  * a controller reads the campaign again after it to answer with the fresh resource.
  */
 final readonly class CampaignComposition
@@ -31,7 +32,7 @@ final readonly class CampaignComposition
     public function __construct(
         private QueryHandler $consultCampaign,
         private QueryHandler $listCampaigns,
-        private CampaignAuthors $campaignAuthors,
+        private PersonsOfAView $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
         private ClockInterface $clock,
@@ -46,7 +47,7 @@ final readonly class CampaignComposition
         $presenter = new CampaignPresenter($this->links, $this->intentLinks);
         $this->consultCampaign->__invoke(new ConsultCampaign(memberId: $reader, campaignId: $id, timeZone: $timeZone ?? self::NO_CLOCK, at: $this->clock->now()), $presenter);
         $campaign = $presenter->campaign;
-        $authors = $this->campaignAuthors->of($reader, [$campaign->authorId]);
+        $authors = $this->personsOfAView->shownTo($reader, [], [$campaign->authorId])->members;
 
         return self::resourceOf($campaign, $presenter->targeted, $authors[$campaign->authorId] ?? null, $presenter->links, $presenter->processedToday);
     }
@@ -55,7 +56,7 @@ final readonly class CampaignComposition
     {
         $presenter = new CampaignListPresenter($this->links, new CampaignPresenter($this->links, $this->intentLinks));
         $this->listCampaigns->__invoke(new ListCampaigns($reader), $presenter);
-        $authors = $this->campaignAuthors->of($reader, array_map(static fn (CampaignSheet $campaign): string => $campaign->authorId, $presenter->campaigns));
+        $authors = $this->personsOfAView->shownTo($reader, [], array_map(static fn (CampaignSheet $campaign): string => $campaign->authorId, $presenter->campaigns))->members;
 
         return new CampaignListResource(
             array_map(static fn (CampaignSheet $campaign): CampaignResource => self::resourceOf($campaign, $presenter->targeted[$campaign->id] ?? 0, $authors[$campaign->authorId] ?? null, $presenter->links[$campaign->id]), $presenter->campaigns),
