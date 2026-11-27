@@ -374,6 +374,37 @@ describe('the wall of a context', () => {
     ]).toEqual(['My booking page', true, true, []])
   })
 
+  it('tucks what a command asks under the events it publishes', () => {
+    const connectors = wallOf(modelOf('connectors'))
+    const command = connectors.notes.find((note) => note.kind === 'command' && note.label === 'Import mail')
+    const published = command?.step.notes.filter((note) => note.kind === 'event') ?? []
+    const ports = command?.step.notes.filter((note) => note.port) ?? []
+    const publishedBottom = Math.max(...published.map((event) => event.y + event.h))
+
+    expect([
+      published.length > 0,
+      ports.length > 0,
+      ports.every((port) => port.y >= publishedBottom),
+    ]).toEqual([true, true, true])
+  })
+
+  it('tucks what a command asks under it, beside the event its policy hears', () => {
+    const personalData = modelOf('personal-data')
+    const identify =
+      'command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker'
+    const unchanging = wallOf({
+      ...personalData,
+      links: personalData.links.filter(
+        (link) => !(link.from === identify && link.to.startsWith('aggregate:')),
+      ),
+    })
+    const command = unchanging.notes.find((note) => note.slug === 'command:IdentifyBooker')
+    const heard = command?.step.notes.filter((note) => note.kind === 'event') ?? []
+    const ports = command?.step.notes.filter((note) => note.port) ?? []
+
+    expect([heard.map((event) => event.label), overlaps(command, ports[0])]).toEqual([['Slot booked'], true])
+  })
+
   it('tucks what a projection asks under the views it keeps', () => {
     const open = 'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking'
     const views = BOOKING.stickies.filter(
@@ -468,7 +499,11 @@ describe('the wall of a context', () => {
   it('names on a pictogram the other contexts that answer a port, when no published service is seen answering', () => {
     const unanswered = wallOf({
       ...BOOKING,
-      stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, answers: [] })),
+      stickies: BOOKING.stickies.map((sticky) => ({
+        ...sticky,
+        answers: [],
+        answeredBy: sticky.slug === 'externalSystem:Hosts' ? ['Accounts', 'PersonalData'] : sticky.answeredBy,
+      })),
     })
     const hosts = unanswered.notes.find((note) => note.slug === 'externalSystem:Hosts')
 
@@ -478,11 +513,16 @@ describe('the wall of a context', () => {
   })
 
   it('jumps from a port to the published services that answer it, on their wall', () => {
-    const hosts = wall.notes.find((note) => note.slug === 'externalSystem:Hosts')
+    const held = wallOf(modelOf('connectors')).notes.find(
+      (note) => note.slug === 'externalSystem:HeldExchanges',
+    )
 
-    expect(hosts?.jumps.map((jump) => [jump.href, jump.tip])).toEqual([
-      ['../accounts/#at=readModel%3AConsultMembers', 'Answered by “Members” · Accounts'],
-      ['../personal-data/#at=readModel%3APresentMembers', 'Answered by “Present members” · Personal data'],
+    expect(held?.jumps.map((jump) => [jump.href, jump.tip])).toEqual([
+      ['../prospecting/#at=readModel%3AConsultHeldExchanges', 'Answered by “Held exchanges” · Prospecting'],
+      [
+        '../prospecting/#at=readModel%3AConsultPlannedExchanges',
+        'Answered by “Planned exchanges” · Prospecting',
+      ],
     ])
   })
 
