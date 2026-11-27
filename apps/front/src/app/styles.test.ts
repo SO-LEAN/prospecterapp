@@ -1,12 +1,15 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { contrastBetween, READABLE_TEXT_CONTRAST } from '@/test/contrast'
+import { contrastBetween, luminanceOf, READABLE_TEXT_CONTRAST } from '@/test/contrast'
 
 /** Read from the disk, from the front's root where Vitest runs: Vitest empties a stylesheet it imports, even as `?raw`. */
 const styles = readFileSync('src/app/styles.css', 'utf8')
 
-/** The light theme's tokens, as `:root` declares them, each `var()` resolved. */
+/** The light theme's tokens, as `:root` declares them. */
 const LIGHT_THEME = declarationsOf(blockOf(':root'))
+
+/** The dark theme's tokens: `.dark` over `:root`, on the same element, so that a token `.dark` keeps reads its `var()` there. */
+const DARK_THEME: Theme = new Map([...LIGHT_THEME, ...declarationsOf(blockOf('.dark'))])
 
 /** What `@theme inline` gives Tailwind, as `bg-*`, `text-*` and `border-*` utilities. */
 const TAILWIND_THEME = declarationsOf(blockOf('@theme inline'))
@@ -17,7 +20,11 @@ const ROUNDING = 1
 /** The audit's forbidden zone, in HSL hues of the sRGB colors, as its palette gives them in hexadecimal. */
 const VIOLET_AND_MAGENTA = { from: 250, to: 330 }
 
+const EVENT_FAMILIES = ['call', 'meeting', 'video', 'written', 'todo']
+
 type Channels = [number, number, number]
+
+type Theme = Map<string, string>
 
 describe('the « Le Filon » light theme', () => {
   it.each([
@@ -29,7 +36,7 @@ describe('the « Le Filon » light theme', () => {
     ['--destructive', '#D5311F'],
     ['--chart-5', '#50647A'],
   ])('gives %s the value of the audit, %s', (token, hex) => {
-    expectTheColor(token, hex)
+    expectTheColor(LIGHT_THEME, token, hex)
   })
 
   it.each([
@@ -45,7 +52,7 @@ describe('the « Le Filon » light theme', () => {
     ['--input', '#DED9CE'],
     ['--chart-1', '#0B6E75'],
   ])('takes %s from the palette, %s', (token, hex) => {
-    expectTheColor(token, hex)
+    expectTheColor(LIGHT_THEME, token, hex)
   })
 
   it.each([
@@ -67,11 +74,11 @@ describe('the « Le Filon » light theme', () => {
     ['--day-vacation', '#B7791F'],
     ['--day-vacation-soft', '#FFF6DA'],
   ])('adds %s, %s', (token, hex) => {
-    expectTheColor(token, hex)
+    expectTheColor(LIGHT_THEME, token, hex)
   })
 
   it('writes the text on the gold in the ink of the gold, #2A1B00', () => {
-    expectTheColor('--gold-foreground', '#2A1B00')
+    expectTheColor(LIGHT_THEME, '--gold-foreground', '#2A1B00')
   })
 
   it('gives the links the primary color', () => {
@@ -93,9 +100,7 @@ describe('the « Le Filon » light theme', () => {
     ['--gold-foreground', '--gold'],
     ['--gold-foreground', '--gold-soft'],
   ])('keeps %s readable on %s', (text, surface) => {
-    expect(contrastBetween(channelsOf(text), channelsOf(surface))).toBeGreaterThanOrEqual(
-      READABLE_TEXT_CONTRAST,
-    )
+    expectReadable(LIGHT_THEME, text, surface)
   })
 
   it.each([
@@ -103,10 +108,7 @@ describe('the « Le Filon » light theme', () => {
     '--gold',
     '--gold-soft',
     '--gold-foreground',
-    ...['call', 'meeting', 'video', 'written', 'todo'].flatMap((family) => [
-      `--event-${family}`,
-      `--event-${family}-soft`,
-    ]),
+    ...EVENT_FAMILIES.flatMap((family) => [`--event-${family}`, `--event-${family}-soft`]),
     '--day-weekend',
     '--day-holiday',
     '--day-holiday-soft',
@@ -116,17 +118,101 @@ describe('the « Le Filon » light theme', () => {
     expect(TAILWIND_THEME.get(`--color-${token.slice(2)}`)).toBe(`var(${token})`)
   })
 
-  it.each(colorTokens())('keeps %s out of the violets and the magentas', (token) => {
-    const hue = hueOf(channelsOf(token))
-    expect(hue < VIOLET_AND_MAGENTA.from || hue > VIOLET_AND_MAGENTA.to, `${token} has the hue ${hue}°`).toBe(
-      true,
+  it.each(colorTokens(LIGHT_THEME))('keeps %s out of the violets and the magentas', (token) => {
+    expectOutOfTheVioletsAndTheMagentas(LIGHT_THEME, token)
+  })
+})
+
+describe('the « Le Filon » dark theme', () => {
+  it.each([
+    ['--background', '#07141B'],
+    ['--foreground', '#EAF1F4'],
+    ['--card', '#0E2029'],
+    ['--popover', '#0E2029'],
+    ['--primary', '#2CB5BD'],
+    ['--ring', '#2CB5BD'],
+    ['--accent', '#0F3A40'],
+    ['--destructive', '#FF6B57'],
+    ['--sidebar', '#050F14'],
+    ['--chart-5', '#9FB2C4'],
+    ['--event-call', '#34C792'],
+    ['--event-video', '#5B9DFF'],
+    ['--event-meeting', '#FF7A5C'],
+  ])('gives %s the value of the audit, %s', (token, hex) => {
+    expectTheColor(DARK_THEME, token, hex)
+  })
+
+  it.each([
+    ['--border', '#1A2E38'],
+    ['--input', '#223843'],
+    ['--secondary', '#142A34'],
+    ['--muted', '#142A34'],
+    ['--sidebar-accent', '#142A34'],
+    ['--sidebar-border', '#12242D'],
+    ['--muted-foreground', '#9AACB8'],
+    ['--accent-foreground', '#A8E6E8'],
+    ['--primary-foreground', '#07141B'],
+    ['--success', '#34C792'],
+    ['--warning', '#F2B33D'],
+  ])('takes %s from the dark palette, %s', (token, hex) => {
+    expectTheColor(DARK_THEME, token, hex)
+  })
+
+  it.each([
+    ['--foreground', '--background'],
+    ['--foreground', '--card'],
+    ['--muted-foreground', '--background'],
+    ['--muted-foreground', '--card'],
+    ['--muted-foreground', '--muted'],
+    ['--muted-foreground', '--sidebar'],
+    ['--link', '--background'],
+    ['--link', '--card'],
+    ['--primary-foreground', '--primary'],
+    ['--accent-foreground', '--accent'],
+    ['--destructive-foreground', '--destructive'],
+    ['--gold-foreground', '--gold'],
+    ['--gold', '--gold-soft'],
+    ...EVENT_FAMILIES.flatMap((family) => [
+      [`--event-${family}`, `--event-${family}-soft`],
+      [`--event-${family}`, '--card'],
+    ]),
+    ['--day-holiday', '--day-holiday-soft'],
+    ['--foreground', '--day-holiday-soft'],
+    ['--day-vacation', '--day-vacation-soft'],
+    ['--foreground', '--day-vacation-soft'],
+    ['--foreground', '--day-weekend'],
+  ])('keeps %s readable on %s', (text, surface) => {
+    expectReadable(DARK_THEME, text, surface)
+  })
+
+  it.each(colorTokens(DARK_THEME))('keeps %s out of the violets and the magentas', (token) => {
+    expectOutOfTheVioletsAndTheMagentas(DARK_THEME, token)
+  })
+
+  it.each(EVENT_FAMILIES)('lightens the tint of the family %s', (family) => {
+    const tint = `--event-${family}`
+    expect(luminanceOf(channelsOf(DARK_THEME, tint))).toBeGreaterThan(
+      luminanceOf(channelsOf(LIGHT_THEME, tint)),
     )
   })
 })
 
-function expectTheColor(token: string, hex: string) {
+function expectOutOfTheVioletsAndTheMagentas(theme: Theme, token: string) {
+  const hue = hueOf(channelsOf(theme, token))
+  expect(hue < VIOLET_AND_MAGENTA.from || hue > VIOLET_AND_MAGENTA.to, `${token} has the hue ${hue}°`).toBe(
+    true,
+  )
+}
+
+function expectReadable(theme: Theme, text: string, surface: string) {
+  expect(contrastBetween(channelsOf(theme, text), channelsOf(theme, surface))).toBeGreaterThanOrEqual(
+    READABLE_TEXT_CONTRAST,
+  )
+}
+
+function expectTheColor(theme: Theme, token: string, hex: string) {
   const expected = channelsOfHex(hex)
-  const actual = channelsOf(token)
+  const actual = channelsOf(theme, token)
   actual.forEach((channel, index) => {
     expect(
       Math.abs(channel - (expected[index] ?? 0)),
@@ -140,7 +226,7 @@ function blockOf(selector: string) {
   return styles.slice(start, styles.indexOf('}', start))
 }
 
-function declarationsOf(block: string) {
+function declarationsOf(block: string): Theme {
   return new Map(
     Array.from(block.matchAll(/(--[\w-]+):\s*([^;]+);/g), ([, name = '', value = '']) => [
       name,
@@ -149,22 +235,23 @@ function declarationsOf(block: string) {
   )
 }
 
-function channelsOf(token: string): Channels {
-  if (!LIGHT_THEME.has(token)) {
-    throw new Error(`${token} is not declared in :root`)
+function channelsOf(theme: Theme, token: string): Channels {
+  if (!theme.has(token)) {
+    throw new Error(`${token} is not declared`)
   }
-  const value = resolved(token)
+  const value = resolved(theme, token)
   return value.startsWith('#') ? channelsOfHex(value) : channelsOfOklch(value)
 }
 
-function colorTokens() {
-  return Array.from(LIGHT_THEME.keys()).filter((token) => isAColor(resolved(token)))
+function colorTokens(theme: Theme) {
+  return Array.from(theme.keys()).filter((token) => isAColor(resolved(theme, token)))
 }
 
-function resolved(token: string): string {
-  const value = LIGHT_THEME.get(token) ?? ''
+/** The token's value, each `var()` resolved in the same theme, as the browser does on the element holding the theme. */
+function resolved(theme: Theme, token: string): string {
+  const value = theme.get(token) ?? ''
   const reference = /^var\((--[\w-]+)\)$/.exec(value)?.[1]
-  return reference === undefined ? value : resolved(reference)
+  return reference === undefined ? value : resolved(theme, reference)
 }
 
 function isAColor(value: string) {

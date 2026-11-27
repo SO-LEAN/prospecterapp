@@ -74,34 +74,51 @@
 }
 
 .dark {
+  /* « Le Filon » at night: the same tokens, only their values change. A token `:root` gives by `var()` follows here. */
   color-scheme: dark;
-  --background: oklch(0.16 0.01 265);
-  --foreground: oklch(0.96 0.005 264);
-  --card: oklch(0.2 0.012 265);
-  --card-foreground: var(--foreground);
-  --popover: oklch(0.21 0.012 265);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.65 0.18 262);
-  --primary-foreground: oklch(0.16 0.01 265);
-  --secondary: oklch(0.25 0.012 265);
-  --secondary-foreground: var(--foreground);
-  --muted: oklch(0.24 0.012 265);
-  --muted-foreground: oklch(0.7 0.015 264);
-  --accent: oklch(0.28 0.04 262);
-  --accent-foreground: oklch(0.9 0.05 262);
-  --destructive: oklch(0.65 0.2 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.7 0.15 155);
-  --warning: oklch(0.8 0.14 75);
-  --border: oklch(0.3 0.015 265);
-  --input: oklch(0.32 0.015 265);
-  --ring: oklch(0.65 0.18 262);
+  --background: oklch(0.183 0.024 233);
+  --foreground: oklch(0.954 0.009 225);
+  --card: oklch(0.233 0.03 232);
+  --popover: var(--card);
+  --primary: oklch(0.707 0.111 201);
+  --primary-foreground: var(--background);
+  --secondary: oklch(0.272 0.034 229);
+  --muted-foreground: oklch(0.734 0.027 237);
+  --accent: oklch(0.322 0.047 208);
+  --accent-foreground: oklch(0.884 0.063 199);
+  --destructive: oklch(0.708 0.185 30);
+  --destructive-foreground: var(--background);
+  --success: oklch(0.741 0.144 164);
+  --warning: oklch(0.806 0.147 79);
+  --border: oklch(0.289 0.032 231);
+  --input: oklch(0.327 0.034 231);
 
-  --sidebar: oklch(0.18 0.011 265);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-accent: oklch(0.25 0.014 265);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: oklch(0.27 0.014 265);
+  --sidebar: oklch(0.161 0.019 229);
+  --sidebar-accent: var(--secondary);
+  --sidebar-border: oklch(0.249 0.029 231);
+
+  /* The gold keeps its light value. Its soft background turns to a dark gold, and the text on it is the gold itself. */
+  --gold-soft: oklch(0.297 0.052 81);
+
+  /* Each family's tint lightens to keep its contrast, and its soft background turns dark and saturated. */
+  --event-call: oklch(0.741 0.144 164);
+  --event-call-soft: oklch(0.289 0.05 167);
+  --event-meeting: oklch(0.729 0.169 34);
+  --event-meeting-soft: oklch(0.271 0.054 35);
+  --event-video: oklch(0.697 0.16 258);
+  --event-video-soft: oklch(0.28 0.069 260);
+  --event-written: oklch(0.755 0.033 247);
+  --event-written-soft: oklch(0.28 0.033 242);
+  --event-todo: oklch(0.806 0.147 79);
+  --event-todo-soft: oklch(0.294 0.05 84);
+
+  --day-weekend: oklch(0.208 0.025 230);
+  --day-holiday: oklch(0.752 0.159 46);
+  --day-holiday-soft: oklch(0.267 0.051 46);
+  --day-vacation: oklch(0.785 0.127 77);
+  --day-vacation-soft: oklch(0.283 0.042 86);
+
+  --chart-5: oklch(0.755 0.033 247);
 }
 
 /* What is late pulses once when shown, never on and on (WCAG 2.2.2), and not at all under prefers-reduced-motion (ADR 0134). */

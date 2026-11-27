@@ -9,7 +9,8 @@ export function contrastBetween(first: number[], second: number[]) {
 
 const CHANNEL_WEIGHTS = [0.2126, 0.7152, 0.0722]
 
-function luminanceOf(channels: number[]) {
+/** WCAG 2 relative luminance of an sRGB color, from 0 (black) to 1 (white). */
+export function luminanceOf(channels: number[]) {
   return channels.reduce((sum, channel, index) => sum + (CHANNEL_WEIGHTS[index] ?? 0) * linear(channel), 0)
 }
 
