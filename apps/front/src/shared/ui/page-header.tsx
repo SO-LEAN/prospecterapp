@@ -13,7 +13,7 @@ export function PageHeader({ title, description, actions, media }: Props) {
       <div className="flex min-w-0 items-center gap-4">
         {media}
         <div className="min-w-0 space-y-1">
-          <h1 className="truncate font-semibold text-2xl tracking-tight">{title}</h1>
+          <h1 className="truncate font-display text-title">{title}</h1>
           {description && <p className="text-muted-foreground text-sm">{description}</p>}
         </div>
       </div>
