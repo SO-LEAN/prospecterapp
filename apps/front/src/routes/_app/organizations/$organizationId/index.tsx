@@ -19,6 +19,7 @@ import { OrganizationBadges } from '@/features/organizations/components/organiza
 import { PossibleDuplicates } from '@/features/organizations/components/possible-duplicates'
 import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
 import {
+  contactsToNoteAToDoFor,
   fullNameOf,
   type Organization,
   organizationContactsQuery,
@@ -127,11 +128,16 @@ function ToDosAndExchanges({ organization, name }: { organization: Organization;
       name: fullNameOf(contact),
     })),
   }
+  const recipients = { organization: name, contacts: contactsToNoteAToDoFor(contacts.data?.items ?? []) }
 
   return (
     <>
       {organization._links.toDos && (
-        <OrganizationToDosSection organizationId={organization.id} onTickedOff={proposal.propose} />
+        <OrganizationToDosSection
+          organizationId={organization.id}
+          recipients={recipients}
+          onTickedOff={proposal.propose}
+        />
       )}
       <OrganizationExchangesSection
         organizationId={organization.id}
