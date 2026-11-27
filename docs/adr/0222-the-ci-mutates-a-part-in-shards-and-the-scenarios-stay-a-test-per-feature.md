@@ -2,9 +2,9 @@
 
 - Date: 2026-11-27
 - Type: architecture
-- Status: Proposed
+- Status: Accepted
 - Supersedes: for "a job per part", [0219](0219-a-pull-request-mutates-its-added-lines-in-its-ci-a-job-per-part-beside-the-checks.md)
-- Implemented by: `.github/workflows/ci.yml` (the `changes`, `mutation` and `mutation-summary` jobs), `make/mutation.mk` (`SHARD`), `packages/core/Makefile`, `apps/front/Makefile`, `Makefile` (`mutation-shards`, `mutation-summary`, `mutation-merge`), `apps/front/mutation/`, `docs/architecture/workflow.md`, `docs/architecture/tests.md`, `docs/architecture/commands.md`
+- Implemented by: `.github/workflows/ci.yml` (the `changes`, `mutation` and `mutation-summary` jobs; the core's jobs install its dependencies only), `make/mutation.mk` (`SHARD`), `packages/core/Makefile`, `apps/front/Makefile`, `Makefile` (`mutation-shards`, `mutation-summary`, `mutation-merge`), `apps/front/mutation/`, `docs/architecture/workflow.md`, `docs/architecture/tests.md`, `docs/architecture/commands.md`
 
 ## Context
 
@@ -22,9 +22,10 @@ Infection does not know Behat. `tests/Mutation/ScenariosTest` runs each feature'
 
 ## Consequences
 
-- The slowest shard sets the length of a part's mutation. Each shard pays the checkout, the dependencies and the first run of all the tests, some 3 minutes for the core.
+- On the same branch's 1,008 lines, the three shards took 6 min 14 s, 5 min 20 s and 5 min 18 s, and the summary 21 s after them: the mutation ended 6 min 49 s after the `changes` job started, against 11 min 30 s for the single job. The 123 mutants and the score, 79.67 %, did not change.
+- The slowest shard sets the length of a part's mutation. Each shard pays the checkout, the images, the dependencies and the first run of all the tests, some 2 min 50 s for the core.
 - A part in shards costs one more job, the summary, some 30 s after its last shard.
-- The shares are dealt by added lines, not by mutants nor by the time their tests take: a shard holding a busy line ends last.
+- The shares are dealt by added lines, not by mutants nor by the time their tests take: a shard holding a busy line ends last. On the measured branch, the shards held 56, 36 and 31 mutants.
 - `make mutation` on the machine runs every part in one go, as before. `SHARD=` runs one share there too.
 
 ## Alternatives considered

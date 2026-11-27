@@ -224,4 +224,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0219](0219-a-pull-request-mutates-its-added-lines-in-its-ci.md) | A pull request mutates its added lines in its CI, a job per part, beside the checks | architecture | Accepted | 2026-11-26 |
 | [0220](0220-pull-requests-go-through-the-merge-queue-where-the-journeys-run.md) | Pull requests to dev go through the merge queue, where the journeys run | architecture | Accepted | 2026-11-26 |
 | [0221](0221-the-ci-splits-the-api-check-and-caches-the-images-and-the-tools-results.md) | The CI splits the API's check into jobs, and caches the images and the tools' results | architecture | Accepted | 2026-11-26 |
-| [0222](0222-the-ci-mutates-a-part-in-shards-and-the-scenarios-stay-a-test-per-feature.md) | The CI mutates a part in shards, and the core's scenarios stay a test per feature | architecture | Proposed | 2026-11-27 |
+| [0222](0222-the-ci-mutates-a-part-in-shards-and-the-scenarios-stay-a-test-per-feature.md) | The CI mutates a part in shards, and the core's scenarios stay a test per feature | architecture | Accepted | 2026-11-27 |
