@@ -1,0 +1,11 @@
+language js
+
+or {
+  `new Intl.DateTimeFormat($...)`,
+  `new Intl.RelativeTimeFormat($...)`,
+  `$_.toLocaleDateString($...)`,
+  `$_.toLocaleTimeString($...)`,
+  `$_.toLocaleString($...)`
+} as $written where {
+  register_diagnostic(span=$written, message="A date or an hour shown is written by shared/lib/format.ts, one way for each case (docs/architecture/front.md).")
+}

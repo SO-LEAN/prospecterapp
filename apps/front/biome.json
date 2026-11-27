@@ -67,6 +67,10 @@
       "includes": ["**/*.test.ts", "**/*.test.tsx", "**/e2e/**"]
     },
     {
+      "path": "./lint/dates-written-once.grit",
+      "includes": ["**/src/**", "!**/src/shared/lib/format.ts", "!**/*.test.ts", "!**/*.test.tsx"]
+    },
+    {
       "path": "./lint/french-spacing.grit",
       "includes": ["**/src/shared/i18n/fr.ts"]
     }
