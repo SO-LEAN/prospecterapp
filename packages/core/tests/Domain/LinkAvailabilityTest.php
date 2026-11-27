@@ -6,7 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Booking\Domain\Exception\UnknownMember;
-use Prospecter\Core\Booking\Domain\Model\HostIdentity;
+use Prospecter\Core\Booking\Domain\Model\HostMembership;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
@@ -46,7 +46,7 @@ final class LinkAvailabilityTest extends TestCase
                 throw UnknownMember::identifiedBy($host);
             }
 
-            public function identityOf(MemberId $host): HostIdentity
+            public function membershipOf(MemberId $host): HostMembership
             {
                 throw UnknownMember::identifiedBy($host);
             }

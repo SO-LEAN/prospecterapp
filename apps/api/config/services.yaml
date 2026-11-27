@@ -111,6 +111,7 @@ services:
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
     Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~
+    Prospecter\Core\Booking\Domain\Service\HostIdentities: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -276,7 +277,8 @@ services:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever: '@App\Booking\Persistence\DynamoMyBookingPageRetriever'
     Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever: '@App\Booking\Persistence\DynamoPublicBookingPageRetriever'
-    Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsAndPersonalDataHosts'
+    Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsHosts'
+    Prospecter\Core\Booking\Domain\Port\HostPresentations: '@App\Booking\AntiCorruption\PersonalDataHostPresentations'
     Prospecter\Core\Booking\Domain\Port\ConnectedCalendars: '@App\Booking\AntiCorruption\ConnectorsConnectedCalendars'
     Prospecter\Core\Booking\Domain\Port\HostAgendas: '@App\Booking\AntiCorruption\ProspectingHostAgendas'
     # the moment the counts of a limiter are forgotten at counted from now, the real one (ADR 0153)

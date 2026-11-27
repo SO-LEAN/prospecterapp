@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Port;
 
 use Prospecter\Core\Booking\Domain\Exception\UnknownMember;
-use Prospecter\Core\Booking\Domain\Model\HostIdentity;
+use Prospecter\Core\Booking\Domain\Model\HostMembership;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
- * Port: the members who host a booking page, their account, and how they present themselves to bookers. The adapter
- * translates them from the contexts that know them, through their published services: Accounts
- * (`ConsultMembersService`) and PersonalData (`PresentMembersService`) (ADR 0045, 0089, 0153).
+ * Port: the members who host a booking page, as Accounts knows them. The adapter translates them from Accounts'
+ * published service `ConsultMembersService` (ADR 0045, 0089, 0153, 0223).
  */
 interface Hosts
 {
@@ -24,7 +23,7 @@ interface Hosts
     /**
      * @throws UnknownMember
      */
-    public function identityOf(MemberId $host): HostIdentity;
+    public function membershipOf(MemberId $host): HostMembership;
 
     /**
      * Whether the host has the right to manage personal data, as Accounts says.
