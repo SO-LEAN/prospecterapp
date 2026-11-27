@@ -7,6 +7,7 @@ import { campaignsQuery } from '@/features/campaigns/queries'
 import { newCampaign } from '@/features/campaigns/schema'
 import { useLiveTarget } from '@/features/campaigns/use-live-target'
 import { TagsFilter } from '@/features/tags/components/tags-filter'
+import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { useGoBack } from '@/shared/hooks/use-go-back'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -14,7 +15,7 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 /** The form opens only for members whom the API lets read the campaigns. The others learn that their role does not allow it. */
 export const Route = createFileRoute('/_app/campaigns/new')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(campaignsQuery()),
+  loader: ({ context }) => ensureSharedQueryData(context.queryClient, campaignsQuery()),
   pendingComponent: () => <PageSkeleton rows={4} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: NewCampaign,

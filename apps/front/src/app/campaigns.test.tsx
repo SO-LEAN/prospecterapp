@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Campaign, CampaignList, CampaignMessage, TargetedContact } from '@/features/campaigns/queries'
 import type { SuggestedTags } from '@/features/tags/queries'
+import { usePreferences } from '@/shared/stores/preferences'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /** The team's campaigns, on the SPA's routes (ADR 0144): the list, and a draft that is prepared, revised and discarded. */
@@ -148,16 +149,21 @@ const anEmptyDashboard = {
 
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
+/** Long enough for a member to fold the sidebar before the answer comes. */
+const A_NETWORK_DELAY_MS = 300
+
 function theApiAnswers({
   me = meAllowedToRunCampaigns,
   refusal,
   campaigns = list,
   campaignsDenied = false,
+  campaignsSlowly = false,
 }: {
   me?: Account
   refusal?: unknown
   campaigns?: CampaignList
   campaignsDenied?: boolean
+  campaignsSlowly?: boolean
 } = {}) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
@@ -165,6 +171,9 @@ function theApiAnswers({
     const { pathname, search } = new URL(request.url)
     const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
+    if (campaignsSlowly && request.method === 'GET' && pathname === '/api/campaigns') {
+      await new Promise((resolve) => setTimeout(resolve, A_NETWORK_DELAY_MS))
+    }
     if (refusal && request.method === 'POST' && pathname === '/api/campaigns') {
       return Response.json(refusal, {
         status: (refusal as { status: number }).status,
@@ -211,7 +220,10 @@ function theApiAnswers({
 }
 
 describe('the campaigns of the team', () => {
-  afterEach(() => theApi.mockReset())
+  afterEach(() => {
+    theApi.mockReset()
+    usePreferences.setState({ sidebarCollapsed: false })
+  })
 
   it('are reached from the main navigation only when my account links them', async () => {
     theApiAnswers()
@@ -229,6 +241,26 @@ describe('the campaigns of the team', () => {
     await waitFor(() => expect(entry).toHaveTextContent(/^Campagnes2/))
     expect(entry).toHaveAccessibleName(/2 campagnes en cours$/)
   })
+
+  it.each([
+    ['/campaigns', 'Campagnes'],
+    ['/campaigns/new', 'Nouvelle campagne'],
+  ])(
+    'open at %s though I fold the sidebar, which counts them, while their list comes',
+    async (path, title) => {
+      const calls = theApiAnswers({ campaignsSlowly: true })
+      const router = await renderTheSpaAt('/calendar')
+      await screen.findByRole('navigation', { name: 'Navigation principale' })
+
+      void router.navigate({ to: path })
+      await waitFor(() => expect(calls.map(({ pathname }) => pathname)).toContain('/api/campaigns'))
+      await userEvent.click(screen.getByRole('button', { name: 'Replier la barre latérale' }))
+
+      expect(
+        await screen.findByRole('heading', { name: title, level: 1 }, { timeout: 4 * A_NETWORK_DELAY_MS }),
+      ).toBeInTheDocument()
+    },
+  )
 
   it('are not counted before the app read their list', async () => {
     theApiAnswers()
