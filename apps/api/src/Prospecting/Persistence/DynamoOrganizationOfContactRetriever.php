@@ -30,25 +30,37 @@ final readonly class DynamoOrganizationOfContactRetriever implements Organizatio
             $linked[$contact->value] = Typed::strings(array_column($links, 'SK'));
         }
 
-        $organizations = $this->organizationsNamed(array_values(array_unique(array_merge([], ...array_values($linked)))));
+        $documents = $this->documentsOf(array_values(array_unique(array_merge([], ...array_values($linked)))));
+        $ofContacts = [];
 
-        return array_map(static fn (array $keys): array => array_values(array_filter(array_map(static fn (string $key): ?OrganizationOfContact => $organizations[$key] ?? null, $keys))), $linked);
+        foreach ($linked as $person => $keys) {
+            $ofContacts[$person] = array_values(array_map(static fn (string $key): OrganizationOfContact => self::organizationOf($documents[$key], $person), array_filter($keys, static fn (string $key): bool => isset($documents[$key]))));
+        }
+
+        return $ofContacts;
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    private static function organizationOf(array $document, string $person): OrganizationOfContact
+    {
+        return new OrganizationOfContact(Typed::string($document['id']), Documents::legalIdentityOf($document['legalIdentity'])->fullName(), OrganizationDocument::attachedAtOf($document)[$person] ?? null);
     }
 
     /**
      * @param list<string> $keys the organizations' partition keys
      *
-     * @return array<string, OrganizationOfContact> indexed by key
+     * @return array<string, array<string, mixed>> the organizations' documents, indexed by key
      */
-    private function organizationsNamed(array $keys): array
+    private function documentsOf(array $keys): array
     {
-        $named = [];
+        $documents = [];
 
         foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
-            $document = Typed::document($item['organization']);
-            $named[Typed::string($item['PK'])] = new OrganizationOfContact(Typed::string($document['id']), Documents::legalIdentityOf($document['legalIdentity'])->fullName());
+            $documents[Typed::string($item['PK'])] = Typed::document($item['organization']);
         }
 
-        return $named;
+        return $documents;
     }
 }

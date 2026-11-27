@@ -79,6 +79,12 @@ final class PersonalDataContext implements Context
     public function aContactOfTwoOrganizations(string $name, string $organization, string $other): void
     {
         $this->aContactWithoutContactDetails($name, $organization);
+        $this->theContactIsAlsoAContactOf($name, $other);
+    }
+
+    #[Given('le contact :name est aussi contact de :other')]
+    public function theContactIsAlsoAContactOf(string $name, string $other): void
+    {
         $prospect = $this->scenario->organizationNamed($other);
         $prospect->addContact($this->scenario->contactIdOf($name), by: $this->scenario->managerOf($prospect), at: $this->application->now());
         $this->application->organizations->save($prospect);

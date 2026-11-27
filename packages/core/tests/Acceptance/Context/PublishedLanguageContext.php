@@ -41,6 +41,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizations;
@@ -570,7 +571,7 @@ final class PublishedLanguageContext implements Context
         $answered = $this->application->whichOrganizationsNameTheseContacts(new WhichOrganizationsNameTheseContacts($this->scenario->accountIdOf($account)->value, array_keys($this->asked)));
         $this->organizationsOfContacts = array_map(fn (OrganizationsNamingContactResponse $contact): OrganizationsOfContactResponse => new OrganizationsOfContactResponse(
             $contact->personId,
-            array_map(fn (string $id): string => $this->scenario->nameOf(new OrganizationId($id)), $contact->organizationIds),
+            array_map(fn (string $id): OrganizationOfContactResponse => new OrganizationOfContactResponse($id, $this->scenario->nameOf(new OrganizationId($id)), null), $contact->organizationIds),
         ), $answered);
     }
 
@@ -579,8 +580,20 @@ final class PublishedLanguageContext implements Context
     {
         $answered = array_map(fn (OrganizationsOfContactResponse $contact): array => [
             'contact' => $this->asked[$contact->personId] ?? $contact->personId,
-            'organisations' => implode(', ', $contact->organizationNames),
+            'organisations' => implode(', ', array_map(fn (OrganizationOfContactResponse $organization): string => $this->scenario->nameOf(new OrganizationId($organization->id)), $contact->organizations)),
         ], $this->organizationsOfContacts);
+
+        Expect::same($table->getColumnsHash(), $answered);
+    }
+
+    #[Then('Prospecting répond les rattachements :')]
+    public function prospectingAnswersTheAttachments(TableNode $table): void
+    {
+        $answered = array_merge([], ...array_map(fn (OrganizationsOfContactResponse $contact): array => array_map(fn (OrganizationOfContactResponse $organization): array => [
+            'contact' => $this->asked[$contact->personId] ?? $contact->personId,
+            'organisation' => $organization->fullName,
+            'rattaché le' => null === $organization->attachedAt ? '' : Vocabulary::describeFrenchMoment($organization->attachedAt),
+        ], $contact->organizations), $this->organizationsOfContacts));
 
         Expect::same($table->getColumnsHash(), $answered);
     }

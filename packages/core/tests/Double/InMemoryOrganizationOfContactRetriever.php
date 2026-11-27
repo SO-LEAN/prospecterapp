@@ -29,7 +29,7 @@ final readonly class InMemoryOrganizationOfContactRetriever implements Organizat
 
         foreach ($contacts as $contact) {
             $naming = array_filter($organizations, static fn (Organization $organization): bool => self::names($organization, $contact));
-            $ofContacts[$contact->value] = array_values(array_map(self::organizationOfContact(...), $naming));
+            $ofContacts[$contact->value] = array_values(array_map(static fn (Organization $organization): OrganizationOfContact => self::organizationOfContact($organization, $contact), $naming));
         }
 
         return $ofContacts;
@@ -40,8 +40,10 @@ final readonly class InMemoryOrganizationOfContactRetriever implements Organizat
         return array_any(StateOf::the($organization)->listOf('contacts', ContactId::class), $contact->equals(...));
     }
 
-    private static function organizationOfContact(Organization $organization): OrganizationOfContact
+    private static function organizationOfContact(Organization $organization, ContactId $contact): OrganizationOfContact
     {
-        return new OrganizationOfContact($organization->id()->value, StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->fullName());
+        $state = StateOf::the($organization);
+
+        return new OrganizationOfContact($organization->id()->value, $state->object('legalIdentity', LegalIdentity::class)->fullName(), $state->mapOf('attachedAt', \DateTimeImmutable::class)[$contact->value] ?? null);
     }
 }
