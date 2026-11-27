@@ -148,6 +148,15 @@ describe('the shell of a signed-in member', () => {
     expect(await screen.findByRole('tooltip', { name: 'Contacts' })).toBeInTheDocument()
   })
 
+  it('keeps only my avatar at the foot of the folded sidebar, my name left to its menu', async () => {
+    usePreferences.setState({ sidebarCollapsed: true })
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    const myAvatar = within(theSidebar()).getByRole('button', { name: 'Ada Lovelace, menu du compte' })
+    expect(myAvatar).toHaveTextContent(/^AL$/)
+  })
+
   it('remembers the sidebar folded at the next visit', async () => {
     await renderTheSpaAt('/')
     await screen.findByRole('heading', { name: 'Bonjour Ada' })
@@ -179,7 +188,9 @@ describe('the shell of a signed-in member', () => {
     await renderTheSpaAt('/')
     await screen.findByRole('heading', { name: 'Bonjour Ada' })
 
-    await userEvent.click(within(theSidebar()).getByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+    const myAvatar = within(theSidebar()).getByRole('button', { name: 'Ada Lovelace, menu du compte' })
+    expect(myAvatar).toHaveTextContent(/^ALAda Lovelace$/)
+    await userEvent.click(myAvatar)
 
     expect(await screen.findByRole('menuitem', { name: 'Mon compte' })).toHaveAttribute('href', '/account')
     expect(screen.getByRole('menuitemradio', { name: 'Clair' })).toBeInTheDocument()
@@ -195,6 +206,18 @@ describe('the shell of a signed-in member', () => {
     const breadcrumb = await screen.findByRole('navigation', { name: "Fil d'Ariane" })
     expect(breadcrumb).toHaveTextContent(/^Babbage & Co.*Calendrier$/)
     expect(within(breadcrumb).getByText('Calendrier')).toHaveAttribute('aria-current', 'page')
+    expect(within(breadcrumb).queryByRole('link', { name: 'Calendrier' })).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['/', 'Tableau de bord'],
+    ['/settings', 'Réglages'],
+    ['/account', 'Mon compte'],
+  ])('names the section of %s in the breadcrumb, %s', async (path, section) => {
+    await renderTheSpaAt(path)
+
+    const breadcrumb = await screen.findByRole('navigation', { name: "Fil d'Ariane" })
+    expect(breadcrumb).toHaveTextContent(new RegExp(`^Babbage & Co${section}$`))
   })
 
   it('leads by the breadcrumb of a page back to its section', async () => {
