@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Theme, usePreferences, useThemeClass } from './preferences'
 
 const LIGHT_BAR = '#f8fafc'
-const DARK_BAR = '#0f1117'
+const DARK_BAR = '#07141b'
 
 function aSystem(dark: boolean) {
   return () => ({

@@ -50,7 +50,7 @@ export function useResolvedTheme(): 'light' | 'dark' {
 }
 
 /** The browser's bar color in each theme, the page's background. index.html holds the same values. */
-const BROWSER_BAR = { light: '#f8fafc', dark: '#0f1117' } as const
+const BROWSER_BAR = { light: '#f8fafc', dark: '#07141b' } as const
 
 function setMetaContent(name: string, content: string) {
   const meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)
