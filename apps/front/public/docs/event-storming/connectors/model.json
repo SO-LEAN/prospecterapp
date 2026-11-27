@@ -1110,27 +1110,6 @@
                     "label": "Connected calendars"
                 }
             ]
-        },
-        {
-            "id": "readModel:Prospecter\\Core\\Connectors\\Contract\\Service\\WhichMailCatchUpIntents\\WhichMailCatchUpIntents",
-            "slug": "readModel:WhichMailCatchUpIntents",
-            "type": "readModel",
-            "label": "Which mail catch up intents",
-            "feature": "Rattraper l'historique Gmail d'un contact ou d'une organisation",
-            "name": "WhichMailCatchUpIntents",
-            "class": "Prospecter\\Core\\Connectors\\Contract\\Service\\WhichMailCatchUpIntents\\WhichMailCatchUpIntents",
-            "context": "Connectors",
-            "module": "MailImport",
-            "detail": null,
-            "answeredBy": [],
-            "answers": [],
-            "readBy": [
-                {
-                    "context": null,
-                    "slug": null,
-                    "label": "ConnectorsMailCatchUps"
-                }
-            ]
         }
     ],
     "links": [
@@ -2368,20 +2347,6 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "readModel:Prospecter\\Core\\Connectors\\Contract\\Service\\WhichMailCatchUpIntents\\WhichMailCatchUpIntents",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "readModel:Prospecter\\Core\\Connectors\\Contract\\Service\\WhichMailCatchUpIntents\\WhichMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
             "via": null,
             "certain": true,
