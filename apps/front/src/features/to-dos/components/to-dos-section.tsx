@@ -49,24 +49,24 @@ export function ContactToDosSection({ contactId, ...props }: SectionProps & { co
   )
 }
 
-/** The to-dos kept for the organization: those for the organization itself and those for its contacts, each contact named. */
+/**
+ * The to-dos kept for the organization: those for the organization itself and those for its contacts, each contact
+ * named. A new one is noted for the organization, or for the contact chosen among the recipients.
+ */
 export function OrganizationToDosSection({
   organizationId,
   ...props
-}: SectionProps & { organizationId: string }) {
+}: SectionProps & { organizationId: string; recipients?: Recipients }) {
   const { data } = useQuery(organizationToDosQuery(organizationId))
-  const note = useNoteOrganizationToDo()
+  const noteForTheOrganization = useNoteOrganizationToDo()
+  const noteForTheContact = useNoteToDo()
 
-  return (
-    data && (
-      <ToDosCard
-        list={data}
-        withTheirContact
-        onNote={(body) => note.mutateAsync({ params: { path: { id: organizationId } }, body })}
-        {...props}
-      />
-    )
-  )
+  const note = (body: ToDoInput, contactId: string | null) =>
+    contactId
+      ? noteForTheContact.mutateAsync({ params: { path: { id: contactId } }, body })
+      : noteForTheOrganization.mutateAsync({ params: { path: { id: organizationId } }, body })
+
+  return data && <ToDosCard list={data} withTheirContact onNote={note} {...props} />
 }
 
 type CardProps = SectionProps & {

@@ -27,7 +27,7 @@ type Props = {
   defaultValues?: ToDoValues
   /** Logs the new to-do and readies the form for another one. The form offers it beside the submit button. */
   onSubmitThenAnother?: Submit
-  /** Without them, the form offers no choice of whom the to-do is for. */
+  /** Without them, or without a contact among them, the form offers no choice of whom the to-do is for. */
   recipients?: Recipients
 }
 
@@ -75,7 +75,7 @@ export function ToDoForm({
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>
         </Alert>
       )}
-      {recipients && (
+      {recipients && recipients.contacts.length > 0 && (
         <Choices legend={t('toDos.for')}>
           <Choice
             icon={Building2}
