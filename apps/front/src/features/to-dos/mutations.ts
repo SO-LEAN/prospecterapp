@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
+import { useUndoToast } from '@/shared/ui/undo-toast'
 import { type ToDo, toDoKeys } from './queries'
 
 /**
@@ -59,22 +60,17 @@ export function useReviseToDo({ fromAForm = true } = {}) {
   })
 }
 
-/** How long the toast of a to-do ticked off lets the member take the tick back. */
-const TICK_UNDO_DELAY_MS = 6000
-
 /** Says that the to-do is done. Its « Annuler » unticks it, while the to-do carries the link that does it. */
 function useTickedOffToast() {
   const { t } = useTranslation()
   const untick = useUntickToDo()
+  const showTheUndoToast = useUndoToast()
 
   return (toDo: Pick<ToDo, 'id' | '_links'>) =>
-    toast(t('toDos.tickedOff'), {
-      duration: TICK_UNDO_DELAY_MS,
-      action: toDo._links.untick && {
-        label: t('common.undo'),
-        onClick: () => untick.mutate({ params: { path: { id: toDo.id } } }),
-      },
-    })
+    showTheUndoToast(
+      t('toDos.tickedOff'),
+      toDo._links.untick && (() => untick.mutate({ params: { path: { id: toDo.id } } })),
+    )
 }
 
 /**
