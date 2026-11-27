@@ -621,6 +621,24 @@ export const fr = {
     directions: { inbound: 'entrant', outbound: 'sortant' },
     statuses: { planned: 'À venir', done: 'Fait', missed: 'Manqué', cancelled: 'Annulé', late: 'En retard' },
     toDos: { open: 'À faire', done: 'Faite', late: 'En retard' },
+    markers: {
+      ai: 'IA',
+      createdByAnAI: 'Créé par une IA',
+      importedFromGmail: 'Importé de Gmail',
+      bookedByLink: 'Réservé par lien',
+      toAttach: 'À rattacher',
+      toRedact: 'À mettre en conformité',
+      campaign: 'Campagne : {{name}}',
+      campaignErased: 'Campagne effacée',
+      late: 'En retard',
+      sync: {
+        synced: 'Synchronisé avec Google le {{at}}.',
+        pending: 'En attente de synchronisation avec Google.',
+        pendingToReconnect:
+          'En attente de synchronisation avec Google : votre compte Google est à reconnecter.',
+        failed: 'Google a refusé l’événement le {{at}}.',
+      },
+    },
   },
   exchanges: {
     title: 'Échanges',
