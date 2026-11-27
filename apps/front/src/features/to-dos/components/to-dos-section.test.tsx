@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import type { ToDo, ToDoInput, ToDoList } from '../queries'
-import { type Recipients, ToDosCard } from './to-dos-section'
+import { OrganizationToDosSection, type Recipients, ToDosCard } from './to-dos-section'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -276,6 +276,17 @@ describe('ToDosCard', () => {
     expect(within(dialog).getByRole('radio', { name: 'Safran SA' })).toBeChecked()
   })
 
+  it('offers no choice of whom it is for to an organization without contacts', async () => {
+    await renderTheCard(listOf([]), undefined, true, undefined, undefined, {
+      organization: 'Solo SARL',
+      contacts: [],
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+    expect(within(await screen.findByRole('dialog')).queryByRole('radio')).not.toBeInTheDocument()
+  })
+
   it('offers no choice of whom it is for without recipients', async () => {
     await renderTheCard(listOf([]))
 
@@ -363,5 +374,55 @@ describe('ToDosCard', () => {
 
     const request = theApi.mock.calls[0]?.[0] as Request
     expect([request.method, new URL(request.url).pathname]).toEqual(['DELETE', `/api/to-dos/${ID}`])
+  })
+})
+
+describe('OrganizationToDosSection', () => {
+  const ORGANIZATION = '0190a1c0-0000-7000-8000-0000000000bb'
+
+  const theListThenTheNewToDo = () =>
+    theApi.mockImplementation(async (input) =>
+      (input as Request).method === 'POST'
+        ? Response.json(aToDo({}), { status: 201 })
+        : Response.json(listOf([])),
+    )
+
+  const theNotes = () =>
+    theApi.mock.calls.map(([input]) => input as Request).filter((request) => request.method === 'POST')
+
+  async function noteFrom(recipient: string) {
+    await renderInARouter(
+      <QueryClientProvider client={new QueryClient()}>
+        <OrganizationToDosSection organizationId={ORGANIZATION} recipients={SAFRAN} />
+        <Toaster />
+      </QueryClientProvider>,
+    )
+    await userEvent.click(await screen.findByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog')
+    await userEvent.click(within(dialog).getByRole('radio', { name: recipient }))
+    await userEvent.type(within(dialog).getByLabelText('Ce qu’il y a à faire'), 'Envoyer le CV{Enter}')
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  }
+
+  it('notes the to-do of the organization by default, by one request', async () => {
+    theListThenTheNewToDo()
+
+    await noteFrom('Safran SA')
+
+    const notes = theNotes()
+    expect(notes.map((request) => new URL(request.url).pathname)).toEqual([
+      `/api/organizations/${ORGANIZATION}/to-dos`,
+    ])
+    expect(await notes[0]?.json()).toEqual({ text: 'Envoyer le CV', dueOn: dayOf(inDays(1)), dueAt: null })
+  })
+
+  it('notes the to-do of the contact chosen, by one request', async () => {
+    theListThenTheNewToDo()
+
+    await noteFrom('Nicolas Bonnet')
+
+    const notes = theNotes()
+    expect(notes.map((request) => new URL(request.url).pathname)).toEqual([`/api/contacts/${NICOLAS}/to-dos`])
+    expect(await notes[0]?.json()).toEqual({ text: 'Envoyer le CV', dueOn: dayOf(inDays(1)), dueAt: null })
   })
 })
