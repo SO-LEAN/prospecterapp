@@ -62,7 +62,7 @@ jobs:
             | if . == "api" then "api-lint", (range(1; $shares + 1) | "api-tests-\(.)-of-\($shares)") else . end)')
           parts=core; checks="[\"secrets\"]"
           mutations=$(for part in $parts; do
-            jq -cn --arg part "$part" --argjson shards "$(make -s mutation-shards PART="$part" BASE="HEAD^2~3")" \
+            jq -cn --arg part "$part" --argjson shards "$(make -s mutation-shards PART="$part" BASE="$(git log -1 --format=%H --grep="the core as it was before" HEAD^2)")" \
               'range(1; $shards + 1) | {part: $part, shard: ., shards: $shards}'
           done | jq -cs .)
           merges=$(echo "$mutations" | jq -c 'map(select(.shards > 1) | .part) | unique')
@@ -268,7 +268,7 @@ jobs:
           PART: ${{ matrix.part }}
           SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
           BASE_REF: ${{ github.base_ref }}
-        run: make "mutation-$PART" BASE="HEAD^2~3" SHARD="$SHARD"
+        run: make "mutation-$PART" BASE="$(git log -1 --format=%H --grep="the core as it was before" HEAD^2)" SHARD="$SHARD"
 
       - name: Sum up the mutation
         if: always()
