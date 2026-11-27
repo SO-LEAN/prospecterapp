@@ -17,6 +17,9 @@ const DARK_THEME: Theme = new Map([...LIGHT_THEME, ...declarationsOf(blockOf('.d
 /** What `@theme inline` gives Tailwind, as `bg-*`, `text-*` and `border-*` utilities. */
 const TAILWIND_THEME = declarationsOf(blockOf('@theme inline'))
 
+/** What the page does when the member's system asks for less motion. */
+const REDUCED_MOTION = declarationsOf(blockOf('@media (prefers-reduced-motion: reduce)'))
+
 /** One step of an sRGB channel: the rounding of an OKLCH value written with three decimals. */
 const ROUNDING = 1
 
@@ -270,6 +273,31 @@ describe('the « Le Filon » matter', () => {
     expect(float).toBeLessThan(lift ?? 0)
   })
 })
+
+describe('the « Le Filon » motion', () => {
+  it.each(['standard', 'enter', 'exit'])('gives Tailwind the %s easing', (curve) => {
+    expect(TAILWIND_THEME.get(`--ease-${curve}`)).toMatch(/^cubic-bezier\(/)
+  })
+
+  it.each(movesOfTheAnimations())(
+    'only fades under prefers-reduced-motion: %s stays %s',
+    (variable, still) => {
+      expect(REDUCED_MOTION.get(variable)).toBe(still)
+    },
+  )
+})
+
+/**
+ * What the enter and exit animations of tw-animate-css move, opacity aside, with the value that keeps it still: the
+ * initial value it declares.
+ */
+function movesOfTheAnimations() {
+  const animations = readFileSync('node_modules/tw-animate-css/dist/tw-animate.css', 'utf8')
+  return Array.from(
+    animations.matchAll(/@property (--tw-(?:enter|exit)-[\w-]+)\{[^}]*initial-value:([^;}]+)/g),
+    ([, variable = '', still = '']) => [variable, still],
+  ).filter(([variable]) => !variable?.endsWith('-opacity'))
+}
 
 function deepestBlurOf(shadow: string) {
   const blurs = Array.from(TAILWIND_THEME.get(shadow)?.matchAll(/\S+ \S+ (\d+)px/g) ?? [], ([, blur]) =>
