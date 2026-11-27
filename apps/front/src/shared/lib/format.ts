@@ -144,7 +144,7 @@ export function formatWeekTitle(first: Date, last: Date): string {
   })
 }
 
-/** "mar. 17 nov. · S47": a day with the ISO number of its week, telling where the member is in the year */
+/** "mar. 17 nov. · S47": a day with its ISO week number, which tells the member where they are in the year */
 export function formatDayAndWeek(day: Date, now = new Date()): string {
   return i18n.t('dates.dayAndWeek', { day: formatDay(day, now), number: isoWeekOf(day) })
 }
