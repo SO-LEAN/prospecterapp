@@ -44,12 +44,14 @@ describe('the page of a wall', () => {
 
   it('holds in its script every function of the marker that draws a routed arrow', () => {
     const script = [...document.querySelectorAll('script')].at(-1)?.textContent ?? ''
-    const functions = script.slice(0, script.lastIndexOf('\n('))
+    const functions = script.slice(0, script.indexOf('\n(function runTheWall('))
+    const helpers = mutationHelpersIn(functions)
     const routed = new Function(
+      ...helpers,
       `${functions}\nreturn arrowOf({ x: 0, y: 0, w: 132, h: 132, seed: 'a' }, { x: 400, y: 500, w: 132, h: 132, seed: 'b' }, true, { out: 150, corridor: 360, drop: 150 }).curve`,
     )
 
-    expect(routed()).toMatch(/^M135,.* L391,[\d.]+$/)
+    expect(routed(...helpers.map(() => inactiveMutant))).toMatch(/^M135,.* L391,[\d.]+$/)
   })
 
   it('leads back to the overview from the root of its breadcrumb', () => {
@@ -187,4 +189,17 @@ function stickyOf(label: string, inside?: string): HTMLElement | null | undefine
       (inside === undefined || candidate.querySelector(inside) !== null),
   )
   return inside === undefined ? sticky : sticky?.querySelector<HTMLElement>(inside)
+}
+
+/**
+ * The helpers that the mutation's instrumentation calls in the functions it mutates (`stryMutAct_…`, `stryCov_…`).
+ * During a mutation, the page's script holds those calls, so the copy that a test runs needs them defined.
+ */
+function mutationHelpersIn(script: string): string[] {
+  return [...new Set(script.match(/\bstry(?:MutAct|Cov)_\w+\b/g))]
+}
+
+/** In a test's copy of the page's script, no mutant is active and no coverage is recorded. */
+function inactiveMutant(): false {
+  return false
 }
