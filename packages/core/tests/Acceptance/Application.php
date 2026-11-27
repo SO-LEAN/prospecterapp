@@ -1296,7 +1296,7 @@ final class Application
     {
         $kept = new KeptOrganizationContacts();
 
-        return $this->ask(new ListOrganizationContactsHandler($this->organizationSheetRetriever, $this->personDescriptions), $query, $kept) ? $kept->contacts : null;
+        return $this->ask(new ListOrganizationContactsHandler($this->organizationSheetRetriever, $this->knownContacts), $query, $kept) ? $kept->contacts : null;
     }
 
     public function consultMyToDos(ConsultMyToDos $query): ?KeptToDoList

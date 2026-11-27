@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\OrganizationContactsPresenter;
+use App\Contacts\OrganizationContactsComposition;
 use App\Contacts\Resource\OrganizationContactsResource;
 use App\Prospecting\OrganizationVoter;
-use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\JsonResponses;
-use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -32,9 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowOrganizationContactsController
 {
     public function __construct(
-        private QueryHandler $listOrganizationContacts,
-        private Links $links,
-        private IntentLinks $intentLinks,
+        private OrganizationContactsComposition $organizationContacts,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -48,9 +42,6 @@ final readonly class ShowOrganizationContactsController
     #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        $presenter = new OrganizationContactsPresenter($this->links, $this->intentLinks);
-        $this->listOrganizationContacts->__invoke(new ListOrganizationContacts($user->memberId(), $organization->id), $presenter);
-
-        return $this->jsonResponses->of($presenter->resource);
+        return $this->jsonResponses->of($this->organizationContacts->read($user->memberId(), $organization->id));
     }
 }
