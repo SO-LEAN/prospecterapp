@@ -93,7 +93,7 @@ describe('ToDosCard', () => {
 
     const [toDo] = within(screen.getByRole('list', { name: 'À faire' })).getAllByRole('listitem')
     expect(toDo).toHaveTextContent('Envoyer mon CV')
-    expect(toDo).toHaveTextContent('14 nov. 2099, 8h30')
+    expect(toDo).toHaveTextContent('sam. 14 nov. 2099 · 8h30')
     expect(toDo).toHaveTextContent('par Michel Maier')
     expect(screen.getByText('1 faite')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Décocher « Préparer la démo »' })).toBeChecked()

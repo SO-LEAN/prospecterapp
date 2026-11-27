@@ -84,7 +84,7 @@ describe('a to-do in « À traiter »', () => {
     await showTheLine(aToDo())
 
     expect(theLine()).toHaveTextContent(
-      /^Envoyer le CV à Nicolas Bonnet18 nov\. 2026, 11h00 · Nicolas BonnetPour aujourd’hui/,
+      /^Envoyer le CV à Nicolas Bonnetmer\. 18 nov\. · 11h00 · Nicolas BonnetPour aujourd’hui/,
     )
     expect(theLine()).not.toHaveAttribute('data-late')
   })
@@ -92,13 +92,15 @@ describe('a to-do in « À traiter »', () => {
   it('names no one for a to-do for the organization itself', async () => {
     await showTheLine(aToDo({ contact: null }))
 
-    expect(theLine()).toHaveTextContent(/^Envoyer le CV à Nicolas Bonnet18 nov\. 2026, 11h00Pour aujourd’hui/)
+    expect(theLine()).toHaveTextContent(
+      /^Envoyer le CV à Nicolas Bonnetmer\. 18 nov\. · 11h00Pour aujourd’hui/,
+    )
   })
 
   it('says since when it is late, set apart by a stripe', async () => {
     await showTheLine(aToDo({ dueOn: '2026-11-09', dueAt: null }), 4)
 
-    expect(theLine()).toHaveTextContent(/9 nov\. 2026 · Nicolas BonnetEn retard de 4 jours/)
+    expect(theLine()).toHaveTextContent(/lun\. 9 nov\. · Nicolas BonnetEn retard de 4 jours/)
     expect(theLine()).toHaveAttribute('data-late')
     expect(theLine()).toHaveClass('border-l-4')
   })
