@@ -35,7 +35,7 @@ export const Route = createFileRoute('/_app/')({
     void queryClient.prefetchQuery(myDayQuery(startOfDay(new Date())))
     void queryClient.prefetchQuery(exchangesToProcessQuery())
     return Promise.all([
-      queryClient.ensureQueryData(dashboardQuery()),
+      ensureSharedQueryData(queryClient, dashboardQuery()),
       ensureSharedQueryData(queryClient, accountQuery()),
       queryClient.ensureQueryData(recentQuery()),
     ])
