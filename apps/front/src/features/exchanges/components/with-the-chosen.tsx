@@ -77,7 +77,7 @@ function PlanWithTheOrganization({ chosen, slot, onCancel, onPlanned }: PlanWith
   )
 }
 
-/** The link of a timeline that offers the gesture, and the refusal said when it does not. */
+/** Each gesture's refusal, shown when the timeline does not carry the gesture's link. */
 const REFUSALS = { planExchange: 'calendar.mayNotPlan', noteExchange: 'exchanges.mayNotNote' } as const
 
 type MayProps = {
