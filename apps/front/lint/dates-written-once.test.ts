@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest'
 const BIOME = join(import.meta.dirname, '../node_modules/.bin/biome')
 const THE_RULE = join(import.meta.dirname, 'dates-written-once.grit')
 const ONLY_THE_RULE = { linter: { rules: { recommended: false } }, plugins: [THE_RULE] }
+const THE_MESSAGE =
+  'A date or an hour shown comes from shared/lib/format.ts, one function for each case (docs/architecture/front.md).'
 const ANNOTATION = /^::error title=plugin,file=([^,]+),line=(\d+),[^:]*::(.*)$/
 
 type Refusal = { file: string; line: number; message: string }
@@ -44,7 +46,7 @@ describe('the rule of the dates written once', () => {
     expect(refusal).toEqual({
       file: expect.stringMatching(/\/moment\.ts$/),
       line: 1,
-      message: expect.stringContaining('shared/lib/format.ts'),
+      message: THE_MESSAGE,
     })
   })
 
@@ -55,9 +57,10 @@ describe('the rule of the dates written once', () => {
       `const shown = moment.toLocaleDateString('fr-FR')`,
       `const hour = moment.toLocaleTimeString()`,
       `const both = moment.toLocaleString('fr-FR')`,
+      `const plain = Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(moment)`,
     ].join('\n')
 
-    expect(linesRefused(module)).toEqual([1, 2, 3, 4, 5])
+    expect(linesRefused(module)).toEqual([1, 2, 3, 4, 5, 6])
   })
 
   it('accepts reading the time zone of the browser and writing a number', () => {
