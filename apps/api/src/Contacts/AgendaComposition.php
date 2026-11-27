@@ -49,7 +49,7 @@ final readonly class AgendaComposition
         private QueryHandler $consultWhatIsToProcess,
         private TimelineResourceFactory $timelines,
         private ToDoResourceFactory $toDoResourceFactory,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
     ) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
-use App\Contacts\PersonsOfAView;
+use App\Contacts\PersonsOfAViewComposition;
 use App\Contacts\PersonsShown;
 use App\Security\IntentLinks;
 use App\Security\User;
@@ -32,7 +32,7 @@ final readonly class ToDoComposition
         private QueryHandler $consultOrganizationToDos,
         private QueryHandler $consultMyToDos,
         private ToDoResourceFactory $factory,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
     ) {

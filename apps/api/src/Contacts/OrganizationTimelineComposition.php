@@ -37,7 +37,7 @@ final readonly class OrganizationTimelineComposition
         private QueryHandler $consultOrganizationUpcomingExchanges,
         private QueryHandler $consultMailCatchUpIntents,
         private TimelineResourceFactory $timelines,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
         private ClockInterface $clock,
