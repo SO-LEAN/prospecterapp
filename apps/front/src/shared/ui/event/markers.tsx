@@ -36,7 +36,7 @@ export function ExchangeMarkers({
       {exchange.createdByAnAI && <AIMarker />}
       {exchange.importedFrom === 'google' && <GmailMarker />}
       {exchange.bookedByLink && <BookedByLinkMarker />}
-      {exchange.contactToAttach && <ToAttachMarker />}
+      <ToAttachMarker exchange={exchange} />
       {exchange.toRedact && <ToRedactMarker />}
       {exchange.campaign && <CampaignMarker name={exchange.campaign.name} />}
       {sync && <SyncMarker sync={sync} />}
@@ -74,9 +74,10 @@ export function CampaignMarker({ name }: { name?: string | null }) {
 }
 
 /** « À rattacher » on an exchange whose contact waits to be attached to an organization (ADR 0146). */
-export function ToAttachMarker() {
+export function ToAttachMarker({ exchange }: { exchange: Partial<Pick<Exchange, 'contactToAttach'>> }) {
   const { t } = useTranslation()
 
+  if (!exchange.contactToAttach) return null
   return (
     <Badge variant="outline" className={cn(MARKER, 'border-warning')}>
       {t('events.markers.toAttach')}

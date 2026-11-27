@@ -126,7 +126,7 @@ function Markers() {
       <CampaignMarker name={t('catalogue.campaignSample')} />
       <CampaignMarker name={null} />
       <BookedByLinkMarker />
-      <ToAttachMarker />
+      <ToAttachMarker exchange={{ contactToAttach: true }} />
       <ToRedactMarker />
       <LateMarker />
       <SyncMarker sync={{ provider: 'google', state: 'synced', at: now, reason: null }} />
