@@ -207,6 +207,36 @@ describe('the « Le Filon » dark theme', () => {
   })
 })
 
+describe('the « Le Filon » type', () => {
+  it('loads Inter with its optical sizes, self-hosted', () => {
+    expect(styles).toContain('@import "@fontsource-variable/inter/opsz.css";')
+  })
+
+  it('gives Tailwind Inter Display, Inter at its largest optical size', () => {
+    expect(TAILWIND_THEME.get('--font-display')).toBe(TAILWIND_THEME.get('--font-sans'))
+    expect(TAILWIND_THEME.get('--font-display--font-variation-settings')).toBe('"opsz" 32')
+  })
+
+  it.each([
+    ['title', '27px', '680', '-0.022em'],
+    ['card-title', '14.5px', '650', undefined],
+    ['body', '13.5px', '500', undefined],
+    ['label', '11px', '700', '0.08em'],
+  ])('sets the text-%s at %s, weight %s, letter spacing %s', (style, size, weight, letterSpacing) => {
+    expect(TAILWIND_THEME.get(`--text-${style}`)).toBe(size)
+    expect(TAILWIND_THEME.get(`--text-${style}--font-weight`)).toBe(weight)
+    expect(TAILWIND_THEME.get(`--text-${style}--letter-spacing`)).toBe(letterSpacing)
+  })
+
+  it('writes the page in the body text', () => {
+    expect(blockOf('body')).toContain('text-body')
+  })
+
+  it('writes the dates and the hours in tabular figures', () => {
+    expect(blockOf('time')).toContain('tabular-nums')
+  })
+})
+
 function expectOutOfTheVioletsAndTheMagentas(theme: Theme, token: string) {
   const hue = hueOf(channelsOf(theme, token))
   expect(hue < VIOLET_AND_MAGENTA.from || hue > VIOLET_AND_MAGENTA.to, `${token} has the hue ${hue}°`).toBe(
