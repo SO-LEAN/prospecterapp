@@ -180,7 +180,8 @@ test('sign in, start prospecting an organization, change it section by section, 
   })
 
   await test.step('my account changes section by section', async () => {
-    await page.getByRole('link', { name: 'Mon compte' }).first().click()
+    await page.getByRole('button', { name: /menu du compte/ }).click()
+    await page.getByRole('menuitem', { name: 'Mon compte' }).click()
     await page.getByRole('button', { name: 'Modifier : Nom' }).click()
     await page.getByLabel('Prénom').fill('Paul')
     await page.getByRole('button', { name: 'Enregistrer' }).click()

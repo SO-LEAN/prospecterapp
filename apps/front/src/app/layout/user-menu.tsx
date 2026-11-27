@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LogOut, Monitor, MonitorOff, Moon, Network, Settings, Sun, UserRound } from 'lucide-react'
+import { LogOut, Monitor, MonitorOff, Moon, Network, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
 import { EVENT_STORMING_OVERVIEW, servedDocumentsQuery } from '@/shared/config/documents'
 import { initials } from '@/shared/lib/format'
+import { cn } from '@/shared/lib/utils'
 import { type Theme, usePreferences } from '@/shared/stores/preferences'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
 import {
@@ -27,7 +28,8 @@ const themes = [
   { value: 'system', icon: Monitor },
 ] as const
 
-export function UserMenu() {
+/** My avatar at the foot of the sidebar, and its menu: my account, the theme, the architecture, the sign-out. */
+export function UserMenu({ collapsed = false }: { collapsed?: boolean }) {
   const { t } = useTranslation()
   const { data: account, isPending } = useQuery(accountQuery())
   const signOut = useSignOut()
@@ -37,7 +39,7 @@ export function UserMenu() {
   const { data: theDocumentsAreServed } = useQuery(servedDocumentsQuery())
 
   if (isPending) {
-    return <Skeleton className="size-9 rounded-full" />
+    return <Skeleton className="size-8 rounded-full" />
   }
 
   const fullName = account ? myName(account) : ''
@@ -46,17 +48,20 @@ export function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={t('nav.userMenu', { name: fullName })}
-        className="flex items-center gap-2.5 rounded-full p-0.5 pr-2 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(
+          'flex h-11 items-center gap-2.5 rounded-lg px-1.5 text-left outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring',
+          collapsed && 'justify-center px-0',
+        )}
       >
         <Avatar className="size-8">
           {account?.picture && <AvatarImage src={account.picture.smallUrl} alt="" />}
-          <AvatarFallback className="bg-primary/10 font-medium text-primary text-xs">
+          <AvatarFallback className="bg-sidebar-accent font-medium text-sidebar-foreground text-xs">
             {initials(fullName)}
           </AvatarFallback>
         </Avatar>
-        <span className="hidden max-w-40 truncate font-medium text-sm sm:block">{fullName}</span>
+        {!collapsed && <span className="min-w-0 truncate font-medium text-sm">{fullName}</span>}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent side="right" align="end" className="w-60">
         <DropdownMenuLabel className="font-normal">
           <p className="truncate font-medium text-sm">{fullName}</p>
           <p className="truncate text-muted-foreground text-xs">
@@ -67,11 +72,6 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/account">
             <UserRound /> {t('nav.account')}
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/settings">
-            <Settings /> {t('nav.settings')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

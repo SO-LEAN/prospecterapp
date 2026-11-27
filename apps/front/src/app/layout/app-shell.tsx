@@ -8,7 +8,6 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/shared/ui/sheet
 import { BrandMark } from './brand'
 import { Navigation } from './navigation'
 import { NewMenu } from './new-menu'
-import { UserMenu } from './user-menu'
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
@@ -42,7 +41,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <BrandMark className="size-7 md:hidden" />
           <div className="ml-auto flex items-center gap-3">
             <NewMenu />
-            <UserMenu />
           </div>
         </header>
 

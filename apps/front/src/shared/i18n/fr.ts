@@ -8,7 +8,7 @@ export const fr = {
     calendar: 'Calendrier',
     campaigns: 'Campagnes',
     account: 'Mon compte',
-    settings: 'Configuration',
+    settings: 'Réglages',
     architecture: 'Architecture',
     signOut: 'Se déconnecter',
     signOutEverywhere: 'Se déconnecter partout',

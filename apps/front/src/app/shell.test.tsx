@@ -167,4 +167,25 @@ describe('the shell of a signed-in member', () => {
 
     expect(within(theSidebar()).getByText('Babbage & Co')).toBeInTheDocument()
   })
+
+  it('leads from the foot of the sidebar to the settings', async () => {
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    expect(within(theSidebar()).getByRole('link', { name: 'Réglages' })).toHaveAttribute('href', '/settings')
+  })
+
+  it('opens the menu of my avatar from the foot of the sidebar: my account, the theme and the sign-out', async () => {
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    await userEvent.click(within(theSidebar()).getByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+
+    expect(await screen.findByRole('menuitem', { name: 'Mon compte' })).toHaveAttribute('href', '/account')
+    expect(screen.getByRole('menuitemradio', { name: 'Clair' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitemradio', { name: 'Sombre' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitemradio', { name: 'Système' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: 'Configuration' })).not.toBeInTheDocument()
+  })
 })

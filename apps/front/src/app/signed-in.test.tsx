@@ -162,16 +162,13 @@ describe('the layout of a member signed in', () => {
     expect(screen.getByRole('button', { name: 'Se déconnecter' })).toBeInTheDocument()
   })
 
-  it('greets a member by their first name, the menu of their name offering their configuration', async () => {
+  it('greets a member by their first name, the menu of their name offering their account', async () => {
     theApiAnswers(myProfileNamed)
     await signIn()
 
     expect(await screen.findByRole('heading', { name: 'Bonjour Ada' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Ada Lovelace, menu du compte' }))
-    expect(await screen.findByRole('menuitem', { name: 'Configuration' })).toHaveAttribute(
-      'href',
-      '/settings',
-    )
+    expect(await screen.findByRole('menuitem', { name: 'Mon compte' })).toHaveAttribute('href', '/account')
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
   })
 
