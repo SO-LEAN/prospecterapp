@@ -6,6 +6,7 @@ namespace Prospecter\Core\Booking\Domain\Service;
 
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\BusyPeriod;
+use Prospecter\Core\Booking\Domain\Model\PlannedExchange;
 use Prospecter\Core\Booking\Domain\Port\HostAgendas;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
@@ -34,7 +35,7 @@ final readonly class BusyPeriods
     public function of(AccountId $accountId, MemberId $host, \DateTimeImmutable $at): array
     {
         return [
-            ...$this->hostAgendas->busyPeriodsOf($accountId, $host, $at->modify(self::LONGEST_PLANNED_EXCHANGE_BEFORE)),
+            ...array_map(static fn (PlannedExchange $exchange): BusyPeriod => $exchange->busyPeriod(), $this->hostAgendas->plannedExchangesOf($accountId, $host, $at->modify(self::LONGEST_PLANNED_EXCHANGE_BEFORE))),
             ...array_map(static fn (Appointment $appointment): BusyPeriod => $appointment->busyPeriod(), $this->appointments->toComeOf($host, $at)),
         ];
     }
