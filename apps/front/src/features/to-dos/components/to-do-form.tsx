@@ -16,7 +16,7 @@ import { contactIdOf, ITSELF, newToDo, type ToDoValues, toDoFields, toDoSchema, 
 /** Who a to-do can be for on an organization's card: the organization itself, first and by default, or one of its contacts. */
 export type Recipients = { organization: string; contacts: { id: string; name: string }[] }
 
-/** Gets the to-do, and the contact chosen, null for the organization itself or without a choice. */
+/** Gets the to-do and the contact chosen. The contact is null for the organization itself, or when the form offers no choice. */
 type Submit = (toDo: ToDoInput, contactId: string | null) => Promise<unknown>
 
 type Props = {
