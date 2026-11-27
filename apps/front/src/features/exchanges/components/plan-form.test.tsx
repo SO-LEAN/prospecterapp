@@ -302,7 +302,9 @@ describe('PlanForm', () => {
     })
 
     expect(
-      await screen.findByText('Vous avez déjà un rendez-vous avec Ada Lovelace de 13h45 à 14h15.'),
+      await screen.findByText(
+        'Vous avez déjà un rendez-vous avec Ada Lovelace le ven. 13 nov. · 13h45 à 14h15.',
+      ),
     ).toBeInTheDocument()
     await user.click(screen.getByLabelText('Appel'))
     await user.click(save())

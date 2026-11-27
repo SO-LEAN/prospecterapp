@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
-import { formatHour } from '@/shared/lib/format'
+import { formatRange } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -278,8 +278,10 @@ function Overlaps({ form }: { form: UseFormReturn<PlanValues> }) {
             {t('exchanges.overlap', {
               exchange: t(`exchanges.anExchange.${exchange.channel}`),
               name: interlocutor.name ?? t('exchanges.unknownPerson'),
-              from: formatHour(exchange.occurredAt),
-              to: formatHour(endOf(exchange.occurredAt, exchange.durationInMinutes ?? 0)),
+              range: formatRange(
+                exchange.occurredAt,
+                endOf(exchange.occurredAt, exchange.durationInMinutes ?? 0),
+              ),
             })}
           </p>
         ))}
