@@ -1,3 +1,4 @@
+import { focusManager } from '@tanstack/react-query'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -54,6 +55,10 @@ const anEmptyDay = () =>
 const aDayNeverRead = () => new Promise<Response>(() => {})
 let myDay: () => Promise<Response> = anEmptyDay
 
+const theDocumentsServed = () => new Response(null, { status: 200 })
+const noDocuments = () => new Response(null, { status: 404 })
+let theInstance: Answer = noDocuments
+
 const anEmptyDashboard = {
   organizationName: 'Babbage & Co',
   markers: [],
@@ -72,8 +77,11 @@ const anEmptyDashboard = {
  * an empty day and nothing to process. It serves nothing else.
  */
 function theApiAnswers(...myAccount: Answer[]) {
-  theApi.mockImplementation(async (input) => {
+  theApi.mockImplementation(async (input, init) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
+    if (pathname === '/docs/event-storming/' && init?.method === 'HEAD') {
+      return theInstance()
+    }
     if (pathname === '/api/me/name') {
       myAccount.splice(0, myAccount.length, myProfileNamed)
       return myProfileNamed()
@@ -122,6 +130,7 @@ describe('the layout of a member signed in', () => {
     theSession.signOut.mockClear()
     theSession.signOutEverywhere.mockClear()
     myDay = anEmptyDay
+    theInstance = noDocuments
   })
 
   it('tells a member whose profile is not created yet that it is being prepared, and lets them sign out', async () => {
@@ -164,6 +173,42 @@ describe('the layout of a member signed in', () => {
       '/settings',
     )
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
+  })
+
+  it('opens the walls of the architecture in a new tab from the menu of their name, where the instance serves them', async () => {
+    theInstance = theDocumentsServed
+    theApiAnswers(myProfileNamed)
+    await signIn()
+    await userEvent.click(await screen.findByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+
+    const architecture = await screen.findByRole('menuitem', { name: 'Architecture' })
+    expect(architecture).toHaveAttribute('href', '/docs/event-storming/')
+    expect(architecture).toHaveAttribute('target', '_blank')
+    expect(architecture).toHaveAttribute('rel', 'noreferrer')
+  })
+
+  it('asks the instance once in the session whether it serves the walls of the architecture', async () => {
+    theInstance = theDocumentsServed
+    theApiAnswers(myProfileNamed)
+    await signIn()
+    await userEvent.click(await screen.findByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+    await screen.findByRole('menuitem', { name: 'Architecture' })
+
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+
+    expect(await screen.findByRole('menuitem', { name: 'Architecture' })).toBeInTheDocument()
+    const askedTheInstance = theApi.mock.calls.filter(([, init]) => init?.method === 'HEAD')
+    expect(askedTheInstance).toHaveLength(1)
+  })
+
+  it('offers no link to the architecture where the instance does not serve its walls', async () => {
+    theApiAnswers(myProfileNamed)
+    await signIn()
+    await userEvent.click(await screen.findByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+
+    expect(await screen.findByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: 'Architecture' })).not.toBeInTheDocument()
   })
 
   it('signs a member out everywhere from the menu of their name, their AIs included', async () => {

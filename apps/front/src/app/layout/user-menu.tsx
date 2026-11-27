@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LogOut, Monitor, MonitorOff, Moon, Settings, Sun, UserRound } from 'lucide-react'
+import { LogOut, Monitor, MonitorOff, Moon, Network, Settings, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
+import { EVENT_STORMING_OVERVIEW, servedDocumentsQuery } from '@/shared/config/documents'
 import { initials } from '@/shared/lib/format'
 import { type Theme, usePreferences } from '@/shared/stores/preferences'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
@@ -33,6 +34,7 @@ export function UserMenu() {
   const signOutEverywhere = useSignOut('everywhere')
   const theme = usePreferences((state) => state.theme)
   const setTheme = usePreferences((state) => state.setTheme)
+  const { data: theDocumentsAreServed } = useQuery(servedDocumentsQuery())
 
   if (isPending) {
     return <Skeleton className="size-9 rounded-full" />
@@ -81,6 +83,16 @@ export function UserMenu() {
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
+        {theDocumentsAreServed && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <a href={EVENT_STORMING_OVERVIEW} target="_blank" rel="noreferrer">
+                <Network /> {t('nav.architecture')}
+              </a>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void signOut()}>
           <LogOut /> {t('nav.signOut')}

@@ -9,6 +9,7 @@ export const fr = {
     campaigns: 'Campagnes',
     account: 'Mon compte',
     settings: 'Configuration',
+    architecture: 'Architecture',
     signOut: 'Se déconnecter',
     signOutEverywhere: 'Se déconnecter partout',
     collapse: 'Réduire le menu',
