@@ -87,6 +87,7 @@ The generator's PHPUnit tests sit beside its code, in `packages/phpstan-rules/te
 - The pages are in the front's public folder: every release holds them, the overview under `/docs/event-storming/`, the contents of the walls, and each wall under `/docs/event-storming/<context>/` (ADR 0066). The instance decides whether it serves it, never the build:
   - on AWS, the CloudFront function of the release (`apps/front/infra/functions/release.js.tftpl`) answers a folder under `/docs/` by its `index.html` when the instance's Terraform sets `serves_the_documents = true` (dev), and 404 otherwise (prod), for a path of the release too;
   - locally, nginx asks the dev server for a folder's `index.html` (`docker/nginx/templates/front.conf.template`): https://prospecter.localhost/docs/event-storming/.
+- The SPA's user menu offers « Architecture », which opens the overview in a new tab, where the instance serves it. The SPA asks with a `HEAD` request on `/docs/event-storming/`, once per session (`shared/config/documents.ts`). An instance answering 404 shows no link.
 
 ## What is left to the full tool
 

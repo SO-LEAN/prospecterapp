@@ -40,7 +40,7 @@ src/
   shared/               reusable, business-agnostic code
     api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, exchanges.ts (what several features read again when a contact leaves an organization or is erased), slices.ts, upload.ts
     auth/               session.ts: Cognito sign-in, the tab's tokens; sign-in-page.ts: the sign-in screen and its returnTo
-    config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066)
+    config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066); documents.ts: whether the instance serves the documents under /docs/
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup, fr.ts, de.ts (elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
