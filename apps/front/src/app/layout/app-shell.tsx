@@ -11,10 +11,6 @@ import { Breadcrumb } from './breadcrumb'
 import { Navigation } from './navigation'
 import { NewMenu } from './new-menu'
 
-/** « Nouveau » is the gold of the top bar. Its menu owns its button, so the bar dresses it from outside. */
-const GOLDEN_BUTTON =
-  '[&_[data-slot=button]]:bg-gold [&_[data-slot=button]]:text-gold-foreground [&_[data-slot=button]:hover]:bg-gold/90'
-
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   const collapsed = usePreferences((state) => state.sidebarCollapsed)
@@ -51,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {formatDayAndWeek(new Date())}
             </span>
           </div>
-          <div className={cn('ml-auto flex items-center gap-3', GOLDEN_BUTTON)}>
+          <div className="ml-auto flex items-center gap-3">
             <NewMenu />
           </div>
         </header>

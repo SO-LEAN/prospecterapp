@@ -32,7 +32,7 @@ export function NewMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="sm" aria-label={t('nav.new')} disabled={contacts.isPending}>
+          <Button size="sm" variant="gold" aria-label={t('nav.new')} disabled={contacts.isPending}>
             <Plus aria-hidden />
             <span className="hidden sm:inline">{t('nav.new')}</span>
           </Button>
