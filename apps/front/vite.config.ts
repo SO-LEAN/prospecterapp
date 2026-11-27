@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { defineConfig, type Rolldown } from 'vite'
+import type { TestProjectConfiguration } from 'vitest/config'
 
 const PUBLIC_HOST = 'prospecter.localhost'
 /** The port of the host the stack is published on: 443 for the main checkout, its own for a worktree (ADR 0116). */
@@ -44,6 +45,17 @@ const A_PROCESS_PER_FILE = 'forks'
 
 /** The walls the tests of the event storming's page script open, built before those tests (docs/architecture/tests.md). */
 const WALLS_THE_SCRIPT_OPENS = './event-storming/test/scripted-walls.ts'
+
+/** The tests of the SPA, the project the SPA's mutation runs alone (`mutation/vitest-spa.config.ts`). */
+export const THE_SPA_TESTS = {
+  extends: true,
+  test: {
+    name: 'spa',
+    include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
+    pool: ONE_DOM_PER_WORKER,
+    vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
+  },
+} satisfies TestProjectConfiguration
 
 /** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
 const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
@@ -97,15 +109,7 @@ export default defineConfig({
     css: false,
     testTimeout: TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE,
     projects: [
-      {
-        extends: true,
-        test: {
-          name: 'spa',
-          include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
-          pool: ONE_DOM_PER_WORKER,
-          vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
-        },
-      },
+      THE_SPA_TESTS,
       {
         extends: true,
         test: {
