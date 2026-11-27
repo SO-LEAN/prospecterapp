@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Domain\Service;
 
+use Prospecter\Core\Booking\Domain\Exception\UnknownMember;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
@@ -22,6 +23,19 @@ final readonly class LinkAvailability
 
     public function offersSlots(bool $open, MemberId $host): bool
     {
-        return $open && $this->calendars->isConnectedFor($host) && $this->hosts->mayHoldBookers($host);
+        return $open && $this->calendars->isConnectedFor($host) && $this->mayHoldBookers($host);
+    }
+
+    /**
+     * The host can hold the contacts that their bookers become while they have the right to manage personal data
+     * (ADR 0146, 0164). A host whom Accounts does not know cannot.
+     */
+    private function mayHoldBookers(MemberId $host): bool
+    {
+        try {
+            return $this->hosts->readsPersonalData($host);
+        } catch (UnknownMember) {
+            return false;
+        }
     }
 }
