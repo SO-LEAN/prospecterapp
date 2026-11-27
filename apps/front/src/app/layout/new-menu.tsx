@@ -17,19 +17,22 @@ import {
 
 /**
  * « Nouveau », at the top of every page: it opens the creation forms that exist. To note or plan an exchange from
- * here, the member first chooses its contact or organization with the search.
+ * here, the member first chooses its contact or organization with the search. It opens once the member's rights are
+ * read, so that no entry comes in after it opened.
  */
 export function NewMenu() {
   const { t } = useTranslation()
   const account = useQuery(accountQuery())
+  const contacts = useInfiniteQuery(contactSlicesQuery(''))
   const mayPrepareACampaign = account.data?._links.campaigns !== undefined
+  const mayCollectAContact = contacts.data?.pages[0]?._links.collect !== undefined
   const [gesture, setGesture] = useState<Gesture | null>(null)
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="sm" aria-label={t('nav.new')}>
+          <Button size="sm" aria-label={t('nav.new')} disabled={contacts.isPending}>
             <Plus aria-hidden />
             <span className="hidden sm:inline">{t('nav.new')}</span>
           </Button>
@@ -43,7 +46,14 @@ export function NewMenu() {
             <CalendarPlus aria-hidden />
             {t('exchanges.planAnExchange')}
           </DropdownMenuItem>
-          <NewContact />
+          {mayCollectAContact && (
+            <DropdownMenuItem asChild>
+              <Link to="/contacts/new">
+                <UserPlus aria-hidden />
+                {t('contacts.new')}
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Link to="/organizations/new">
               <Building2 aria-hidden />
@@ -66,23 +76,5 @@ export function NewMenu() {
         interlocutorSearch={(onChoose) => <InterlocutorSearch onChoose={onChoose} />}
       />
     </>
-  )
-}
-
-/** Offered while the contacts list offers to collect a contact, as on that list. It is read once the menu opens. */
-function NewContact() {
-  const { t } = useTranslation()
-  const contacts = useInfiniteQuery(contactSlicesQuery(''))
-  const mayCollect = contacts.data?.pages[0]?._links.collect !== undefined
-
-  return (
-    mayCollect && (
-      <DropdownMenuItem asChild>
-        <Link to="/contacts/new">
-          <UserPlus aria-hidden />
-          {t('contacts.new')}
-        </Link>
-      </DropdownMenuItem>
-    )
   )
 }
