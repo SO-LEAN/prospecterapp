@@ -38,6 +38,8 @@ const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 const ITS_TIME_HAS_COME = '2026-11-10T13:00:00+00:00'
 /** A moment before the planned exchange's moment. An exchange moved to its own moment is still to come. */
 const BEFORE_ITS_MOMENT = '2026-11-16T09:00:00+00:00'
+/** A moment still to come whatever the day of the tests: the exchange moves to it. */
+const IN_THE_FUTURE = '2099-11-17T13:00:00+00:00'
 const handling = {
   markDone: { href: `${self.href}/done`, method: 'POST' },
   markMissed: { href: `${self.href}/missed`, method: 'POST' },
@@ -174,12 +176,105 @@ describe('handling a planned exchange', () => {
     expect(screen.getByText('Visio, À mon initiative')).toBeInTheDocument()
   })
 
-  it('moves it to another moment, its duration kept', async () => {
+  it('proposes its current duration when it moves', async () => {
+    const user = await renderTheDetail(aPlannedExchange({ durationInMinutes: 45 }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+
+    expect(screen.getByLabelText('Durée')).toHaveValue(45)
+  })
+
+  it('presses the usual duration it lasts when it moves', async () => {
+    const user = await renderTheDetail(aPlannedExchange({ durationInMinutes: 30 }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+
+    expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: '1 h' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('moves it and changes its duration in one request', async () => {
+    theApi.mockResolvedValue(Response.json(aPlannedExchange({ occurredAt: '2099-11-19T13:00:00+00:00' })))
+    const user = await renderTheDetail(aPlannedExchange({ durationInMinutes: 30 }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+    await user.clear(screen.getByLabelText('Date'))
+    await user.type(screen.getByLabelText('Date'), '2099-11-19')
+    await user.clear(screen.getByLabelText('Heure'))
+    await user.type(screen.getByLabelText('Heure'), '14:00')
+    await user.click(screen.getByRole('button', { name: '1 h' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(await requestsToTheApi()).toEqual([
+      [
+        'PATCH',
+        `/api/exchanges/${EXCHANGE}/moment`,
+        { occurredAt: new Date(2099, 10, 19, 14, 0).toISOString(), durationInMinutes: 60 },
+      ],
+    ])
+  })
+
+  it('refuses a move without a duration, sending nothing', async () => {
+    const user = await renderTheDetail(aPlannedExchange({ occurredAt: IN_THE_FUTURE }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+    await user.clear(screen.getByLabelText('Durée'))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Durée')).toHaveAccessibleDescription(
+        'Une durée de 5 minutes à 8 heures.',
+      ),
+    )
+    expect(theApi).not.toHaveBeenCalled()
+  })
+
+  it('shows the refusal of the API under the duration it refuses', async () => {
+    theApi.mockResolvedValue(
+      Response.json(
+        {
+          type: 'about:blank',
+          title: 'A planned exchange lasts from 5 minutes to 8 hours',
+          status: 422,
+          reason: 'durationOutOfRange',
+          violations: [
+            {
+              propertyPath: 'duration',
+              title: 'A planned exchange lasts from 5 minutes to 8 hours',
+              reason: 'durationOutOfRange',
+            },
+          ],
+        },
+        { status: 422, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    const user = await renderTheDetail(aPlannedExchange({ occurredAt: IN_THE_FUTURE }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+    await user.clear(screen.getByLabelText('Durée'))
+    await user.type(screen.getByLabelText('Durée'), '540')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Durée')).toHaveAccessibleDescription(
+        'Un échange planifié dure de 5 minutes à 8 heures.',
+      ),
+    )
+    expect(await requestsToTheApi()).toEqual([
+      [
+        'PATCH',
+        `/api/exchanges/${EXCHANGE}/moment`,
+        { occurredAt: new Date(IN_THE_FUTURE).toISOString(), durationInMinutes: 540 },
+      ],
+    ])
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('moves it to another moment, its duration left as it is kept', async () => {
     theApi.mockResolvedValue(Response.json(aPlannedExchange({ occurredAt: '2099-11-18T08:00:00+00:00' })))
     const user = await renderTheDetail(aPlannedExchange({}))
 
     await user.click(screen.getByRole('button', { name: 'Déplacer' }))
-    expect(screen.getByText('Sa durée reste la même.')).toBeInTheDocument()
     await user.clear(screen.getByLabelText('Date'))
     await user.type(screen.getByLabelText('Date'), '2099-11-18')
     await user.clear(screen.getByLabelText('Heure'))

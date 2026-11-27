@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarClock, CalendarX2, CircleCheck, PhoneMissed } from 'lucide-react'
 import { useState } from 'react'
-import { useForm, useFormState } from 'react-hook-form'
+import { useForm, useFormState, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -24,6 +24,7 @@ import { dateAndTimeOf, type MoveValues, moveFields, moveSchema, SHORTCUTS, toMo
 import type { Canceller, ExchangeDetail, Moment, Report } from '../queries'
 import { localMoment, type ReportValues, reportFields, reportOf, reportSchema, toReport } from '../schema'
 import { type ChosenFile, FilesField } from './exchange-form'
+import { QuickDurations } from './quick-durations'
 
 type ActionsProps = { exchange: ExchangeDetail; onReport: () => void; onMove: () => void }
 
@@ -181,15 +182,22 @@ type MoveProps = {
   onCancel: () => void
 }
 
-/** Moves the exchange to another upcoming moment, from its own moment or a shortcut. Its duration stays. */
+/**
+ * Moves the exchange to another upcoming moment, from its own moment or a shortcut. Its duration changes in the same
+ * gesture, or stays when the member leaves it as it is.
+ */
 export function MoveForm({ exchange, onSubmit, onCancel }: MoveProps) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<MoveValues>({
     resolver: zodResolver(moveSchema),
-    defaultValues: dateAndTimeOf(new Date(exchange.occurredAt)),
+    defaultValues: {
+      ...dateAndTimeOf(new Date(exchange.occurredAt)),
+      duration: exchange.durationInMinutes ?? undefined,
+    },
   })
   const { isSubmitting } = useFormState({ control: form.control })
+  const duration = useWatch({ control: form.control, name: 'duration' })
   const setMoment = (moment: Date) => {
     const { date, time } = dateAndTimeOf(moment)
     form.setValue('date', date, { shouldValidate: true })
@@ -199,7 +207,7 @@ export function MoveForm({ exchange, onSubmit, onCancel }: MoveProps) {
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toMoment(values))
+      await onSubmit(toMoment(values, exchange.durationInMinutes))
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, moveFields))
     }
@@ -230,7 +238,19 @@ export function MoveForm({ exchange, onSubmit, onCancel }: MoveProps) {
           <Input type="time" step={900} {...form.register('time')} />
         </FormField>
       </div>
-      <p className="text-muted-foreground text-xs">{t('exchanges.handling.durationKept')}</p>
+      <FormField form={form} name="duration" label={t('exchanges.duration')}>
+        <Input
+          type="number"
+          min={5}
+          max={480}
+          step={5}
+          {...form.register('duration', { valueAsNumber: true })}
+        />
+      </FormField>
+      <QuickDurations
+        chosen={duration}
+        onChoose={(minutes) => form.setValue('duration', minutes, { shouldValidate: true })}
+      />
       <Actions onCancel={onCancel} submitting={isSubmitting} />
     </form>
   )
