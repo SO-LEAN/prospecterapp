@@ -247,6 +247,7 @@ class ContactApiTest extends ApiTestCase
 
         $this->assertSame([$contact, false, 'Directrice commerciale', 'ada@analytical-engine.test'], [self::valueAt($read, 0, 'id'), self::valueAt($read, 0, 'masked'), self::valueAt($read, 0, 'jobTitle'), self::valueAt($read, 0, 'contactDetails', 'email')]);
         $this->assertSame([$contact, true, 'D***e', 'a***@***', ['contact']], [self::valueAt($masked, 0, 'id'), self::valueAt($masked, 0, 'masked'), self::valueAt($masked, 0, 'jobTitle'), self::valueAt($masked, 0, 'contactDetails', 'email'), array_keys(self::recordAt($masked[0], '_links'))]);
+        $this->assertSame([['+33 3 88 00 00 42', 'FR'], ['******42', 'FR']], array_map(static fn (array $contacts): array => [self::valueAt($contacts, 0, 'contactDetails', 'phoneNumber'), self::valueAt($contacts, 0, 'contactDetails', 'language')], [$read, $masked]));
     }
 
     public function testRemovedFromAnotherOrganizationTheContactStays(): void
