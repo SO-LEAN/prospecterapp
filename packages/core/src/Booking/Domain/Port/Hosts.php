@@ -27,7 +27,9 @@ interface Hosts
     public function identityOf(MemberId $host): HostIdentity;
 
     /**
-     * Whether the host can hold the contacts that their bookers become (ADR 0146, 0164).
+     * Whether the host has the right to manage personal data, as Accounts says.
+     *
+     * @throws UnknownMember
      */
-    public function mayHoldBookers(MemberId $host): bool;
+    public function readsPersonalData(MemberId $host): bool;
 }
