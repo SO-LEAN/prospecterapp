@@ -27,14 +27,4 @@ final readonly class TimelineLinksResource
         public ?LinkResource $reimportGmail = null,
     ) {
     }
-
-    public function withToRedact(?LinkResource $toRedact): self
-    {
-        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $toRedact, $this->reimportGmail);
-    }
-
-    public function withReimportGmail(?LinkResource $reimportGmail): self
-    {
-        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $this->toRedact, $reimportGmail);
-    }
 }

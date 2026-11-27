@@ -7,6 +7,7 @@ namespace App\Contacts;
 use App\Contacts\Resource\InterlocutorResource;
 use App\Contacts\Resource\OrganizationExchangeResource;
 use App\Contacts\Resource\OrganizationTimelineResource;
+use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Shared\Links;
@@ -22,10 +23,11 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Composes an organization's timeline (ADR 0076, 0217). Each read is one query of Prospecting, which gives the slice's
- * exchanges and their links. PersonalData names the persons the exchanges were with, joined by their ids. On the
- * timeline of the past, Connectors offers to catch up the e-mails exchanged with the organization itself. The person may still be a contact of
- * the organization, or may be removed or forgotten. A command returns nothing, so a controller calls this composition
- * after it to answer with the fresh resource.
+ * exchanges and Prospecting's links. PersonalData names the persons the exchanges were with, joined by their ids. Each
+ * person may still be the organization's contact, or may be removed or forgotten. On the past timeline, Connectors
+ * offers to catch up the e-mails exchanged with the organization itself. The composition copies each piece's links
+ * into the timeline's links. A command returns nothing, so a controller calls this composition after it to answer
+ * with the fresh resource.
  */
 final readonly class OrganizationTimelineComposition
 {
@@ -88,7 +90,14 @@ final readonly class OrganizationTimelineComposition
                     : InterlocutorResource::ofPerson($exchange->personId, $persons->contact($exchange->personId), $exchange->contactPresence),
             ), $exchanges),
             toRedact: $organizationTimeline->timeline->toMakeConform,
-            links: $presenter->links->withReimportGmail($reimportGmail),
+            links: new TimelineLinksResource(
+                $presenter->links->self,
+                $presenter->links->next,
+                $presenter->links->noteExchange,
+                $presenter->links->planExchange,
+                $presenter->links->toRedact,
+                $reimportGmail,
+            ),
         );
     }
 }
