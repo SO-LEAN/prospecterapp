@@ -18,8 +18,6 @@ use Prospecter\Core\Connectors\Application\MailImport\CatchUpMailHistory\CatchUp
 use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
 use Prospecter\Core\Connectors\Application\MailImport\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
-use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\MailCatchUpIntentsResponse;
-use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntents;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionEvent;
 use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
@@ -31,8 +29,6 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\EraseExchange\EraseExchange;
-use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
@@ -69,14 +65,6 @@ final class MailboxMailContext implements Context
     private int $messages = 0;
     /** @var array<string, MailboxMail> the last message received, by mailbox */
     private array $lastReceived = [];
-    /**
-     * @var array<string, string> the correspondents asked about, by their identity
-     */
-    private array $askedCorrespondents = [];
-    /**
-     * @var list<MailCatchUpIntentsResponse>
-     */
-    private array $caughtUp = [];
     private ?MailboxMail $oldestReceived = null;
     private int $attachmentsSent = 0;
 
@@ -307,64 +295,6 @@ final class MailboxMailContext implements Context
         return $this->application->consultMailCatchUpIntents($this->scenario->isAnOrganization($name)
             ? ConsultMailCatchUpIntents::ofOrganization($this->application->signedIn(), $this->scenario->idOf($name))
             : ConsultMailCatchUpIntents::ofContact($this->application->signedIn(), $this->scenario->personIdOf($name)));
-    }
-
-    #[Then('la timeline de :name me propose le rattrapage Gmail')]
-    public function theTimelineOffersTheCatchUp(string $name): void
-    {
-        Expect::same(['CatchUpGmail'], $this->timelineOf($name)->mailCatchUpIntents);
-    }
-
-    #[Then('la timeline de :name ne me propose pas le rattrapage Gmail')]
-    public function theTimelineDoesNotOfferTheCatchUp(string $name): void
-    {
-        Expect::same([], $this->timelineOf($name)->mailCatchUpIntents);
-    }
-
-    private function timelineOf(string $name): OrganizationTimeline
-    {
-        $timeline = $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($this->application->signedIn(), $this->scenario->idOf($name), $this->application->now()));
-
-        return Expect::present($timeline, sprintf('The timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
-    }
-
-    #[When('un autre contexte demande à Connectors ce que je peux rattraper avec :')]
-    public function anotherContextAsksWhatICatchUp(TableNode $correspondents): void
-    {
-        $this->askWhatIsCaughtUp($this->application->signedIn(), $correspondents);
-    }
-
-    #[When('un autre contexte demande à Connectors ce qu\'un membre inconnu peut rattraper avec :')]
-    public function anotherContextAsksWhatAnUnknownMemberCatchesUp(TableNode $correspondents): void
-    {
-        $this->askWhatIsCaughtUp($this->application->newIdentity(), $correspondents);
-    }
-
-    private function askWhatIsCaughtUp(string $reader, TableNode $correspondents): void
-    {
-        $names = $correspondents->getColumn(0);
-        $organizations = array_values(array_filter($names, $this->scenario->isAnOrganization(...)));
-        $contacts = array_values(array_diff($names, $organizations));
-        $contactIds = array_map($this->scenario->personIdOf(...), $contacts);
-        $organizationIds = array_map($this->scenario->idOf(...), $organizations);
-        $this->askedCorrespondents = [...array_combine($contactIds, $contacts), ...array_combine($organizationIds, $organizations)];
-        $answer = $this->application->whichMailCatchUpIntents(new WhichMailCatchUpIntents($reader, $contactIds, $organizationIds));
-        $this->caughtUp = [...$answer->contacts, ...$answer->organizations];
-    }
-
-    #[Then('Connectors répond le rattrapage :')]
-    public function connectorsAnswersTheCatchUp(TableNode $table): void
-    {
-        Expect::same($table->getColumnsHash(), array_map(fn (MailCatchUpIntentsResponse $correspondent): array => [
-            'correspondant' => $this->askedCorrespondents[$correspondent->id] ?? $correspondent->id,
-            'rattrapage' => implode(', ', $correspondent->possibleIntents),
-        ], $this->caughtUp));
-    }
-
-    #[Then('Connectors ne répond aucun rattrapage')]
-    public function connectorsAnswersNoCatchUp(): void
-    {
-        Expect::same([], $this->caughtUp);
     }
 
     #[Given('Gmail a oublié l\'historique de :mailbox')]

@@ -9,9 +9,11 @@ use App\Campaigning\Resource\RecipientLinksResource;
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactMailLinksResource;
 use App\Contacts\Resource\ContactProfileLinksResource;
+use App\Contacts\Resource\OrganizationMailLinksResource;
 use App\Me\Resource\AccountLinksResource;
 use App\Me\Resource\MyOrganizationLinksResource;
 use App\Me\Resource\MyProfileLinksResource;
+use App\Prospecting\Resource\TimelineLinksResource;
 use App\Shared\Resource\Offers;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -32,6 +34,7 @@ final class PiecesOffersMatchTheirContractsTest extends TestCase
         NextRecipientLinksResource::class => RecipientLinksResource::class,
         ContactProfileLinksResource::class => ContactLinksResource::class,
         ContactMailLinksResource::class => ContactLinksResource::class,
+        OrganizationMailLinksResource::class => TimelineLinksResource::class,
         MyProfileLinksResource::class => AccountLinksResource::class,
         MyOrganizationLinksResource::class => AccountLinksResource::class,
     ];

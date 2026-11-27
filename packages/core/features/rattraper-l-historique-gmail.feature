@@ -1,5 +1,5 @@
 # language: fr
-@CatchUpMailHistory @ConsultMailCatchUpIntents @WhichMailCatchUpIntents
+@CatchUpMailHistory @ConsultMailCatchUpIntents
 Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
   En tant que prospecteur qui a activé l'import de ses e-mails Gmail
   Je veux rattraper, depuis la fiche d'un contact ou d'une organisation, les e-mails que nous avions déjà échangés
@@ -140,42 +140,3 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
       | correspondant | raison              |
       | Grace Hopper  | unknownContact      |
       | Initech       | unknownOrganization |
-
-  Scénario: Connectors dit à un autre contexte ce que son membre peut rattraper, pour plusieurs contacts et organisations
-    Soit l'organisation "Initech SAS" qui utilise Prospecter
-    Et l'organisation "Initech" d'e-mail "contact@initech.fr" appartient à "Initech SAS"
-    Quand un autre contexte demande à Connectors ce que je peux rattraper avec :
-      | Personne     |
-      | Ada Lovelace |
-      | Initech      |
-      | Globex       |
-      | ACME         |
-    Alors Connectors répond le rattrapage :
-      | correspondant | rattrapage   |
-      | Ada Lovelace  | CatchUpGmail |
-      | Globex        | CatchUpGmail |
-      | ACME          |              |
-    Quand un autre contexte demande à Connectors ce qu'un membre inconnu peut rattraper avec :
-      | Ada Lovelace |
-    Alors Connectors ne répond aucun rattrapage
-
-  Scénario: La timeline d'une organisation propose de rattraper ses e-mails
-    Alors la timeline de "Globex" me propose le rattrapage Gmail
-
-  Scénario: Sans import activé, la timeline d'une organisation ne propose pas de rattraper ses e-mails
-    Soit je coupe l'import de mes e-mails Gmail
-    Alors la timeline de "Globex" ne me propose pas le rattrapage Gmail
-
-  Plan du scénario: Connectors ne propose aucun rattrapage à un autre contexte quand son membre ne le peut pas
-    Soit <empêchement>
-    Quand un autre contexte demande à Connectors ce que je peux rattraper avec :
-      | Globex |
-    Alors Connectors répond le rattrapage :
-      | correspondant | rattrapage |
-      | Globex        |            |
-
-    Exemples:
-      | empêchement                                |
-      | je coupe l'import de mes e-mails Gmail     |
-      | je perds le droit aux données personnelles |
-      | j'ai déconnecté mon compte Google          |

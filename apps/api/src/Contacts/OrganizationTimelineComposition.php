@@ -10,6 +10,8 @@ use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Shared\Links;
+use App\Shared\Resource\LinkResource;
+use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
@@ -20,8 +22,8 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Composes an organization's timeline (ADR 0076, 0217). Each read is one query of Prospecting, which gives the slice's
- * exchanges and their links, and says whether the e-mails exchanged with the organization itself may be caught up.
- * PersonalData names the persons the exchanges were with, joined by their ids. The person may still be a contact of
+ * exchanges and their links. PersonalData names the persons the exchanges were with, joined by their ids. On the
+ * timeline of the past, Connectors offers to catch up the e-mails exchanged with the organization itself. The person may still be a contact of
  * the organization, or may be removed or forgotten. A command returns nothing, so a controller calls this composition
  * after it to answer with the fresh resource.
  */
@@ -31,6 +33,7 @@ final readonly class OrganizationTimelineComposition
         private QueryHandler $consultOrganizationTimeline,
         private QueryHandler $consultExchangesToMakeConform,
         private QueryHandler $consultOrganizationUpcomingExchanges,
+        private QueryHandler $consultMailCatchUpIntents,
         private TimelineResourceFactory $timelines,
         private PersonsOfAView $personsOfAView,
         private Links $links,
@@ -41,10 +44,12 @@ final readonly class OrganizationTimelineComposition
 
     public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $presenter = OrganizationTimelinePresenter::ofTheTimeline($this->timelines, $this->links, $this->intentLinks);
+        $presenter = OrganizationTimelinePresenter::ofTheTimeline($this->timelines, $this->links);
         $this->consultOrganizationTimeline->__invoke(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $presenter);
+        $mail = new OrganizationMailPresenter($this->links, $this->intentLinks, $organization->id);
+        $this->consultMailCatchUpIntents->__invoke(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $mail);
 
-        return $this->withItsPersons($reader, $presenter);
+        return $this->withItsPersons($reader, $presenter, $mail->links->reimportGmail);
     }
 
     /**
@@ -69,7 +74,7 @@ final readonly class OrganizationTimelineComposition
         return $this->withItsPersons($reader, $presenter);
     }
 
-    private function withItsPersons(string $reader, OrganizationTimelinePresenter $presenter): OrganizationTimelineResource
+    private function withItsPersons(string $reader, OrganizationTimelinePresenter $presenter, ?LinkResource $reimportGmail = null): OrganizationTimelineResource
     {
         $organizationTimeline = $presenter->timeline;
         $exchanges = $organizationTimeline->timeline->exchanges;
@@ -83,7 +88,7 @@ final readonly class OrganizationTimelineComposition
                     : InterlocutorResource::ofPerson($exchange->personId, $persons->contact($exchange->personId), $exchange->contactPresence),
             ), $exchanges),
             toRedact: $organizationTimeline->timeline->toMakeConform,
-            links: $presenter->links,
+            links: $presenter->links->withReimportGmail($reimportGmail),
         );
     }
 }

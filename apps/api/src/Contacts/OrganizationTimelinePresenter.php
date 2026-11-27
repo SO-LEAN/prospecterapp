@@ -7,8 +7,6 @@ namespace App\Contacts;
 use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\TimelineResourceFactory;
-use App\Security\IntentLinks;
-use App\Security\User;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
@@ -22,9 +20,6 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
     private const array ROUTES = ['api_organizations_timeline', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
     private const array UPCOMING_ROUTES = ['api_organizations_upcoming_exchanges', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
     private const array TO_REDACT_ROUTES = ['api_organizations_exchanges_to_redact', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
-
-    private const string CATCH_UP = 'CatchUpGmail';
-    private const string CATCH_UP_ROUTE = 'api_organizations_reimport_gmail';
 
     public private(set) OrganizationTimeline $timeline;
 
@@ -40,13 +35,12 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
         private readonly array $routes,
         private readonly TimelineResourceFactory $timelineResourceFactory,
         private readonly Links $routing,
-        private readonly ?IntentLinks $intentLinks = null,
     ) {
     }
 
-    public static function ofTheTimeline(TimelineResourceFactory $timelines, Links $links, IntentLinks $intentLinks): self
+    public static function ofTheTimeline(TimelineResourceFactory $timelines, Links $links): self
     {
-        return new self(self::ROUTES, $timelines, $links, $intentLinks);
+        return new self(self::ROUTES, $timelines, $links);
     }
 
     public static function ofWhatIsToCome(TimelineResourceFactory $timelines, Links $links): self
@@ -70,16 +64,6 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
         }
 
         $this->links = $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)
-            ->withToRedact(0 === $timeline->toMakeConform ? null : $this->routing->to(self::TO_REDACT_ROUTES[0], $subject))
-            ->withReimportGmail($this->offersTheCatchUp($organizationTimeline) ? $this->routing->to(self::CATCH_UP_ROUTE, $subject) : null);
-    }
-
-    /**
-     * Catching up the e-mails exchanged with the organization itself takes the right to manage personal data, because
-     * it imports them (ADR 0081, 0176).
-     */
-    private function offersTheCatchUp(OrganizationTimeline $timeline): bool
-    {
-        return null !== $this->intentLinks && $this->intentLinks->shows(self::CATCH_UP, $timeline->mailCatchUpIntents, User::PERSONAL_DATA);
+            ->withToRedact(0 === $timeline->toMakeConform ? null : $this->routing->to(self::TO_REDACT_ROUTES[0], $subject));
     }
 }
