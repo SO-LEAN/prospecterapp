@@ -70,10 +70,20 @@ function pathOf(input: Parameters<typeof globalThis.fetch>[0]) {
   return new URL(input instanceof Request ? input.url : String(input)).pathname
 }
 
+/** Long enough for a member to fold the sidebar before the answer comes. */
+const A_NETWORK_DELAY_MS = 300
+
+/** The read whose answer comes after a network's delay. */
+let slowly: string | undefined
+
 /** The API answers my account, the dashboard and its organizations, my day and what I have to process. It serves nothing else. */
 function theApiAnswersMyPages() {
   theApi.mockImplementation(async (input) => {
-    const answer = answers[pathOf(input)]
+    const path = pathOf(input)
+    if (path === slowly) {
+      await new Promise((resolve) => setTimeout(resolve, A_NETWORK_DELAY_MS))
+    }
+    const answer = answers[path]
     return answer === undefined ? new Response(null, { status: 404 }) : json(answer)
   })
 }
@@ -98,7 +108,24 @@ describe('the shell of a signed-in member', () => {
     localStorage.clear()
     usePreferences.setState({ sidebarCollapsed: false })
     answers = { ...myPages }
+    slowly = undefined
     theApiAnswersMyPages()
+  })
+
+  it('opens the dashboard though I fold the sidebar, which counts from its figures, while they come', async () => {
+    slowly = '/api/dashboard'
+    const router = await renderTheSpaAt('/calendar')
+    await screen.findByRole('navigation', { name: 'Navigation principale' })
+
+    void router.navigate({ to: '/' })
+    await vi.waitFor(() =>
+      expect(theApi.mock.calls.map(([input]) => pathOf(input))).toContain('/api/dashboard'),
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Replier la barre latérale' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Bonjour Ada' }, { timeout: 4 * A_NETWORK_DELAY_MS }),
+    ).toBeInTheDocument()
   })
 
   it('shows the brand, then the name of my account, above the navigation', async () => {
