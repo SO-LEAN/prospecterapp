@@ -10,7 +10,8 @@ install: ## Install the pnpm dependencies of the front
 test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; FAIL_FAST=1 stops at the first failure; TEST_WORKERS= the workers (a number or a share of the processors; by default, one processor fewer than the container has)
 	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FAIL_FAST),--bail=1) $(if $(TEST_WORKERS),--maxWorkers=$(TEST_WORKERS)) $(if $(FILTER),'$(FILTER)')
 
-# the files a generator wrote, shadcn's components among them, whose class names no test reads
+# the files a generator wrote and nobody changed since (mutation/generated-files): the router's tree, and the shadcn
+# components still as shadcn wrote them, whose class names no test reads
 GENERATED_FILES = $(shell grep -v -e '^#' -e '^$$' mutation/generated-files)
 # the code of the front a branch may change and a test may protect: neither the tests nor the generated files
 MUTATED_CODE = 'src/*.ts' 'src/*.tsx' ':!*.test.ts' ':!*.test.tsx' ':!*.d.ts' ':!src/test/*' $(foreach file,$(GENERATED_FILES),':!$(file)')
