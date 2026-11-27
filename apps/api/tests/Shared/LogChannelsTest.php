@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared;
 
-use App\Connectors\AntiCorruption\PersonalDataAndProspectingCorrespondents;
+use App\Connectors\AntiCorruption\PersonalDataContactCorrespondents;
+use App\Connectors\AntiCorruption\ProspectingOrganizationCorrespondents;
 use App\Connectors\Google\GoogleMailbox;
 use App\Connectors\MailWatchesRenewer;
 use App\Shared\Messaging\IntegrationEventBus;
@@ -36,7 +37,8 @@ class LogChannelsTest extends KernelTestCase
     public static function channels(): iterable
     {
         yield 'the reading of a mailbox' => [GoogleMailbox::class, 'mailbox'];
-        yield 'the senders recognized' => [PersonalDataAndProspectingCorrespondents::class, 'mailbox'];
+        yield 'the senders recognized as contacts' => [PersonalDataContactCorrespondents::class, 'mailbox'];
+        yield 'the senders recognized as organizations' => [ProspectingOrganizationCorrespondents::class, 'mailbox'];
         yield 'the renewal of the watches' => [MailWatchesRenewer::class, 'mailbox'];
         yield 'the bus the relay and the worker publish on' => [IntegrationEventBus::class, 'messaging'];
     }

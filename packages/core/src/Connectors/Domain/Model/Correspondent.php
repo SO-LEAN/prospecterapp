@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\Connectors\Domain\Port\Correspondents;
+use Prospecter\Core\Connectors\Domain\Port\ContactCorrespondents;
+use Prospecter\Core\Connectors\Domain\Port\OrganizationCorrespondents;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
@@ -24,14 +25,14 @@ final readonly class Correspondent
      * A contact with the address is the correspondent, even when an organization has the address too. The exchange is
      * then kept for the contact's organizations.
      */
-    public static function havingTheAddress(Email $address, AccountId $accountId, Correspondents $correspondents): ?self
+    public static function havingTheAddress(Email $address, AccountId $accountId, ContactCorrespondents $contacts, OrganizationCorrespondents $organizations): ?self
     {
-        $contact = $correspondents->contactWithEmail($accountId, $address);
+        $contact = $contacts->withEmail($accountId, $address);
         if (null !== $contact) {
             return new self($contact, null);
         }
 
-        $organization = $correspondents->organizationWithEmail($accountId, $address);
+        $organization = $organizations->withEmail($accountId, $address);
 
         return null === $organization ? null : new self(null, $organization);
     }

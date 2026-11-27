@@ -10,7 +10,8 @@ use Prospecter\Core\Connectors\Domain\Model\Correspondent;
 use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Port\Correspondents;
+use Prospecter\Core\Connectors\Domain\Port\ContactCorrespondents;
+use Prospecter\Core\Connectors\Domain\Port\OrganizationCorrespondents;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
@@ -35,7 +36,8 @@ final readonly class ImportMailHandler implements CommandHandler
         private ConnectionRepository $connections,
         private ProviderClientRepository $clients,
         private ProviderMailbox $mailbox,
-        private Correspondents $correspondents,
+        private ContactCorrespondents $contacts,
+        private OrganizationCorrespondents $organizations,
         private Events $events,
     ) {
     }
@@ -62,7 +64,7 @@ final readonly class ImportMailHandler implements CommandHandler
      */
     private function correspondentsOf(MailboxMail $mail, AccountId $accountId): array
     {
-        $correspondents = array_map(fn (Email $address): ?Correspondent => Correspondent::havingTheAddress($address, $accountId, $this->correspondents), $mail->correspondentAddresses());
+        $correspondents = array_map(fn (Email $address): ?Correspondent => Correspondent::havingTheAddress($address, $accountId, $this->contacts, $this->organizations), $mail->correspondentAddresses());
 
         return array_values(array_filter($correspondents));
     }
