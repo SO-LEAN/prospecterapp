@@ -43,6 +43,12 @@ export const asOrganizationContact = ({ _links, ...contact }: CollectedContact):
 export const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>
   [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
 
+/** The contacts for whom the member may note a to-do from the organization's card, by their name. */
+export const contactsToNoteAToDoFor = (contacts: OrganizationContact[]) =>
+  contacts
+    .filter((contact) => contact._links.noteToDo)
+    .map((contact) => ({ id: contact.id, name: fullNameOf(contact) }))
+
 /** The contacts that the picker offers: the persons my organization prospects, searched by text. */
 export const contactCandidatesQuery = (q: string) =>
   api.queryOptions('get', '/api/contacts', { params: { query: { q } } })
