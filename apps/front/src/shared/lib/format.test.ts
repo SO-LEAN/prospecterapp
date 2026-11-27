@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   formatCalendarDay,
   formatClockTime,
+  formatDayAndWeek,
   formatDayTitle,
   formatFullDay,
   formatHour,
@@ -91,6 +92,12 @@ describe('formatWeekTitle', () => {
     expect(formatWeekTitle(new Date('2026-12-28T00:00'), new Date('2027-01-03T00:00'))).toBe(
       '28 déc. 2026 au 3 janv. 2027 · S53',
     )
+  })
+})
+
+describe('formatDayAndWeek', () => {
+  it('writes the day, a middle dot, then the number of its week', () => {
+    expect(formatDayAndWeek(new Date('2026-11-17T11:00'), NOW)).toBe('mar. 17 nov. · S47')
   })
 })
 
