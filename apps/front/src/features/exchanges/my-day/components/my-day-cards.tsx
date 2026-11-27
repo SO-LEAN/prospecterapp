@@ -9,12 +9,12 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
+import { ToAttachMarker } from '@/shared/ui/event/markers'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import { isToHandle, startOfDay } from '../../calendar/dates'
 import { CallTheInterlocutor } from '../../components/call-the-interlocutor'
 import { JoinTheVideoCall } from '../../components/join-the-video-call'
-import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useMarkExchangeMissed, useUndoable } from '../../mutations'
 import { useNow } from '../../use-now'
 import { isInProgress } from '../moments'
@@ -224,7 +224,7 @@ function ExchangeSummary({ item, when, onOpen, children }: SummaryProps) {
         </span>
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
-          <ToAttachBadge exchange={exchange} />
+          {exchange.contactToAttach && <ToAttachMarker />}
         </span>
         {organization && (
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>

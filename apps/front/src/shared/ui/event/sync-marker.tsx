@@ -35,7 +35,8 @@ export function SyncMarker({ sync, className, ...span }: ComponentProps<'span'> 
   )
 }
 
-function describeTheSync(sync: Sync, t: TFunction): string {
+/** What the push stands at, in words: its state, since when, and why it waits. */
+export function describeTheSync(sync: Sync, t: TFunction): string {
   const at = sync.at ? formatMoment(sync.at) : ''
 
   if (sync.state === 'synced') return t('events.markers.sync.synced', { at })
