@@ -2,7 +2,7 @@
 
 This document states the rules in force. The decision records (`docs/adr`) explain why: read them only for that, or before changing a rule (ADR 0090).
 
-The art direction is « Le Filon »: warm paper, deep ink, petrol for the primary, and gold kept for what has value. Each color has a job: it says a channel, a status or a kind of day, never decoration. The style has generous spacing, and light and dark themes. The logo is navy and gold. The design system is built on Tailwind CSS 4 and shadcn/ui.
+The art direction is « Le Filon »: warm paper, deep ink, petrol for the primary, and gold kept for what has value. Each color has a job: it says a channel, a status or a kind of day, never decoration. The style has generous spacing, and light and dark themes. The logo is a gold nugget on a petrol tile. The design system is built on Tailwind CSS 4 and shadcn/ui.
 
 ## Principles
 
@@ -59,7 +59,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 
 ## Logo
 
-The logo is a shovel digging up gold nuggets. `BrandMark` (`app/layout/brand.tsx`) draws it with the tokens `brand-ink` (navy, light in the dark theme) and `brand-gold*`. The same drawing is the front's `public/favicon.svg`, the tab icon, whose ink follows the system theme. It is also the API's doc icon (`App\Doc\ShowFavicon`). A logo change goes in all three. The PNG icons and `site.webmanifest` are generated from the SVG once, then committed:
+The logo is a white vein that climbs towards a gold nugget, on a petrol tile (`#0E7C84`, nugget `#F5B32E`, the ground under the vein white at 18 % opacity). It has one version, which reads on paper and on ink: its colours are fixed and follow no theme. Only the word « Prospecter » beside it, text in the app's font, takes the theme's foreground. `BrandMark` (`app/layout/brand.tsx`) draws it. The same drawing is the front's `public/favicon.svg`, the tab icon, and `site.webmanifest` takes the tile's colour as its `theme_color`. It is also the API's doc icon (`App\Doc\ShowFavicon`). A logo change goes in all three. The PNG icons and `site.webmanifest` are generated from the SVG once, then committed:
 
 ```sh
 docker compose run --rm --no-deps -w /var/www/src/apps/front/public node sh -c '
