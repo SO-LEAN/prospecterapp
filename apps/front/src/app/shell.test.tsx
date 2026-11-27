@@ -6,8 +6,8 @@ import { usePreferences } from '@/shared/stores/preferences'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /**
- * The shell around every page of a signed-in member, on the SPA's routes: the ink sidebar with the brand, my account
- * and the navigation, and the top bar.
+ * The shell around a signed-in member's pages, on the SPA's routes: the ink sidebar with the brand, my account and
+ * the navigation, and the top bar.
  */
 
 const theApi = vi.hoisted(() => {
@@ -168,14 +168,14 @@ describe('the shell of a signed-in member', () => {
     expect(within(theSidebar()).getByText('Babbage & Co')).toBeInTheDocument()
   })
 
-  it('leads from the foot of the sidebar to the settings', async () => {
+  it("leads from the sidebar's foot to the settings", async () => {
     await renderTheSpaAt('/')
     await screen.findByRole('heading', { name: 'Bonjour Ada' })
 
     expect(within(theSidebar()).getByRole('link', { name: 'Réglages' })).toHaveAttribute('href', '/settings')
   })
 
-  it('opens the menu of my avatar from the foot of the sidebar: my account, the theme and the sign-out', async () => {
+  it("opens my avatar's menu at the sidebar's foot: my account, the theme and the sign-out", async () => {
     await renderTheSpaAt('/')
     await screen.findByRole('heading', { name: 'Bonjour Ada' })
 
@@ -189,7 +189,7 @@ describe('the shell of a signed-in member', () => {
     expect(screen.queryByRole('menuitem', { name: 'Configuration' })).not.toBeInTheDocument()
   })
 
-  it('shows in the top bar the breadcrumb of the page, from my account to the page shown', async () => {
+  it("shows the page's breadcrumb in the top bar, from my account to the page shown", async () => {
     await renderTheSpaAt('/calendar')
 
     const breadcrumb = await screen.findByRole('navigation', { name: "Fil d'Ariane" })
@@ -207,7 +207,7 @@ describe('the shell of a signed-in member', () => {
     )
   })
 
-  it('shows in the top bar the day and the number of its week', async () => {
+  it('shows the day and its week number in the top bar', async () => {
     await renderTheSpaAt('/')
 
     const theTopBar = (await screen.findByRole('navigation', { name: "Fil d'Ariane" })).closest('header')
