@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatDay, formatFullDay } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import type { Slot } from '../../planning'
 import { byDay, dayOf, daysOf, isSameDay, type Period } from '../dates'
@@ -16,8 +17,6 @@ const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 const MINUTES_IN_AN_HOUR = 60
 /** The grid opens on the working day. The other hours are a scroll away. */
 const FIRST_HOUR_SHOWN = 8
-const dayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' })
-const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 
 /**
  * Where something is in the grid is data, not a style. It goes to the grid's classes as custom properties, in hours
@@ -82,13 +81,13 @@ export function TimeGridView({
               type="button"
               disabled={!onOpenDay}
               onClick={() => onOpenDay?.(day)}
-              aria-label={longDayFormat.format(day)}
+              aria-label={formatFullDay(day)}
               className={cn(
-                'rounded-md px-1.5 font-medium text-muted-foreground text-xs capitalize enabled:hover:bg-accent',
+                'rounded-md px-1.5 font-medium text-muted-foreground text-xs enabled:hover:bg-accent',
                 isSameDay(day, now) && 'text-primary',
               )}
             >
-              {dayFormat.format(day)}
+              {formatDay(day, now)}
             </button>
           </div>
         ))}
@@ -100,7 +99,7 @@ export function TimeGridView({
         {days.map((day) => (
           <ul
             key={dayOf(day)}
-            aria-label={t('calendar.allDayOf', { day: longDayFormat.format(day) })}
+            aria-label={t('calendar.allDayOf', { day: formatFullDay(day) })}
             {...dropOn(dayOf(day))}
             className="min-h-7 min-w-0 flex-1 space-y-0.5 border-l p-0.5"
           >
@@ -129,7 +128,7 @@ export function TimeGridView({
           {days.map((day) => (
             <ol
               key={dayOf(day)}
-              aria-label={longDayFormat.format(day)}
+              aria-label={formatFullDay(day)}
               {...{ [DAY_ATTRIBUTE]: dayOf(day) }}
               data-hours=""
               {...gestures.slotHandlers(day)}

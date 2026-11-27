@@ -2,6 +2,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { CalendarSearch, ChevronLeft, ChevronRight } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatDayTitle, formatMonthTitle, formatWeekTitle } from '@/shared/lib/format'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
@@ -26,20 +27,16 @@ import { MonthView } from './month-view'
 import { type InterlocutorSearch, PlanInASlot } from './plan-in-a-slot'
 import { TimeGridView } from './time-grid-view'
 
-const monthFormat = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' })
-const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
-const rangeFormat = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
-
-/** "novembre 2026", "9 – 15 nov. 2026", "mardi 17 novembre 2026" */
+/** "Novembre 2026", "9 au 15 nov. 2026 · S46", "Mardi 17 novembre 2026" */
 function titleOf(view: View, day: Date, period: Period): string {
   switch (view) {
     case 'month':
     case 'agenda':
-      return monthFormat.format(day)
+      return formatMonthTitle(day)
     case 'week':
-      return rangeFormat.formatRange(period.first, new Date(period.end.getTime() - 1))
+      return formatWeekTitle(period.first, new Date(period.end.getTime() - 1))
     case 'day':
-      return dayFormat.format(day)
+      return formatDayTitle(day)
   }
 }
 
@@ -130,7 +127,7 @@ export function CalendarPage({
           </div>
           <Popover open={jumping} onOpenChange={setJumping}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="font-semibold text-base capitalize">
+              <Button variant="ghost" size="sm" className="font-semibold text-base">
                 {titleOf(view, day, period)}
                 <CalendarSearch aria-hidden className="text-muted-foreground" />
                 <span className="sr-only">{t('calendar.jumpTo')}</span>

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { formatFullDay, formatWeekday } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { byDay, dayOf, daysOf, isSameDay, type Period } from '../dates'
 import { DAY_ATTRIBUTE } from '../gestures'
@@ -11,9 +12,6 @@ import { CalendarToDoChip, type toDoDrop } from './calendar-to-do'
 
 /** Beyond this many, a day in the month says how many more it holds, and opens on its own. */
 export const SHOWN_IN_A_DAY_OF_THE_MONTH = 3
-
-const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' })
-const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 
 type Props = {
   period: Period
@@ -57,11 +55,8 @@ export function MonthView({
     <div className="overflow-hidden rounded-xl border bg-card">
       <div className="grid grid-cols-7 border-b bg-muted/40" aria-hidden>
         {days.slice(0, 7).map((day) => (
-          <div
-            key={dayOf(day)}
-            className="px-2 py-1.5 text-center font-medium text-muted-foreground text-xs capitalize"
-          >
-            {weekdayFormat.format(day)}
+          <div key={dayOf(day)} className="px-2 py-1.5 text-center font-medium text-muted-foreground text-xs">
+            {formatWeekday(day)}
           </div>
         ))}
       </div>
@@ -76,7 +71,7 @@ export function MonthView({
           return (
             <li
               key={dayOf(day)}
-              aria-label={longDayFormat.format(day)}
+              aria-label={formatFullDay(day)}
               {...{ [DAY_ATTRIBUTE]: dayOf(day) }}
               {...dropOn(dayOf(day))}
               className={cn(
@@ -87,7 +82,7 @@ export function MonthView({
               <button
                 type="button"
                 onClick={() => onOpenDay(day)}
-                aria-label={longDayFormat.format(day)}
+                aria-label={formatFullDay(day)}
                 className={cn(
                   'grid size-6 place-items-center self-end rounded-full text-xs tabular-nums hover:bg-accent',
                   today && 'bg-primary font-semibold text-primary-foreground hover:bg-primary/90',
@@ -114,7 +109,7 @@ export function MonthView({
                 <button
                   type="button"
                   onClick={() => onOpenDay(day)}
-                  aria-label={t('calendar.moreOn', { count: hidden, day: longDayFormat.format(day) })}
+                  aria-label={t('calendar.moreOn', { count: hidden, day: formatFullDay(day) })}
                   className="self-start rounded px-1.5 font-medium text-muted-foreground text-xs hover:bg-accent hover:text-foreground"
                 >
                   {t('calendar.more', { count: hidden })}

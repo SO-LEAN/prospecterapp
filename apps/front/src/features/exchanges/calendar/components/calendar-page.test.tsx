@@ -225,8 +225,8 @@ describe('CalendarPage', () => {
     ])
 
     const [today, tuesday] = screen.getAllByRole('heading', { level: 2 })
-    expect(today).toHaveTextContent('vendredi 13 novembreAujourd’hui')
-    expect(tuesday).toHaveTextContent('mardi 17 novembre')
+    expect(today).toHaveTextContent('Vendredi 13 novembre 2026Aujourd’hui')
+    expect(tuesday).toHaveTextContent('Mardi 17 novembre 2026')
     expect(screen.getByRole('button', { name: '9h00, Appel avec Ada Lovelace, À venir' })).toBeInTheDocument()
   })
 
@@ -238,10 +238,10 @@ describe('CalendarPage', () => {
       return title
     }
 
-    expect(await titleOf('month')).toBe('novembre 2026Aller à une date')
-    expect(await titleOf('agenda')).toBe('novembre 2026Aller à une date')
-    expect(await titleOf('week')).toMatch(/^9\s?–\s?15 nov\. 2026Aller à une date$/)
-    expect(await titleOf('day')).toBe('vendredi 13 novembre 2026Aller à une date')
+    expect(await titleOf('month')).toBe('Novembre 2026Aller à une date')
+    expect(await titleOf('agenda')).toBe('Novembre 2026Aller à une date')
+    expect(await titleOf('week')).toBe('9 au 15 nov. 2026 · S46Aller à une date')
+    expect(await titleOf('day')).toBe('Vendredi 13 novembre 2026Aller à une date')
   })
 
   it('shows the view pressed, goes to another, to today and to the previous period', async () => {
@@ -264,6 +264,14 @@ describe('CalendarPage', () => {
     ])
   })
 
+  it('heads each day of the week with its date', async () => {
+    await showTheCalendar('week', TODAY)
+
+    expect(screen.getByRole('button', { name: 'vendredi 13 novembre 2026' })).toHaveTextContent(
+      /^ven\. 13 nov\.$/,
+    )
+  })
+
   it('reads the previous period as soon as its arrow has the focus', async () => {
     await showTheCalendar('week', TODAY)
 
@@ -277,13 +285,13 @@ describe('CalendarPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Aller à une date/ }))
     const small = screen.getByRole('dialog')
-    expect(small).toHaveTextContent(/LMMJVSD/)
+    expect(small).toHaveTextContent(/lun\.mar\.mer\.jeu\.ven\.sam\.dim\./)
     expect(within(small).getByRole('button', { name: 'vendredi 13 novembre 2026' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
     await userEvent.click(within(small).getByRole('button', { name: 'Suivant' }))
-    expect(within(small).getByText('décembre 2026')).toBeInTheDocument()
+    expect(within(small).getByText('Décembre 2026')).toBeInTheDocument()
     await userEvent.click(within(small).getByRole('button', { name: 'Précédent' }))
     await userEvent.click(within(small).getByRole('button', { name: 'Précédent' }))
     await userEvent.click(within(small).getByRole('button', { name: 'mardi 6 octobre 2026' }))
