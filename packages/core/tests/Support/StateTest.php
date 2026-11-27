@@ -46,6 +46,20 @@ final class StateTest extends TestCase
         new State(['moments' => [new \DateTime(self::AT)]])->listOf('moments', \DateTimeImmutable::class);
     }
 
+    public function testAMapIsReadAsTheClassOfEachItem(): void
+    {
+        $at = new \DateTimeImmutable(self::AT);
+
+        $this->assertSame(['ada' => $at], new State(['moments' => ['ada' => $at]])->mapOf('moments', \DateTimeImmutable::class));
+    }
+
+    public function testAMapHoldingAnotherClassIsRefused(): void
+    {
+        $this->expectExceptionObject(new \UnexpectedValueException('moments is not a map of DateTimeImmutable: array'));
+
+        new State(['moments' => ['ada' => new \DateTime(self::AT)]])->mapOf('moments', \DateTimeImmutable::class);
+    }
+
     public function testAFlagIsReadAsABoolean(): void
     {
         $this->assertTrue(new State(['done' => true])->bool('done'));

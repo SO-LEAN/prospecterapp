@@ -60,6 +60,24 @@ final readonly class State
         return array_values(array_map(fn (mixed $item): object => $item instanceof $class ? $item : throw $this->notA(sprintf('list of %s', $class), $property, $items), $items));
     }
 
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return array<T> by the keys the aggregate gives
+     */
+    public function mapOf(string $property, string $class): array
+    {
+        $items = $this->valueOf($property);
+
+        if (!is_array($items)) {
+            throw $this->notA(sprintf('map of %s', $class), $property, $items);
+        }
+
+        return array_map(fn (mixed $item): object => $item instanceof $class ? $item : throw $this->notA(sprintf('map of %s', $class), $property, $items), $items);
+    }
+
     public function bool(string $property): bool
     {
         $value = $this->valueOf($property);
