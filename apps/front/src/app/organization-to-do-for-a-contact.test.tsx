@@ -70,7 +70,10 @@ const aContact = (
   },
 })
 
-/** The API serves my account with nothing to process, Safran SA, its to-dos, none yet, and its contacts: Nicolas Bonnet accepts a to-do, Lou Durand does not. */
+/**
+ * The API serves my account, with nothing to process, and Safran SA. Safran SA has no to-do yet. Its contact Nicolas
+ * Bonnet accepts a to-do, and Lou Durand does not.
+ */
 function theApiAnswers() {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)
