@@ -140,6 +140,12 @@ describe('the to-dos of my calendar', () => {
     expect(within(hours).getByText('10h00')).toBeInTheDocument()
   })
 
+  it('write their hour without a leading zero', async () => {
+    await showTheCalendar('week', { toDos: [aToDo('Appeler la RH', '2026-11-14', { dueAt: '08:30' })] })
+
+    expect(screen.getByText('8h30')).toBeInTheDocument()
+  })
+
   it('stay done, greyed, with the box the page gives them', async () => {
     await showTheCalendar('month', {
       toDos: [aToDo('Envoyer mon CV', '2026-11-12', { doneAt: '2026-11-12T09:00:00+01:00' })],

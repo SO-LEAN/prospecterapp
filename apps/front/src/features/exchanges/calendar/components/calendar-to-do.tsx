@@ -1,6 +1,7 @@
 import { TriangleAlert } from 'lucide-react'
 import { type ComponentProps, createContext, type DragEvent, type ReactNode, use } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatClockTime } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import type { CalendarToDo } from '../queries'
 import { movedTo, type ToDoRevision } from '../to-dos'
@@ -47,7 +48,7 @@ export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, classNa
       {...props}
     >
       {boxOf(toDo)}
-      {toDo.dueAt && <span className="shrink-0 tabular-nums">{toDo.dueAt.replace(':', 'h')}</span>}
+      {toDo.dueAt && <span className="shrink-0 tabular-nums">{formatClockTime(toDo.dueAt)}</span>}
       <span className={cn('min-w-0 truncate', done && 'line-through')}>{toDo.text}</span>
       {late && (
         <>

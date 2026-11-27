@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { blinkTheTitleWhileHidden } from '@/shared/lib/blinking-title'
 import { notificationsPermission, notify } from '@/shared/lib/browser-notifications'
+import { formatClockTime } from '@/shared/lib/format'
 import { addDays, startOfDay } from '../../calendar/dates'
 import { exchangesToProcessQuery } from '../../to-process/queries'
 import { markShown, readReminded, remindAgain, whenRemindedInAnotherTab } from '../reminded'
@@ -63,7 +64,7 @@ function useRemind(wakeUp: () => void) {
   return (toDo: RemindedToDo) => {
     const id = reminderOfToDo(toDo)
     const title = toDo.dueAt
-      ? t('reminders.toDoAt', { hour: toDo.dueAt.replace(':', 'h'), text: toDo.text })
+      ? t('reminders.toDoAt', { hour: formatClockTime(toDo.dueAt), text: toDo.text })
       : t('reminders.toDo', { text: toDo.text })
     const openIt = () => {
       toast.dismiss(id)

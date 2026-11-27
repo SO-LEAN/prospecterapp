@@ -1,5 +1,6 @@
 import { CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { formatDayTitle } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { EmptyState } from '@/shared/ui/feedback/empty-state'
 import { byDay, isSameDay, parseDay } from '../dates'
@@ -7,8 +8,6 @@ import type { CalendarExchange, CalendarToDo } from '../queries'
 import { toDosByDay } from '../to-dos'
 import { CalendarExchangeChip } from './calendar-exchange'
 import { CalendarToDoChip } from './calendar-to-do'
-
-const longDayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
 type Props = {
   items: CalendarExchange[]
@@ -38,18 +37,9 @@ export function AgendaView({ items, toDos, late, now, onOpen }: Props) {
 
         return (
           <li key={written} className="overflow-hidden rounded-xl border bg-card">
-            <h2
-              className={cn(
-                'border-b bg-muted/40 px-4 py-2 font-medium text-sm capitalize',
-                today && 'text-primary',
-              )}
-            >
-              {longDayFormat.format(day)}
-              {today && (
-                <span className="ml-2 font-normal text-muted-foreground normal-case">
-                  {t('calendar.today')}
-                </span>
-              )}
+            <h2 className={cn('border-b bg-muted/40 px-4 py-2 font-medium text-sm', today && 'text-primary')}>
+              {formatDayTitle(day)}
+              {today && <span className="ml-2 font-normal text-muted-foreground">{t('calendar.today')}</span>}
             </h2>
             <ul className="space-y-1.5 p-2">
               {(toDosOf.get(written) ?? []).map((toDo) => (

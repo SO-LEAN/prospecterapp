@@ -102,6 +102,13 @@ describe('the reminders of my to-dos', () => {
     expect(await screen.findByText(/^À faire à 10h00\s: Appeler la RH$/)).toBeInTheDocument()
   })
 
+  it('writes the hour of a to-do without a leading zero', async () => {
+    await openTheApplication([aToDoOfTheDay('Appeler la RH', '08:30')])
+
+    await itIs(8, 20)
+    expect(await screen.findByText(/^À faire à 8h30\s: Appeler la RH$/)).toBeInTheDocument()
+  })
+
   it('remind a to-do without an hour at 9:00 on its day, once', async () => {
     await openTheApplication([aToDoOfTheDay('Envoyer mon CV', null)])
 
