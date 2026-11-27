@@ -69,7 +69,7 @@ It reads:
 
 - a member's account and its corporate name from Accounts, and how the member presents themselves from PersonalData (`Hosts`, `ConsultMembersService`, `PresentMembersService`);
 - whether their calendar is connected from Connectors (`ConnectedCalendars`, `WhichHaveAConnectedCalendarService`);
-- the exchanges they still have planned from Prospecting (`HostAgendas`, `ConsultPlannedExchangesService`), asked from 8 hours before the viewing, the longest exchange Prospecting plans.
+- the exchanges they still have planned from Prospecting (`HostAgendas`, `ConsultPlannedExchangesService`), asked from 8 hours before the viewing, the longest exchange Prospecting plans. Booking decides how long each one keeps the host busy: its duration, or 15 minutes, one slot, when it has none (`PlannedExchange`).
 
 It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged`, ADR 0171).
 
@@ -84,7 +84,7 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
   - the services `BusyPeriods` and `LinkAvailability`;
   - the rules `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`;
   - the repositories `BookingPageRepository` and `AppointmentRepository`;
-  - the ports `Hosts`, `ConnectedCalendars` and `HostAgendas`, implemented by the API.
+  - the ports `Hosts` (Accounts), `HostPresentations` (PersonalData), `ConnectedCalendars` and `HostAgendas`, implemented by the API, one context each (ADR 0223). `HostIdentities` puts the host's identity together, and `LinkAvailability` decides that a host may hold their bookers while Accounts gives them the right on personal data. A host Accounts does not know may not.
 - `src/Booking/Application`, in three modules (ADR 0206):
   - `BookingPage`, the host sets up their page:
     - `SetWeeklyWindows`, `AddInactivePeriod`, `RemoveInactivePeriod`, `OfferChannels`, `OpenBooking`, `CloseBooking`, `ChangeBookingLink`, through `BookingPages` (a host's page, set up by their first action on it);

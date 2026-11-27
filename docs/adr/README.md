@@ -225,3 +225,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0220](0220-pull-requests-go-through-the-merge-queue-where-the-journeys-run.md) | Pull requests to dev go through the merge queue, where the journeys run | architecture | Accepted | 2026-11-26 |
 | [0221](0221-the-ci-splits-the-api-check-and-caches-the-images-and-the-tools-results.md) | The CI splits the API's check into jobs, and caches the images and the tools' results | architecture | Accepted | 2026-11-26 |
 | [0222](0222-the-ci-mutates-a-part-in-shards-and-the-scenarios-stay-a-test-per-feature.md) | The CI mutates a part in shards, and the core's scenarios stay a test per feature | architecture | Accepted | 2026-11-27 |
+| [0223](0223-an-anticorruption-adapter-asks-one-context-and-only-a-composition-joins-several.md) | An anticorruption adapter asks one context, and only a composition joins several | architecture | Accepted | 2026-11-27 |

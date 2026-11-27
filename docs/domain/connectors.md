@@ -130,7 +130,7 @@ Each lane alone: [Calendar](../event-storming/connectors/calendar.svg), [Client]
   - A member who no longer manages personal data has their import stopped (ADR 0154).
 
   The next notification catches up a lost one. The daily renewal does too.
-- Each message read is imported (`ImportMail`) in two cases. PersonalData and Prospecting tell who the correspondents are (`Correspondents`).
+- Each message read is imported (`ImportMail`) in two cases. PersonalData and Prospecting tell who the correspondents are (`ContactCorrespondents`, `OrganizationCorrespondents`).
   - It is an e-mail received from a contact of the account, or else from the address of one of the account's organizations.
   - It is an e-mail that the member sent to such a contact or organization in « To ». It may be a reply or a new e-mail.
 
@@ -141,7 +141,7 @@ Each lane alone: [Calendar](../event-storming/connectors/calendar.svg), [Client]
   - An e-mail that the member sends to themselves or to a member of the account has no correspondent.
   - A message gone in the meantime imports nothing. Neither does an import that is no longer active.
 - A member reimports the e-mails that their mailbox already exchanged with a contact or an organization. They do it from the contact's or the organization's card (`CatchUpMailHistory`, ADR 0176).
-  - The correspondent's address comes from PersonalData, as the member reads it unmasked. For an organization that the account prospects, it comes from Prospecting (`CorrespondentAddresses`). The address is passed to the provider in its search and is never kept.
+  - The correspondent's address comes from PersonalData, as the member reads it unmasked. For an organization that the account prospects, it comes from Prospecting (`ContactAddresses`, `OrganizationAddresses`). The address is passed to the provider in its search and is never kept.
   - The search covers the messages exchanged with the address over the previous 12 months. It takes the 200 newest and leaves out the spam, the trash and the drafts. Each message goes to the import as an added message, asynchronously (`Connection::catchUpMailWith()`, `MailboxMessageAdded`).
   - The `ImportMail` rules keep only the sender and the recipients in « To ».
   - An e-mail is logged once in the account. It is never logged again once erased (ADR 0166). So a second reimport logs nothing more.
@@ -167,11 +167,11 @@ Its other domain events (`Connected`, `ConnectionLost`, `Disconnected`, `ClientC
 
 It reads:
 
-- from Accounts, a member's account, whether they administer it, their reminder and whether they manage personal data (`Members`, `ConsultMembersService`). From PersonalData, it reads their first name (`PresentMembersService`, ADR 0175);
-- from PersonalData and Prospecting, who an address designates (`Correspondents`, `WhichContactsHaveTheseEmailsService`, `WhichOrganizationsHaveTheseEmailsService`);
+- from Accounts, a member's account, whether they administer it, their reminder and whether they manage personal data (`AccountMembers`, `ConsultMembersService`). From PersonalData, it reads their first name (`MemberFirstNames`, `PresentMembersService`, ADR 0175);
+- from PersonalData and Prospecting, who an address designates (`ContactCorrespondents`, `WhichContactsHaveTheseEmailsService`; `OrganizationCorrespondents`, `WhichOrganizationsHaveTheseEmailsService`);
 - from Prospecting, the exchanges (`HeldExchanges`, `ConsultHeldExchangesService`, `ConsultPlannedExchangesService`);
 - from PersonalData, the contacts' names, and the e-mail and phone number of a booker it invites (`ContactNames`, `NameContactsService`);
-- a contact's address from PersonalData, and an organization's address from Prospecting. It uses them to reimport the e-mails exchanged with them (`CorrespondentAddresses`, `WhichEmailsHaveTheseContactsService`, `WhichEmailsHaveTheseOrganizationsService`, ADR 0176).
+- a contact's address from PersonalData, and an organization's address from Prospecting. It uses them to reimport the e-mails exchanged with them (`ContactAddresses`, `WhichEmailsHaveTheseContactsService`; `OrganizationAddresses`, `WhichEmailsHaveTheseOrganizationsService`, ADR 0176).
 
 It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten contacts (`ContactForgotten`).
 
@@ -189,7 +189,7 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
     - `ProviderAccess`: exchange a code through a client's credentials, and tell whether a token still grants access through them. Revoke a token;
     - `ProviderCalendar`: create the calendar « Prospecter ». Put an event, and return the link of the conference it asked for. Remove an event, or cancel it for its guest (`AccessRevoked`, `CalendarGone`, `CalendarRefusedThePush`);
     - `ProviderMailbox`: watch a mailbox through a topic, and stop its watch. List the messages added since a history point (`HistoryExpired` once the history is no longer kept). List the messages received or sent after a moment, or exchanged with an address after a moment. Read a message. Send one of its attachments to the private storage;
-    - `Correspondents`, `CorrespondentAddresses`, `Members`, `HeldExchanges` and `ContactNames`.
+    - `ContactCorrespondents`, `OrganizationCorrespondents`, `ContactAddresses`, `OrganizationAddresses`, `AccountMembers`, `MemberFirstNames`, `HeldExchanges` and `ContactNames`, one context each (ADR 0223). The domain service `Members` puts a member and their first name together.
 - `src/Connectors/Application`, in four modules (ADR 0206):
   - `Connection`, a member's connection at a provider: `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), and `WhichHaveAConnectedCalendar` (the service it publishes, ADR 0148);
   - `Client`, the account's client at the provider and its mailbox notifications: `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (the port `AccountClientsRetriever`), and, for ADR 0154, `ConfigureMailboxNotifications`, `RemoveMailboxNotifications` and `ConsultMailboxPusher`;
