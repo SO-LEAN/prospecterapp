@@ -1,3 +1,4 @@
+import { formatCalendarDay } from '@/shared/lib/format'
 import type { ToDo } from './queries'
 
 const MONDAY = 1
@@ -37,18 +38,9 @@ export const isOverdue = (toDo: Pick<ToDo, 'dueOn' | 'dueAt' | 'doneAt'>, now: D
   )
 }
 
-const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' })
-
-/** "2026-11-14" and "08:30" -> "14 nov. 2026, 8h30": a calendar day, as the prospector wrote it. */
-export const formatDue = ({ dueOn, dueAt }: Pick<ToDo, 'dueOn' | 'dueAt'>) => {
-  const [year = 0, month = 1, day = 1] = dueOn.split('-').map(Number)
-  const shownDay = dayFormat.format(new Date(year, month - 1, day))
-  if (!dueAt) {
-    return shownDay
-  }
-  const [hours = 0, minutes = 0] = dueAt.split(':').map(Number)
-  return `${shownDay}, ${hours}h${String(minutes).padStart(2, '0')}`
-}
+/** "2026-11-14" and "08:30" -> "sam. 14 nov. · 8h30": a calendar day, as the prospector wrote it. */
+export const formatDue = ({ dueOn, dueAt }: Pick<ToDo, 'dueOn' | 'dueAt'>, now = new Date()) =>
+  formatCalendarDay(dueOn, now, dueAt)
 
 /** The API orders the to-dos, those to do first. The list splits them and folds the done ones. */
 export const split = (toDos: ToDo[]) => ({

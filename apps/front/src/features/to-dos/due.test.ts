@@ -68,8 +68,11 @@ describe('the to-dos of a list', () => {
 })
 
 describe('a due day', () => {
-  it('reads as written, with its hour when said', () => {
-    expect(formatDue({ dueOn: '2026-11-14', dueAt: null })).toBe('14 nov. 2026')
-    expect(formatDue({ dueOn: '2026-11-14', dueAt: '08:30' })).toBe('14 nov. 2026, 8h30')
+  it('reads as written, with its weekday', () => {
+    expect(formatDue({ dueOn: '2026-11-14', dueAt: null }, FRIDAY)).toBe('sam. 14 nov.')
+  })
+
+  it('reads with its hour when said', () => {
+    expect(formatDue({ dueOn: '2026-11-14', dueAt: '08:30' }, FRIDAY)).toBe('sam. 14 nov. · 8h30')
   })
 })
