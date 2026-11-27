@@ -85,6 +85,9 @@ function theEntry(name: string) {
   })
 }
 
+/** Well past the 300 ms a tooltip waits before it opens (`app/providers.tsx`). */
+const PAST_THE_TOOLTIP_DELAY_MS = 600
+
 function theSidebar() {
   return screen.getByRole('complementary')
 }
@@ -154,7 +157,7 @@ describe('the shell of a signed-in member', () => {
 
     await userEvent.hover(theEntry('Contacts'))
 
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await new Promise((resolve) => setTimeout(resolve, PAST_THE_TOOLTIP_DELAY_MS))
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
