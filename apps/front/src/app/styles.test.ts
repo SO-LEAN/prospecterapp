@@ -8,7 +8,10 @@ const styles = readFileSync('src/app/styles.css', 'utf8')
 /** The light theme's tokens, as `:root` declares them. */
 const LIGHT_THEME = declarationsOf(blockOf(':root'))
 
-/** The dark theme's tokens: `.dark` over `:root`, on the same element, so that a token `.dark` keeps reads its `var()` there. */
+/**
+ * The dark theme's tokens: `.dark` overrides `:root` on the same element.
+ * A token that `.dark` does not redeclare resolves its `var()` among the dark values.
+ */
 const DARK_THEME: Theme = new Map([...LIGHT_THEME, ...declarationsOf(blockOf('.dark'))])
 
 /** What `@theme inline` gives Tailwind, as `bg-*`, `text-*` and `border-*` utilities. */
