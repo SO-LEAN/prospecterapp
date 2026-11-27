@@ -213,4 +213,12 @@ describe('the shell of a signed-in member', () => {
     const theTopBar = (await screen.findByRole('navigation', { name: "Fil d'Ariane" })).closest('header')
     expect(theTopBar).toContainElement(screen.getByText('mer. 18 nov. · S47'))
   })
+
+  it('offers « Nouveau » in gold in the top bar', async () => {
+    await renderTheSpaAt('/')
+
+    const theTopBar = (await screen.findByRole('navigation', { name: "Fil d'Ariane" })).closest('header')
+    const theNewButton = within(theTopBar as HTMLElement).getByRole('button', { name: 'Nouveau' })
+    expect(theNewButton).toHaveAttribute('data-variant', 'gold')
+  })
 })

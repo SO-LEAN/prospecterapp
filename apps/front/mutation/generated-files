@@ -5,7 +5,6 @@
 src/app/routeTree.gen.ts
 src/shared/ui/alert.tsx
 src/shared/ui/badge.tsx
-src/shared/ui/button.tsx
 src/shared/ui/card.tsx
 src/shared/ui/input.tsx
 src/shared/ui/label.tsx
