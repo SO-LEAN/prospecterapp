@@ -50,6 +50,9 @@ describe('the events catalogue', () => {
     expect(
       await screen.findByRole('heading', { name: 'Catalogue des événements', level: 1 }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByText('Chaque canal, chaque statut et chaque marqueur, à vérifier en clair et en sombre.'),
+    ).toBeInTheDocument()
     expect(screen.getByRole('table', { name: 'Canal et statut' })).toBeInTheDocument()
   })
 })
