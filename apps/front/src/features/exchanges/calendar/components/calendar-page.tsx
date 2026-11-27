@@ -6,6 +6,7 @@ import { formatDayTitle, formatMonthTitle, formatWeekTitle } from '@/shared/lib/
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import type { InterlocutorSearch } from '../../components/with-the-chosen'
 import type { Slot } from '../../planning'
 import { useNow } from '../../use-now'
 import { neighbourOf, type Period, periodOf, startOfDay, VIEWS, type View } from '../dates'
@@ -24,7 +25,7 @@ import { type ReviseToDo, ToDoBoxOf, toDoDrop } from './calendar-to-do'
 import { ExchangeDialog } from './exchange-dialog'
 import { MiniMonth } from './mini-month'
 import { MonthView } from './month-view'
-import { type InterlocutorSearch, PlanInASlot } from './plan-in-a-slot'
+import { PlanInASlot } from './plan-in-a-slot'
 import { TimeGridView } from './time-grid-view'
 
 /** "Novembre 2026", "9 au 15 nov. 2026 · S46", "Mardi 17 novembre 2026" */
