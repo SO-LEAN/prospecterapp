@@ -1,14 +1,21 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { CHANNEL_ICONS, type Channel } from './channel'
-import { type ExchangeFamily, FAMILY_OF_CHANNEL, LATE_EDGE, SOFT_TINTS, SOLID_TINTS, TINTS } from './family'
+import {
+  type ExchangeFamily,
+  FAMILY_OF_CHANNEL,
+  LATE_EDGE,
+  SOFT_TINTS,
+  SOLID_TINTS,
+  TEXT_TINTS,
+} from './family'
 import { type ExchangeStatus, StatusMark } from './status-mark'
 
-/** The material of each status, on its family's tint: the colour says the channel, the material says the status. */
+/** Each status's material, on its family's tint: the colour says the channel, the material says the status. */
 const LOOKS: Record<ExchangeStatus, (family: ExchangeFamily) => string> = {
   planned: (family) => SOLID_TINTS[family],
   done: (family) => SOFT_TINTS[family],
-  missed: (family) => cn('missed-hatching border-l-2 border-destructive', TINTS[family]),
+  missed: (family) => cn('missed-hatching border-l-2 border-destructive', TEXT_TINTS[family]),
   cancelled: () => 'border border-dashed border-muted-foreground/60 text-muted-foreground line-through',
 }
 

@@ -17,7 +17,7 @@ export type Marked = Pick<
 const MARKER = 'shrink-0 px-1 py-0 font-normal text-[0.65rem]'
 
 /**
- * The discreet markers of an exchange. Each one shows only when the API gives its field, and never by its colour
+ * An exchange's discreet markers. Each one shows only when the API gives its field, and never by its colour
  * alone: it has a text or an icon, and a name for screen readers. Its push into Google and whether it is late come
  * from other answers than the exchange's.
  */
