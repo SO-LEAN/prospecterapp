@@ -88,9 +88,10 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
      */
     private function stillContacts(array $contacts, Prospector $holder): array
     {
-        $known = array_map(static fn (ContactId $contact): string => $contact->value, $this->knownContacts->whichAreContactsOf(array_map(static fn (ContactToAttachInList $contact): ContactId => new ContactId($contact->personId), $contacts), $holder->accountId));
+        $asked = array_map(static fn (ContactToAttachInList $contact): ContactId => new ContactId($contact->personId), $contacts);
+        $known = array_flip(array_map(static fn (ContactId $contact): string => $contact->value, $this->knownContacts->whichAreContactsOf($asked, $holder->accountId)));
 
-        return array_values(array_filter($contacts, static fn (ContactToAttachInList $contact): bool => in_array($contact->personId, $known, true)));
+        return array_values(array_filter($contacts, static fn (ContactToAttachInList $contact): bool => isset($known[$contact->personId])));
     }
 
     /**

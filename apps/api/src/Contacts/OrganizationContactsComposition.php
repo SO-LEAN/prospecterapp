@@ -16,8 +16,9 @@ use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\Lis
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
- * Composes an organization's contacts (ADR 0217). Prospecting lists them, with their links. PersonalData reads each
- * one as the reader may read them, unmasked or masked, joined by the contact's id.
+ * Composes an organization's contacts (ADR 0217). Prospecting lists them, with their links, and has left out a contact
+ * PersonalData no longer knows. PersonalData reads each one as the reader may read them, unmasked or masked, joined by
+ * the contact's id. A contact erased between the two reads has no card to show, and is skipped.
  */
 final readonly class OrganizationContactsComposition
 {
