@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   type InfectionReport,
+  type Mutation,
   mutationOfInfection,
+  mutationOfShards,
   mutationOfStryker,
   type StrykerMutant,
   summaryOf,
@@ -157,6 +159,70 @@ describe('the summary of a mutation run of Stryker', () => {
 
     expect(summaryOf("the event storming's generator", mutationOfStryker(report, ROOT))).toMatch(
       /\nSurvived:\n\n- apps\/front\/event-storming\/grid\.ts:27 StringLiteral\n- apps\/front\/event-storming\/svg\.ts:4 EqualityOperator\n\nNot covered:\n\n- apps\/front\/event-storming\/grid\.ts:31 ArithmeticOperator\n$/,
+    )
+  })
+})
+
+describe('the summary of a mutation run in shards', () => {
+  const shardMutation: Mutation = {
+    score: 0,
+    killed: 0,
+    survived: 0,
+    notCovered: 0,
+    timedOut: 0,
+    skipped: 0,
+    survivors: [],
+    uncovered: [],
+  }
+
+  it('sums up the counts of the shards and gives the score of all their mutants', () => {
+    const shards = [
+      { ...shardMutation, score: 75, killed: 2, timedOut: 1, survived: 1 },
+      { ...shardMutation, score: 50, killed: 3, notCovered: 3, skipped: 2 },
+    ]
+
+    expect(summaryOf('the core', mutationOfShards(shards))).toBe(
+      [
+        '## Mutation of the core',
+        '',
+        'Score: 60 %',
+        '',
+        '- Killed: 5',
+        '- Survived: 1',
+        '- Not covered: 3',
+        '- Timed out: 1',
+        '- Skipped: 2',
+        '',
+      ].join('\n'),
+    )
+  })
+
+  it("keeps the tool's own score when the run has one shard", () => {
+    const shards = [{ ...shardMutation, score: 66.66, killed: 2, survived: 1 }]
+
+    expect(summaryOf('the core', mutationOfShards(shards))).toContain('\nScore: 66.66 %\n')
+  })
+
+  it('lists the survivors of every shard, then the mutants no test covers in every shard', () => {
+    const shards = [
+      {
+        ...shardMutation,
+        survived: 1,
+        survivors: [{ file: 'packages/core/src/A.php', line: 3, mutator: 'GreaterThan' }],
+        notCovered: 1,
+        uncovered: [{ file: 'packages/core/src/A.php', line: 9, mutator: 'Throw_' }],
+      },
+      {
+        ...shardMutation,
+        survived: 1,
+        survivors: [{ file: 'packages/core/src/B.php', line: 5, mutator: 'MethodCallRemoval' }],
+        notCovered: 1,
+        uncovered: [{ file: 'packages/core/src/B.php', line: 7, mutator: 'Identical' }],
+      },
+    ]
+
+    expect(summaryOf('the core', mutationOfShards(shards))).toMatch(
+      /\nSurvived:\n\n- packages\/core\/src\/A\.php:3 GreaterThan\n- packages\/core\/src\/B\.php:5 MethodCallRemoval\n\nNot covered:\n\n- packages\/core\/src\/A\.php:9 Throw_\n- packages\/core\/src\/B\.php:7 Identical\n$/,
     )
   })
 })
