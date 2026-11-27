@@ -16,6 +16,7 @@ export const fr = {
     expand: 'Ouvrir le menu',
     mainNavigation: 'Navigation principale',
     userMenu: '{{name}}, menu du compte',
+    new: 'Nouveau',
   },
   calendar: {
     title: 'Calendrier',
@@ -663,6 +664,9 @@ export const fr = {
     statuses: { planned: 'À venir', done: 'Fait', missed: 'Manqué', cancelled: 'Annulé' },
     cancelledBy: { prospector: 'Annulé par moi', contact: 'Annulé par le contact' },
     plan: 'Planifier',
+    planAnExchange: 'Planifier un échange',
+    mayNotNote: 'Vous ne pouvez pas noter d’échange avec {{name}}.',
+    withSomeone: 'Avec un contact ou une organisation, à choisir d’abord.',
     planDescription: 'Un appel, un rendez-vous ou une visio à venir avec {{name}}.',
     planned: 'Échange planifié',
     date: 'Date',
