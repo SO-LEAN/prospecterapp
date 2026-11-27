@@ -26,7 +26,7 @@ The tokens are defined in OKLCH in `apps/front/src/app/styles.css` (`:root` and 
 | `secondary`, `muted`, `accent` | quiet surfaces, hints, icon backgrounds |
 | `destructive`, `success`, `warning` | outcomes |
 | `border`, `input`, `ring` | strokes and focus |
-| `gold`, `gold-soft`, `gold-foreground` | what has value: the « Nouveau » button, the active page, the action to take. Never a background fill. The text on the gold is always `gold-foreground`, the gold's ink |
+| `gold`, `gold-soft`, `gold-foreground` | what has value: the « Nouveau » button, the active page, the action to take. Never a background fill. The text on the gold is always `gold-foreground`, the gold's ink. In the dark theme, the text on `gold-soft` is the gold itself |
 | `event-call`, `event-meeting`, `event-video`, `event-written`, `event-todo`, each with its `-soft` background | the family of an exchange, by its channel (calls, meetings, video calls, the written channels), and the to-dos |
 | `day-weekend`, `day-holiday`, `day-holiday-soft`, `day-vacation`, `day-vacation-soft` | the calendar's context. It never carries an event on its own |
 | `sidebar*` | navigation panel |
@@ -36,6 +36,8 @@ The light theme takes its values from the UI/UX audit's palette. Two rules hold 
 
 - No hue between 250° and 330°: no violet, no magenta. The hue is the HSL hue of the sRGB color, as the audit's palette gives it in hexadecimal. In OKLCH, the video calls' blue would sit at 259°.
 - Body text, muted text, links, and the text on the main buttons, the accent, the danger color and the gold keep a contrast of at least 4.5:1 on their surface. That is why `muted-foreground` is #5E6D7A rather than the audit's #6B7A87, which reads 4.0:1 on the paper.
+
+The dark theme is not an inverted light theme. It keeps the same hierarchy and changes only the values. `.dark` redeclares a token only when its value changes: a token that `:root` gives by `var()` follows the dark value it names. The page is night blue (#07141B), not black. The cards sit one step lighter (#0E2029), and the strokes are barely visible. The primary turns to petrol 400 (#2CB5BD), and the gold keeps its value. Each family's tint is lighter than in the light theme, and its soft background turns dark and saturated. The calendar's context turns dark the same way. The same two rules hold for the dark theme, and `app/styles.test.ts` checks them too. The contrast rule also covers each family's tint, on its soft background and on the card, the calendar's colors on their backgrounds, and the gold on its soft background.
 
 Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-sm` on cards (`shared/ui/card.tsx`), and the softer `shadow-card` token on the organization cards in lists. Font: Inter Variable (self-hosted, `@fontsource-variable/inter`). Numbers in stats use `tabular-nums`.
 
