@@ -104,6 +104,31 @@ export function mutationOfStryker({ projectRoot, files }: StrykerReport, root: s
   }
 }
 
+/**
+ * A part's mutation run in shards, each mutating its own files: their counts summed, their mutants listed. A run of
+ * one shard keeps its tool's own score, such as Infection's exact `msi`.
+ */
+export function mutationOfShards(shards: Mutation[]): Mutation {
+  const [onlyShard] = shards
+  if (shards.length === 1 && onlyShard !== undefined) return onlyShard
+  const sumOf = (count: (shard: Mutation) => number) => shards.reduce((sum, shard) => sum + count(shard), 0)
+  const killed = sumOf((shard) => shard.killed)
+  const survived = sumOf((shard) => shard.survived)
+  const notCovered = sumOf((shard) => shard.notCovered)
+  const timedOut = sumOf((shard) => shard.timedOut)
+
+  return {
+    score: scoreOf(killed + timedOut, killed + timedOut + survived + notCovered),
+    killed,
+    survived,
+    notCovered,
+    timedOut,
+    skipped: sumOf((shard) => shard.skipped),
+    survivors: shards.flatMap((shard) => shard.survivors),
+    uncovered: shards.flatMap((shard) => shard.uncovered),
+  }
+}
+
 /** Stryker's mutation score: the detected mutants out of the valid ones, in percent with two decimals. */
 function scoreOf(detected: number, valid: number): number {
   return Math.round((10_000 * detected) / valid) / 100
