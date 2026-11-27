@@ -9,8 +9,8 @@ The art direction is « Le Filon »: warm paper, deep ink, petrol for the primar
 - Semantic tokens only: components use `bg-card`, `text-muted-foreground`, `border`, `bg-primary`…, never raw palette colors (`bg-blue-500`). Changing a token restyles the whole app, in both themes.
 - Accessible by default: Radix primitives (focus management, keyboard, ARIA), visible focus rings, labels wired to inputs (`shared/ui/form/field.tsx`), sufficient contrast in both themes.
 - Every clickable area shows the hand cursor through the base rule in `app/styles.css`, never through a `cursor-pointer` on each component. The rule covers buttons, the `button`, `menuitem*`, `option` and `tab` roles, `summary`, `label[for]`, checkboxes, radios and file inputs. It shows `not-allowed` when they are disabled. A clickable element that is neither a button nor a link (a card, a row) is a `<button>`, a link, or carries `role="button"`.
-- Calm hierarchy: one primary action per screen, secondary actions as `outline` or `ghost` buttons, titles in `text-2xl font-semibold tracking-tight`.
-- Every async state is designed: skeletons (`PageSkeleton`), empty states (`EmptyState`), error states (`ErrorState`), toasts for outcomes.
+- Calm hierarchy: one primary action per screen, secondary actions as `outline` or `ghost` buttons, page titles through `PageHeader` (`font-display text-title`).
+- Every async state is designed: skeletons shaped like the content they wait for (`PageSkeleton`, never a full-screen spinner), empty states (`EmptyState`), error states (`ErrorState`), toasts for outcomes.
 - On a phone, the page is used at its own size. It never zooms. Only the maps zoom. The `viewport` in `index.html` and `touch-action: pan-x pan-y` on every element prevent the zoom, and `shared/lib/keep-the-page-from-zooming.ts` cancels Safari's gesture events. The page never scrolls sideways either. A responsive grid starts with `grid-cols-1` (`minmax(0, 1fr)`). Otherwise its implicit column takes the width of its longest truncated text.
 
 ## Tokens
@@ -39,7 +39,36 @@ The light theme takes its values from the UI/UX audit's palette. Two rules hold 
 
 The dark theme is not an inverted light theme. It keeps the same hierarchy and changes only the values. `.dark` redeclares a token only when its value changes: a token that `:root` defines as a `var()` takes the dark value of the token it names. The page is night blue (#07141B), not black. The cards sit one step lighter (#0E2029), and the strokes are barely visible. The primary turns to petrol 400 (#2CB5BD), and the gold keeps its value. Each family's tint is lighter than in the light theme, and its soft background turns dark and saturated. The calendar's context turns dark the same way. The same two rules hold for the dark theme, and `app/styles.test.ts` checks them too. The contrast rule also covers each family's tint, on its soft background and on the card, the calendar's colors on their backgrounds, and the gold on its soft background.
 
-Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-sm` on cards (`shared/ui/card.tsx`), and the softer `shadow-card` token on the organization cards in lists. Font: Inter Variable (self-hosted, `@fontsource-variable/inter`). Numbers in stats use `tabular-nums`.
+`@theme inline` also names the type, the radii, the shadows and the easings. `shared/lib/utils.ts` gives these scales to tailwind-merge, so that `cn` lets a later utility of the same group replace them. `app/styles.test.ts` checks their values.
+
+### Type
+
+Inter is the text font, self-hosted with its optical sizes (`@fontsource-variable/inter/opsz.css`). Inter Display is Inter at its largest optical size (`font-display`, `"opsz" 32`): the titles and the key figures. The whole page uses the variants `cv11` and `ss01`.
+
+| Utility | Use |
+|---|---|
+| `font-display text-title` | a page's title: 680, 27 px, −2.2 % (`PageHeader`) |
+| `font-display text-card-title` | a card's title: 650, 14.5 px (`CardTitle`) |
+| `text-body` | the body text: 500, 13.5 px, on `body` |
+| `text-label uppercase` | a label in spaced capitals: 700, 11 px |
+
+Dates, hours and counters use tabular figures: `time` has them, other numbers take `tabular-nums`.
+
+### Radii and shadows
+
+Each kind of element has its radius: `rounded-chip` 6 px, `rounded-button` 8 px (`Button`), `rounded-field` 10 px (`Input`, `Textarea`, `SelectTrigger`), `rounded-row` 12 px, `rounded-card` 16 px (`Card`), `rounded-dialog` 18 px (`DialogContent`). The former `rounded-sm` to `rounded-xl`, from `--radius`, remain for what has no kind yet.
+
+Three shadow levels, tinted with the ink and never black (`--shadow-ink`): `shadow-rest` (the cards), `shadow-float` (the menus, the popovers, the select lists), `shadow-lift` (the dialogs, the side panels). `shadow-card` is the softer shadow of the organization cards in lists. An element has one border at most.
+
+### Motion
+
+| Gesture | Duration and curve | Effect |
+|---|---|---|
+| hover | 120 ms, `ease-standard` | the background changes (`Button`) |
+| menu, popover, tooltip, select list | 160 ms, `ease-enter`, out on `ease-exit` | fades in and grows from 0.97 out of its trigger (`FLOATING_MOTION`) |
+| dialog, side panel | 220 ms, `ease-enter`, out in 160 ms on `ease-exit` | fades in as it slides 24 px, over the page blurred by 3 px (`PANEL_MOTION`, `BACKDROP`) |
+
+`shared/ui/motion.ts` holds these motions. Nothing a gesture starts lasts more than 300 ms. Under `prefers-reduced-motion`, what appears or leaves only fades: a rule of `app/styles.css` stills every variable that tw-animate-css moves (translation, scale, rotation, blur).
 
 ## Theme
 
@@ -64,6 +93,9 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 - `shared/ui/map/geo-map.tsx`: a lazy MapLibre map with avatar markers, fitted to show all of them.
 - `shared/ui/unlocated-badge.tsx`: "Non géolocalisée" next to an address that the geocoder could not place. It uses the `warning` token on the stroke and the icon, and `foreground` on the text for contrast. `ExplainedUnlocatedBadge` explains why on hover, focus or press. `UnlocatedBadge` stands alone inside a link (a list card).
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
+- `shared/ui/kbd.tsx`: `Kbd`, a shortcut's key shown in a button (« Noter un échange L »). Screen readers skip it, and the button names its shortcut with `aria-keyshortcuts`.
+- `shared/ui/undo-toast.ts`: `useUndoToast`, the message at the bottom of the screen that tells a gesture's outcome, with « Annuler » for 6 seconds when the gesture can be undone. Escape and the cross close a toast without undoing anything (`Toaster`).
+- `shared/ui/icons-provider.tsx`: `IconsProvider`, at the app's root, draws every lucide icon with a 1.75 px stroke.
 - `app/layout/`: the app shell, as the audit draws it:
   - the ink sidebar, 232 px wide (`w-58`), folded to its icons on 64 px (`w-16`), each folded entry named by a tooltip. The folded state is a device preference, kept with the theme. The sidebar shows the logo, then my account's name, then the navigation. A gold mark at the left of an entry says the page shown. Its foot holds « Réglages » and my avatar, whose menu offers my account, the theme, the architecture where the instance serves it, and the sign-out;
   - the mobile sheet, which holds the same navigation;
@@ -84,4 +116,4 @@ docker compose run --rm --no-deps -w /var/www/src/apps/front/public node sh -c '
 
 ## Icons and texts
 
-The icons come from lucide-react. They are `size-4` in buttons and `size-[18px]` in navigation, and `aria-hidden` when next to a text. All texts go through i18n (`shared/i18n/fr.ts`).
+The icons come from lucide-react, with a 1.75 px stroke (`IconsProvider`). They are `size-4` in buttons and `size-[18px]` in navigation, and `aria-hidden` when next to a text. All texts go through i18n (`shared/i18n/fr.ts`).
