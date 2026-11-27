@@ -10,8 +10,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
-use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
-use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\OrganizationContacts;
 use Tests\Core\Acceptance\Expect;
 
 /**
@@ -26,36 +24,6 @@ final class OrganizationsOfContactsContext implements Context
 
     /** @var array<string, list<OrganizationOfContact>> */
     private array $organizations = [];
-
-    private ?OrganizationContacts $contactsOfTheOrganization = null;
-    private string $askedOrganization = '';
-
-    #[When('je consulte les contacts de :name')]
-    public function iConsultTheContactsOf(string $name): void
-    {
-        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->scenario->idOf($name)));
-    }
-
-    #[When('je consulte les contacts d\'une organisation inconnue')]
-    public function iConsultTheContactsOfAnUnknownOrganization(): void
-    {
-        $this->askedOrganization = $this->application->newIdentity();
-        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->askedOrganization));
-    }
-
-    #[Then('le refus nomme l\'organisation demandée')]
-    public function theRefusalNamesTheOrganizationAsked(): void
-    {
-        Expect::same(sprintf('Organization %s not found', $this->askedOrganization), $this->application->refusal()?->getMessage());
-    }
-
-    #[Then('ses contacts sont :')]
-    public function itsContactsAre(TableNode $expected): void
-    {
-        $contacts = Expect::present($this->contactsOfTheOrganization, sprintf('The contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        Expect::same(array_map($this->scenario->personIdOf(...), array_column($expected->getColumnsHash(), 'contact')), $contacts->contactIds);
-    }
 
     #[When('je consulte les organisations de mes contacts :')]
     public function iConsultTheOrganizationsOfMyContacts(TableNode $contacts): void

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -23,7 +22,6 @@ use Tests\Core\Acceptance\Vocabulary;
 final class MyDayContext implements Context
 {
     use SharesTheScenario;
-    use DescribesInterlocutors;
 
     /** The channels, as a sentence names one exchange made through them. */
     private const array SHOWN = [
@@ -64,12 +62,6 @@ final class MyDayContext implements Context
     public function itShowsToday(string $exchanges): void
     {
         Expect::same(explode(' puis ', $exchanges), array_map(self::describe(...), $this->myDay()->today));
-    }
-
-    #[Then('il montre aujourd\'hui, avec :')]
-    public function itShowsTodayWith(TableNode $table): void
-    {
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => ['échange' => self::describe($exchange), ...$this->shownInterlocutorOf($exchange, $this->myDay()->interlocutors)], $this->myDay()->today));
     }
 
     #[Then('/^les (?<count>\d+) prochains rendez-vous, du plus proche au plus lointain$/')]

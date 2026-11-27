@@ -24,7 +24,6 @@ use Tests\Core\Acceptance\Vocabulary;
 final class WhatIsToProcessContext implements Context
 {
     use SharesTheScenario;
-    use DescribesInterlocutors;
 
     private ?WhatIsToProcess $toProcess = null;
 
@@ -75,12 +74,6 @@ final class WhatIsToProcessContext implements Context
         Expect::same($day, $toAttach->erasableFrom->setTimezone($this->application->readerClock())->format('d/m/Y'));
     }
 
-    #[Then('les contacts à rattacher sont, le prochain effacé d\'abord :')]
-    public function theContactsToAttachAre(TableNode $table): void
-    {
-        Expect::same(array_map($this->scenario->personIdOf(...), array_column($table->getColumnsHash(), 'contact')), array_map(static fn (ContactToAttachInList $contact): string => $contact->personId, $this->toProcess()->contactsToAttach));
-    }
-
     #[Then('ils sont, du plus ancien au plus récent :')]
     public function theyAre(TableNode $table): void
     {
@@ -112,7 +105,6 @@ final class WhatIsToProcessContext implements Context
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'avec' => null === $exchange->personId ? '' : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId)),
-            ...$this->shownInterlocutorOf($exchange, $this->toProcess()->interlocutors),
         ];
     }
 }

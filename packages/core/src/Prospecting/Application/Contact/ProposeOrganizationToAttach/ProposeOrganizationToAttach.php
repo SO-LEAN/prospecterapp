@@ -6,13 +6,13 @@ namespace Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToA
 
 /**
  * Proposes the account's organization to attach a contact to, by their email's domain (ADR 0146). The client gives
- * the contact. PersonalData gives their e-mail, read in clear. Prospecting keeps no e-mail.
+ * the email as it read it. Prospecting keeps no email.
  */
 final readonly class ProposeOrganizationToAttach
 {
     public function __construct(
         public string $prospectorId,
-        public string $contactId,
+        public string $email,
     ) {
     }
 }

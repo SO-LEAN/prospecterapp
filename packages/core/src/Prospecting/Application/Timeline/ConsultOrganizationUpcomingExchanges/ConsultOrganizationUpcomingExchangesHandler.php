@@ -6,8 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationUp
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
@@ -22,13 +21,11 @@ final readonly class ConsultOrganizationUpcomingExchangesHandler implements Quer
     ) {
     }
 
-    public function __invoke(ConsultOrganizationUpcomingExchanges $query, OrganizationTimelineOutput $output): void
+    public function __invoke(ConsultOrganizationUpcomingExchanges $query, TimelineOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $timeline = $this->timelineRetriever->upcomingInOrganization($organization, $prospector, $query->asOf, $query->after, $query->max);
-
-        $output->present(new OrganizationTimeline($timeline, $organization));
+        $output->present($this->timelineRetriever->upcomingInOrganization($organization, $prospector, $query->asOf, $query->after, $query->max));
     }
 }

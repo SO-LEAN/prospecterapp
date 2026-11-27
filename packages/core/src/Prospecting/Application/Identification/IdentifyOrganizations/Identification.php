@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Identification;
+namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations;
 
 /**
- * What a person's clues designate. They designate one of the account's contacts (known), or none (new). They may
- * also designate several contacts, or some by their name only (to confirm, among the candidates).
+ * What an organization's clues designate. They designate one organization of the account (known) or none (new).
+ * They can also designate several, or some by their name only. The member must confirm them among the candidates.
  */
 final readonly class Identification
 {
@@ -23,9 +23,9 @@ final readonly class Identification
     ) {
     }
 
-    public static function known(Candidate $contact): self
+    public static function known(Candidate $organization): self
     {
-        return new self(self::KNOWN, [$contact]);
+        return new self(self::KNOWN, [$organization]);
     }
 
     public static function new(): self

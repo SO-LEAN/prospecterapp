@@ -149,16 +149,6 @@ final class ExchangeDetailContext implements Context
         Expect::same($expected, array_replace($expected, array_intersect_key($this->describe($this->consulted()), $expected)));
     }
 
-    #[Then('il est avec :')]
-    public function itIsWith(TableNode $table): void
-    {
-        $exchange = $this->consulted();
-        $organizationItself = $this->application->consultExchangeOrganizationItself(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
-        $interlocutor = null === $exchange->personId ? (string) $organizationItself?->fullName : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
-
-        Expect::same(Vocabulary::rows($table), ['interlocuteur' => $interlocutor]);
-    }
-
     #[Then('je peux sur l\'échange :')]
     public function iMayOnTheExchange(TableNode $table): void
     {

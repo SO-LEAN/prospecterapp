@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges;
 
-use Prospecter\Core\Prospecting\Application\Agenda\Interlocutors;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 
 final readonly class OverlappingExchanges
@@ -12,7 +11,7 @@ final readonly class OverlappingExchanges
     /**
      * @param list<ExchangeInTimeline> $exchanges the soonest first
      */
-    public function __construct(public array $exchanges, public Interlocutors $interlocutors)
+    public function __construct(public array $exchanges)
     {
     }
 }

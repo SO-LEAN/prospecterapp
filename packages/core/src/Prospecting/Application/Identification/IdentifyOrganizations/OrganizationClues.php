@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Identification;
+namespace Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations;
 
 /**
- * An organization as the client sees it, where persons to identify may work. Each clue is optional.
+ * An organization as the client sees it. It holds what the client knows about it. Each clue is optional.
  */
 final readonly class OrganizationClues
 {

@@ -7,8 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTi
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
@@ -24,13 +23,11 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(ConsultOrganizationTimeline $query, OrganizationTimelineOutput $output): void
+    public function __invoke(ConsultOrganizationTimeline $query, TimelineOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $timeline = $this->campaignsOfTimeline->named($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId);
-
-        $output->present(new OrganizationTimeline($timeline, $organization));
+        $output->present($this->campaignsOfTimeline->named($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId));
     }
 }

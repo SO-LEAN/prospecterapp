@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay;
 
-use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\HolderIntents;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
@@ -20,7 +19,6 @@ final readonly class ConsultMyDayHandler implements QueryHandler
     public function __construct(
         private AgendaRetriever $agendaRetriever,
         private Prospectors $prospectors,
-        private AgendaInterlocutors $agendaInterlocutors,
     ) {
     }
 
@@ -29,11 +27,9 @@ final readonly class ConsultMyDayHandler implements QueryHandler
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $day = new CalendarPeriod($query->from, $query->until);
 
-        $plannedToday = $this->agendaRetriever->plannedIn($holder, $day);
-        $plannedNext = $this->agendaRetriever->firstPlannedFrom($holder, $day->until, self::NEXT_EXCHANGES);
-        $interlocutors = $this->agendaInterlocutors->of($holder, [...$plannedToday, ...$plannedNext]);
-        $today = $interlocutors->known($plannedToday);
+        $today = $this->agendaRetriever->plannedIn($holder, $day);
+        $next = $this->agendaRetriever->firstPlannedFrom($holder, $day->until, self::NEXT_EXCHANGES);
 
-        $output->present(new MyDay($today, $interlocutors->known($plannedNext), HolderIntents::offering(ExchangeIntent::MarkExchangeDone, $today, $query->at), $interlocutors));
+        $output->present(new MyDay($today, $next, HolderIntents::offering(ExchangeIntent::MarkExchangeDone, $today, $query->at)));
     }
 }
