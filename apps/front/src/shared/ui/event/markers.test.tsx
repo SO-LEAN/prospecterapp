@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { ExchangeMarkers, type Marked } from './markers'
+import { ExchangeMarkers, type Marked, ToAttachMarker } from './markers'
 
 const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca01'
 
@@ -42,6 +42,18 @@ describe('ExchangeMarkers', () => {
 
   it('marks an exchange whose contact waits to be attached « À rattacher »', () => {
     render(<ExchangeMarkers exchange={{ ...NOTHING_TO_MARK, contactToAttach: true }} />)
+
+    expect(screen.getByText('À rattacher')).toHaveClass('border-warning')
+  })
+
+  it('marks nothing « À rattacher » once the contact is attached, wherever the marker shows', () => {
+    const { container } = render(<ToAttachMarker exchange={{ contactToAttach: false }} />)
+
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('marks « À rattacher » wherever the marker shows, when the API says so', () => {
+    render(<ToAttachMarker exchange={{ contactToAttach: true }} />)
 
     expect(screen.getByText('À rattacher')).toHaveClass('border-warning')
   })

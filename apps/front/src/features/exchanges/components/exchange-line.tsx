@@ -126,7 +126,7 @@ export function ExchangeSummary({
               exchange.status === 'missed' ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'
             }
           />
-          {exchange.contactToAttach && <ToAttachMarker />}
+          <ToAttachMarker exchange={exchange} />
           {exchange.createdByAnAI && <CreatedByAnAIBadge />}
         </p>
         {exchange.canceller && (

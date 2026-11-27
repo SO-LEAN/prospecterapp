@@ -224,7 +224,7 @@ function ExchangeSummary({ item, when, onOpen, children }: SummaryProps) {
         </span>
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
-          {exchange.contactToAttach && <ToAttachMarker />}
+          <ToAttachMarker exchange={exchange} />
         </span>
         {organization && (
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>
