@@ -89,6 +89,15 @@ Fonctionnalité: Consulter ce que j'ai à traiter
     Quand je consulte ce que j'ai à traiter
     Alors il y a "Grace Hopper" à rattacher, effacée le 20/12/2026 sans rattachement
 
+  Scénario: Un contact à rattacher effacé n'est plus à rattacher, avant même que les réactions suivent
+    Soit nous sommes le 18/11/2026 à 10h00
+    Et "Grace Hopper" (grace@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et nous sommes le 21/11/2026 à 10h00
+    Et les réactions aux gestes n'ont pas encore suivi
+    Quand j'efface la fiche de "Grace Hopper"
+    Et je consulte ce que j'ai à traiter
+    Alors il n'y a plus "Grace Hopper" à rattacher
+
   Scénario: Un contact à rattacher n'est à traiter que par le prospecteur qui a le rendez-vous
     Soit nous sommes le 18/11/2026 à 10h00
     Et "Grace Hopper" (grace@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00

@@ -7,13 +7,16 @@ namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\HolderIntents;
 use Prospecter\Core\Prospecting\Application\Agenda\Overdue;
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
@@ -26,6 +29,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
         private Prospectors $prospectors,
         private ContactsToAttachRetriever $contactsToAttachRetriever,
         private AgendaInterlocutors $agendaInterlocutors,
+        private KnownContacts $knownContacts,
     ) {
     }
 
@@ -35,7 +39,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
 
         $late = $this->lateExchanges($holder, $query->at);
         $toDos = $this->toDosDueBy($holder, $query->at);
-        $contactsToAttach = $this->contactsToAttachRetriever->heldBy($holder->id);
+        $contactsToAttach = $this->stillContacts($this->contactsToAttachRetriever->heldBy($holder->id), $holder);
         $interlocutors = $this->agendaInterlocutors->of($holder, $late, $toDos, $contactsToAttach);
         $exchanges = $interlocutors->known($late);
 
@@ -72,6 +76,21 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
         $due = array_filter($this->toDoListRetriever->stillToDoBy($holder->id), static fn (ToDoInList $toDo): bool => Overdue::daysSince($toDo, $at) >= 0);
 
         return ToDoList::inOrder(array_values($due))->toDos;
+    }
+
+    /**
+     * Erasing a contact to attach forgets them in PersonalData at once, and in Prospecting once the reaction follows.
+     * Until then, they are no longer to attach.
+     *
+     * @param list<ContactToAttachInList> $contacts
+     *
+     * @return list<ContactToAttachInList>
+     */
+    private function stillContacts(array $contacts, Prospector $holder): array
+    {
+        $known = array_map(static fn (ContactId $contact): string => $contact->value, $this->knownContacts->whichAreContactsOf(array_map(static fn (ContactToAttachInList $contact): ContactId => new ContactId($contact->personId), $contacts), $holder->accountId));
+
+        return array_values(array_filter($contacts, static fn (ContactToAttachInList $contact): bool => in_array($contact->personId, $known, true)));
     }
 
     /**

@@ -1388,7 +1388,7 @@ final class Application
     {
         $kept = new KeptWhatIsToProcess();
 
-        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever, $this->agendaInterlocutors), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever, $this->agendaInterlocutors, $this->knownContacts), $query, $kept) ? $kept->toProcess : null;
     }
 
     /**

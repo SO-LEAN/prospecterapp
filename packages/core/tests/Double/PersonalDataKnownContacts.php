@@ -23,9 +23,23 @@ final readonly class PersonalDataKnownContacts implements KnownContacts
 
     public function isAContactOf(ContactId $person, AccountId $accountId): bool
     {
-        $kept = new KeptContacts();
-        ($this->whichAreContactsService)(new WhichAreContacts([$person->value], $accountId->value), $kept);
+        return [] !== $this->whichAreContactsOf([$person], $accountId);
+    }
 
-        return in_array($person->value, $kept->personIds, true);
+    /**
+     * @param list<ContactId> $persons
+     *
+     * @return list<ContactId>
+     */
+    public function whichAreContactsOf(array $persons, AccountId $accountId): array
+    {
+        if ([] === $persons) {
+            return [];
+        }
+
+        $kept = new KeptContacts();
+        ($this->whichAreContactsService)(new WhichAreContacts(array_map(static fn (ContactId $person): string => $person->value, $persons), $accountId->value), $kept);
+
+        return array_values(array_filter($persons, static fn (ContactId $person): bool => in_array($person->value, $kept->personIds, true)));
     }
 }
