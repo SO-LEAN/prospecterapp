@@ -14,7 +14,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
- * A part of the compositions that show the persons of a view of another context (ADR 0217): its contacts, and the
+ * A part of the compositions that show the persons in another context's view (ADR 0217): the view's contacts, and the
  * members who hold or wrote what it shows. Accounts gives each member's person. PersonalData reads them all, as the
  * reader may read them, in one call. The parts are joined by the persons' ids.
  */

@@ -10,6 +10,7 @@ use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactMailLinksResource;
 use App\Contacts\Resource\ContactProfileLinksResource;
 use App\Contacts\Resource\OrganizationMailLinksResource;
+use App\Contacts\Resource\OrganizationTimelineLinksResource;
 use App\Me\Resource\AccountLinksResource;
 use App\Me\Resource\MyOrganizationLinksResource;
 use App\Me\Resource\MyProfileLinksResource;
@@ -35,6 +36,7 @@ final class PiecesOffersMatchTheirContractsTest extends TestCase
         ContactProfileLinksResource::class => ContactLinksResource::class,
         ContactMailLinksResource::class => ContactLinksResource::class,
         OrganizationMailLinksResource::class => TimelineLinksResource::class,
+        OrganizationTimelineLinksResource::class => TimelineLinksResource::class,
         MyProfileLinksResource::class => AccountLinksResource::class,
         MyOrganizationLinksResource::class => AccountLinksResource::class,
     ];

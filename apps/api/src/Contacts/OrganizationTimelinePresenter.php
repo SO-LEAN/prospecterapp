@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Contacts;
 
+use App\Contacts\Resource\OrganizationTimelineLinksResource;
 use App\Prospecting\Resource\ExchangeResource;
-use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
@@ -13,7 +13,8 @@ use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
 
 /**
  * Presents what Prospecting shows of a slice of an organization's timeline, or of its exchanges to redact: each
- * exchange with its links, and who took part, by ids. One presenter serves one call (ADR 0085, 0217).
+ * exchange with its links, who took part, by ids, and Prospecting's own links on the timeline. One presenter serves
+ * one call (ADR 0085, 0217).
  */
 final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
 {
@@ -26,7 +27,7 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
     /** @var array<string, ExchangeResource> by exchange id */
     public private(set) array $exchanges = [];
 
-    public private(set) TimelineLinksResource $links;
+    public private(set) OrganizationTimelineLinksResource $links;
 
     /**
      * @param array{string, string, string} $routes the list's route, the route that logs an exchange and the route that plans one
@@ -63,7 +64,13 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
             $this->exchanges[$exchange->id] = $this->timelineResourceFactory->createExchange($exchange);
         }
 
-        $this->links = $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)
-            ->withToRedact(0 === $timeline->toMakeConform ? null : $this->routing->to(self::TO_REDACT_ROUTES[0], $subject));
+        $links = $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline);
+        $this->links = new OrganizationTimelineLinksResource(
+            $links->self,
+            $links->next,
+            $links->noteExchange,
+            $links->planExchange,
+            0 === $timeline->toMakeConform ? null : $this->routing->to(self::TO_REDACT_ROUTES[0], $subject),
+        );
     }
 }
