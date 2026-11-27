@@ -12,27 +12,29 @@
   color-scheme: light;
   --radius: 0.75rem;
 
-  --background: oklch(0.985 0.002 247);
-  --foreground: oklch(0.21 0.02 265);
+  --background: oklch(0.967 0.007 89);
+  --foreground: oklch(0.229 0.033 236);
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.55 0.2 262);
+  --primary: oklch(0.491 0.081 203);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.006 264);
-  --secondary-foreground: oklch(0.25 0.02 265);
-  --muted: oklch(0.965 0.005 264);
-  --muted-foreground: oklch(0.55 0.02 264);
-  --accent: oklch(0.95 0.025 262);
-  --accent-foreground: oklch(0.35 0.12 262);
-  --destructive: oklch(0.58 0.21 27);
+  --secondary: oklch(0.943 0.01 87);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--secondary);
+  /* The audit's #6B7A87, darkened to #5E6D7A: it read 4.0:1 on the paper, not the 4.6:1 the audit gives. */
+  --muted-foreground: oklch(0.528 0.027 244);
+  --accent: oklch(0.941 0.02 193);
+  --accent-foreground: oklch(0.398 0.066 205);
+  --destructive: oklch(0.571 0.203 30);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.6 0.15 155);
+  --success: oklch(0.592 0.125 163);
   --warning: oklch(0.75 0.15 75);
-  --border: oklch(0.92 0.005 264);
-  --input: oklch(0.9 0.006 264);
-  --ring: oklch(0.55 0.2 262);
+  --border: oklch(0.916 0.013 87);
+  --input: oklch(0.886 0.016 86);
+  --ring: var(--primary);
+  --link: var(--primary);
 
   --sidebar: oklch(0.975 0.003 247);
   --sidebar-foreground: var(--foreground);
@@ -40,11 +42,35 @@
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
 
-  --chart-1: oklch(0.55 0.2 262);
+  /* The gold is earned: the « Nouveau » button, the active page, the action to take. Never a background fill. */
+  --gold: oklch(0.775 0.158 75);
+  --gold-soft: oklch(0.966 0.04 88);
+  --gold-foreground: oklch(0.235 0.049 80);
+
+  /* Each family of exchange, by its channel, and the to-dos: a strong tint and its soft background. */
+  --event-call: oklch(0.592 0.125 163);
+  --event-call-soft: oklch(0.949 0.03 167);
+  --event-meeting: oklch(0.635 0.194 34);
+  --event-meeting-soft: oklch(0.945 0.028 37);
+  --event-video: oklch(0.591 0.201 259);
+  --event-video-soft: oklch(0.943 0.028 258);
+  --event-written: oklch(0.495 0.043 251);
+  --event-written-soft: oklch(0.944 0.009 248);
+  --event-todo: oklch(0.672 0.143 74);
+  --event-todo-soft: oklch(0.96 0.05 90);
+
+  /* The calendar's context: what kind of day it is. It never carries an event on its own. */
+  --day-weekend: oklch(0.946 0.01 87);
+  --day-holiday: oklch(0.553 0.175 38);
+  --day-holiday-soft: oklch(0.958 0.024 51);
+  --day-vacation: oklch(0.626 0.125 70);
+  --day-vacation-soft: oklch(0.973 0.038 92);
+
+  --chart-1: var(--primary);
   --chart-2: oklch(0.65 0.15 200);
   --chart-3: oklch(0.7 0.15 155);
   --chart-4: oklch(0.75 0.15 75);
-  --chart-5: oklch(0.62 0.2 330);
+  --chart-5: oklch(0.495 0.043 251);
 
   --brand-ink: #224471;
   --brand-gold: #ebba3a;
@@ -125,6 +151,25 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-event-call: var(--event-call);
+  --color-event-call-soft: var(--event-call-soft);
+  --color-event-meeting: var(--event-meeting);
+  --color-event-meeting-soft: var(--event-meeting-soft);
+  --color-event-video: var(--event-video);
+  --color-event-video-soft: var(--event-video-soft);
+  --color-event-written: var(--event-written);
+  --color-event-written-soft: var(--event-written-soft);
+  --color-event-todo: var(--event-todo);
+  --color-event-todo-soft: var(--event-todo-soft);
+  --color-day-weekend: var(--day-weekend);
+  --color-day-holiday: var(--day-holiday);
+  --color-day-holiday-soft: var(--day-holiday-soft);
+  --color-day-vacation: var(--day-vacation);
+  --color-day-vacation-soft: var(--day-vacation-soft);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);

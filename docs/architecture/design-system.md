@@ -2,7 +2,7 @@
 
 This document states the rules in force. The decision records (`docs/adr`) explain why: read them only for that, or before changing a rule (ADR 0090).
 
-The style is modern SaaS: cool neutrals, generous spacing, one blue accent, and light and dark themes. The logo is navy and gold. The design system is built on Tailwind CSS 4 and shadcn/ui.
+The art direction is « Le Filon »: warm paper, deep ink, petrol for the primary, and gold kept for what has value. Each color has a job: it says a channel, a status or a kind of day, never decoration. The style has generous spacing, and light and dark themes. The logo is navy and gold. The design system is built on Tailwind CSS 4 and shadcn/ui.
 
 ## Principles
 
@@ -19,14 +19,23 @@ The tokens are defined in OKLCH in `apps/front/src/app/styles.css` (`:root` and 
 
 | Token | Use |
 |---|---|
-| `background` / `foreground` | page |
-| `card`, `popover` | raised surfaces |
-| `primary` (blue, hue 262) | main actions, active navigation, links |
+| `background` (paper) / `foreground` (ink) | page |
+| `card`, `popover` (white) | raised surfaces |
+| `primary` (petrol) | main actions, active navigation, selection |
+| `link` (the primary) | links and e-mail addresses |
 | `secondary`, `muted`, `accent` | quiet surfaces, hints, icon backgrounds |
 | `destructive`, `success`, `warning` | outcomes |
 | `border`, `input`, `ring` | strokes and focus |
+| `gold`, `gold-soft`, `gold-foreground` | what has value: the « Nouveau » button, the active page, the action to take. Never a background fill. The text on the gold is always `gold-foreground`, the gold's ink |
+| `event-call`, `event-meeting`, `event-video`, `event-written`, `event-todo`, each with its `-soft` background | the family of an exchange, by its channel (calls, meetings, video calls, the written channels), and the to-dos |
+| `day-weekend`, `day-holiday`, `day-holiday-soft`, `day-vacation`, `day-vacation-soft` | the calendar's context. It never carries an event on its own |
 | `sidebar*` | navigation panel |
 | `chart-1..5` | data visualisation |
+
+The light theme takes its values from the UI/UX audit's palette. Two rules hold for every token in `:root`, and `app/styles.test.ts` checks them with the values:
+
+- No hue between 250° and 330°: no violet, no magenta. The hue is the HSL hue of the sRGB color, as the audit's palette gives it in hexadecimal. In OKLCH, the video calls' blue would sit at 259°.
+- Body text, muted text, links, and the text on the main buttons, the accent, the danger color and the gold keep a contrast of at least 4.5:1 on their surface. That is why `muted-foreground` is #5E6D7A rather than the audit's #6B7A87, which reads 4.0:1 on the paper.
 
 Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-sm` on cards (`shared/ui/card.tsx`), and the softer `shadow-card` token on the organization cards in lists. Font: Inter Variable (self-hosted, `@fontsource-variable/inter`). Numbers in stats use `tabular-nums`.
 
