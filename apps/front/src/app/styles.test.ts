@@ -25,6 +25,9 @@ const VIOLET_AND_MAGENTA = { from: 250, to: 330 }
 
 const EVENT_FAMILIES = ['call', 'meeting', 'video', 'written', 'todo']
 
+/** A comma between two layers of a shadow: the next layer starts with its offset. */
+const SHADOW_LAYERS = /,\s*(?=-?\d)/
+
 type Channels = [number, number, number]
 
 type Theme = Map<string, string>
@@ -236,6 +239,44 @@ describe('the « Le Filon » type', () => {
     expect(blockOf('time')).toContain('tabular-nums')
   })
 })
+
+describe('the « Le Filon » matter', () => {
+  it.each([
+    ['chip', '6px'],
+    ['button', '8px'],
+    ['field', '10px'],
+    ['row', '12px'],
+    ['card', '16px'],
+    ['dialog', '18px'],
+  ])('rounds a %s by %s', (element, radius) => {
+    expect(TAILWIND_THEME.get(`--radius-${element}`)).toBe(radius)
+  })
+
+  it('takes the shadows from the ink, never from the black', () => {
+    expect(LIGHT_THEME.get('--shadow-ink')).toBe(LIGHT_THEME.get('--foreground'))
+  })
+
+  it.each(['rest', 'float', 'lift', 'card'])('tints the %s shadow with the ink', (level) => {
+    const layers = TAILWIND_THEME.get(`--shadow-${level}`)?.split(SHADOW_LAYERS) ?? []
+    expect(layers.length).toBeGreaterThan(0)
+    for (const layer of layers) {
+      expect(layer).toMatch(/color-mix\(in oklch, var\(--shadow-ink\) \d+%, transparent\)$/)
+    }
+  })
+
+  it('raises each shadow level higher than the one before', () => {
+    const [rest, float, lift] = ['rest', 'float', 'lift'].map((level) => deepestBlurOf(`--shadow-${level}`))
+    expect(rest).toBeLessThan(float ?? 0)
+    expect(float).toBeLessThan(lift ?? 0)
+  })
+})
+
+function deepestBlurOf(shadow: string) {
+  const blurs = Array.from(TAILWIND_THEME.get(shadow)?.matchAll(/\S+ \S+ (\d+)px/g) ?? [], ([, blur]) =>
+    Number(blur),
+  )
+  return Math.max(...blurs)
+}
 
 function expectOutOfTheVioletsAndTheMagentas(theme: Theme, token: string) {
   const hue = hueOf(channelsOf(theme, token))
