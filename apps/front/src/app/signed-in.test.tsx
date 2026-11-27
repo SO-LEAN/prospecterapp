@@ -175,7 +175,7 @@ describe('the layout of a member signed in', () => {
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
   })
 
-  it('opens the walls of the architecture in a new tab from the menu of their name, where the instance serves them', async () => {
+  it("opens the architecture's walls in a new tab from the menu of their name, where the instance serves them", async () => {
     theInstance = theDocumentsServed
     theApiAnswers(myProfileNamed)
     await signIn()
@@ -187,7 +187,7 @@ describe('the layout of a member signed in', () => {
     expect(architecture).toHaveAttribute('rel', 'noreferrer')
   })
 
-  it('asks the instance once in the session whether it serves the walls of the architecture', async () => {
+  it("asks the instance once in the session whether it serves the architecture's walls", async () => {
     theInstance = theDocumentsServed
     theApiAnswers(myProfileNamed)
     await signIn()
