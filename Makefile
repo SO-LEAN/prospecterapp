@@ -322,7 +322,10 @@ mutation-merge: ## Write in DIR (a folder from the root) the summary of a part's
 	@test -n "$(DIR)" -a -n "$(SHARDS)" -a -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-merge PART=<$(subst $(space),|,$(MUTATION_PARTS))> SHARDS=<folder> DIR=<folder>"; exit 1; }
 	@mkdir -p $(DIR)
 	@cp -R $(SHARDS)/. $(DIR)/
-	@$(MAKE) -s mutation-summary PART=$(PART) REPORTS="$(wildcard $(SHARDS)/*/$(notdir $(MUTATION_REPORT_$(PART))))" > $(DIR)/summary.md
+	@$(MAKE) -s mutation-summary PART=$(PART) REPORTS="$(SHARD_REPORTS)" > $(DIR)/summary.md
+
+# the report each shard's folder holds, or would hold: the summary counts a shard whose tool wrote none
+SHARD_REPORTS = $(addsuffix $(notdir $(MUTATION_REPORT_$(PART))),$(wildcard $(SHARDS)/*/))
 
 mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/dev), on MiniStack: minutes per mutant, on demand
 	@$(MAKE) -C apps/api mutation
