@@ -155,14 +155,14 @@ describe('the contacts to attach to process', () => {
     it('keeps the date of the last meeting on one line', async () => {
       await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
 
-      expect(screen.getByText('20 nov. 2026, 14:00')).toHaveClass('whitespace-nowrap')
+      expect(screen.getByText('ven. 20 nov. · 14h00')).toHaveClass('whitespace-nowrap')
     })
 
     it('keeps the name and the date beside the attachment, in the room the line leaves them', async () => {
       await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
 
       expect(screen.getByRole('listitem')).not.toHaveClass('flex-wrap')
-      expect(screen.getByText('20 nov. 2026, 14:00').parentElement).toHaveClass('min-w-0', 'flex-1')
+      expect(screen.getByText('ven. 20 nov. · 14h00').parentElement).toHaveClass('min-w-0', 'flex-1')
     })
 
     it('stacks the days left above the attachment, side by side on a wider screen', async () => {
@@ -255,7 +255,7 @@ describe('the banner of the page of a contact to attach', () => {
       />,
     )
 
-    expect(screen.getByRole('status')).toHaveTextContent('Contact à rattacher, effacé le 20/12/2026')
+    expect(screen.getByRole('status')).toHaveTextContent('Contact à rattacher, effacé le dim. 20 déc.')
   })
 })
 

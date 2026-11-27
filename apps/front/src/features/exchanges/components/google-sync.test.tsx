@@ -51,7 +51,7 @@ describe('GoogleSync', () => {
     )
     renderTheSync()
 
-    expect(await screen.findByLabelText(/^Synchronisé avec Google le 16 nov\. 2026/)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/^Synchronisé avec Google le lun\. 16 nov\. · /)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
   })
 
@@ -90,7 +90,9 @@ describe('GoogleSync', () => {
       )
     const user = renderTheSync()
 
-    expect(await screen.findByLabelText(/^Google a refusé l’événement le 16 nov\. 2026/)).toBeInTheDocument()
+    expect(
+      await screen.findByLabelText(/^Google a refusé l’événement le lun\. 16 nov\. · /),
+    ).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Réessayer' }))
 
     expect(sent(1)).toEqual({ path: `/api/exchanges/${EXCHANGE}/google-sync/retries`, method: 'POST' })
@@ -120,7 +122,9 @@ describe('GoogleSync', () => {
       expect(await screen.findByLabelText(/^En attente de synchronisation avec Google/)).toBeInTheDocument()
       await act(() => vi.advanceTimersByTimeAsync(3_000))
 
-      expect(await screen.findByLabelText(/^Synchronisé avec Google le 17 nov\. 2026/)).toBeInTheDocument()
+      expect(
+        await screen.findByLabelText(/^Synchronisé avec Google le mar\. 17 nov\. · /),
+      ).toBeInTheDocument()
       await act(() => vi.advanceTimersByTimeAsync(30_000))
       expect(theApi).toHaveBeenCalledTimes(3)
     })

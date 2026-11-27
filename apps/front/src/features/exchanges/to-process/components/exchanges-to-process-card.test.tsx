@@ -218,8 +218,8 @@ describe('the exchanges to process on the dashboard', () => {
 
     const lines = within(theCard()).getAllByRole('listitem')
     expect(lines.map((line) => line.textContent)).toEqual([
-      expect.stringMatching(/10 nov\. 2026, 14:00.*Visio.*Ada Lovelace.*ACME/),
-      expect.stringMatching(/13 nov\. 2026, 09:00.*Appel.*Ada Lovelace.*ACME/),
+      expect.stringMatching(/mar\. 10 nov\. · 14h00.*Visio.*Ada Lovelace.*ACME/),
+      expect.stringMatching(/ven\. 13 nov\. · 9h00.*Appel.*Ada Lovelace.*ACME/),
     ])
     expect(
       within(lines[0] as HTMLElement)

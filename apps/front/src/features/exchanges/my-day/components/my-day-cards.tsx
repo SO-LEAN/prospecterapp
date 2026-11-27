@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight, CalendarPlus, CircleCheck, PhoneMissed } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatHour } from '@/shared/lib/format'
+import { formatMoment, formatTimeLeft, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -17,7 +17,7 @@ import { JoinTheVideoCall } from '../../components/join-the-video-call'
 import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useMarkExchangeMissed, useUndoable } from '../../mutations'
 import { useNow } from '../../use-now'
-import { isInProgress, startsIn, whenToCome } from '../moments'
+import { isInProgress } from '../moments'
 import { type DayExchange, myDayQuery } from '../queries'
 
 type Opened = { item: DayExchange; startWith?: 'report' }
@@ -124,11 +124,11 @@ function TodayExchange({ item, now, onOpen }: { item: DayExchange; now: Date; on
       data-in-progress={inProgress ? '' : undefined}
       className={cn('space-y-2 rounded-lg border p-3', inProgress && 'border-primary bg-primary/5')}
     >
-      <ExchangeSummary item={item} when={formatHour(exchange.occurredAt)} onOpen={() => onOpen(item)}>
+      <ExchangeSummary item={item} when={formatMoment(exchange.occurredAt, now)} onOpen={() => onOpen(item)}>
         {inProgress && <Badge>{t('myDay.inProgress')}</Badge>}
         {toHandle && <Badge className="bg-warning text-foreground">{t('calendar.toHandle')}</Badge>}
         {!inProgress && !toHandle && (
-          <span className="text-muted-foreground text-xs">{startsIn(exchange.occurredAt, now)}</span>
+          <span className="text-muted-foreground text-xs">{formatTimeLeft(exchange.occurredAt, now)}</span>
         )}
       </ExchangeSummary>
       <div className="flex flex-wrap gap-2 empty:hidden">
@@ -190,7 +190,7 @@ function UpcomingCard({ items, now, onOpen }: CardProps) {
               <li key={item.exchange.id} className="rounded-lg border p-3">
                 <ExchangeSummary
                   item={item}
-                  when={whenToCome(item.exchange.occurredAt, now)}
+                  when={formatUpcoming(item.exchange.occurredAt, now)}
                   onOpen={() => onOpen(item)}
                 />
               </li>

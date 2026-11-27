@@ -129,7 +129,7 @@ describe('GoogleCalendarCard, the import of my e-mails of Gmail', () => {
     renderTheCard(importing('active', '2026-11-18T08:15:00+00:00'))
 
     expect(
-      screen.getByText(/^Import actif, dernière notification reçue le 18 nov\. 2026/),
+      screen.getByText(/^Import actif, dernière notification reçue le mer\. 18 nov\. · /),
     ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Couper l’import' })).not.toBeInTheDocument()
   })

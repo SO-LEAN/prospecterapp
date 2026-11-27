@@ -90,7 +90,7 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn, Reçu')).toBeInTheDocument()
     expect(screen.getByText('Intéressée par une mission en mars')).toBeInTheDocument()
-    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Noté le jeu\. 15 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
     expect(screen.queryByText(/^Modifié le/)).not.toBeInTheDocument()
     expect(screen.queryByText('Peut contenir des données personnelles')).not.toBeInTheDocument()
   })
@@ -155,7 +155,9 @@ describe('ExchangeDetailSheet', () => {
       }),
     )
 
-    expect(screen.getByText(/^Modifié le 16 oct\. 2026, .* par assistant@solean-it\.io$/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Modifié le ven\. 16 oct\. · .* par assistant@solean-it\.io$/),
+    ).toBeInTheDocument()
   })
 
   it('says an exchange its contact booked was booked by the public link, Google inviting them, nobody of the account planning it', async () => {
@@ -165,7 +167,7 @@ describe('ExchangeDetailSheet', () => {
 
     expect(
       screen.getByText(
-        /^Réservé le 15 oct\. 2026, .* par votre lien public · invitation envoyée par Google$/,
+        /^Réservé le jeu\. 15 oct\. · .* par votre lien public · invitation envoyée par Google$/,
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText(/^Planifié le/)).not.toBeInTheDocument()
@@ -174,7 +176,7 @@ describe('ExchangeDetailSheet', () => {
   it('says an exchange was imported from Gmail rather than noted', async () => {
     await renderTheDetail(anExchange({ channel: 'email', importedFrom: 'google' }))
 
-    expect(screen.getByText(/^Importé de Gmail le 15 oct\. 2026, .*\d$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Importé de Gmail le jeu\. 15 oct\. · .*\d$/)).toBeInTheDocument()
     expect(screen.queryByText(/^Noté le/)).not.toBeInTheDocument()
   })
 
@@ -182,7 +184,7 @@ describe('ExchangeDetailSheet', () => {
     await renderTheDetail(anExchange({ createdByAnAI: true }))
 
     expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('MCP')
-    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Noté le jeu\. 15 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
   })
 
   it('offers to open the e-mail an exchange was imported from in Gmail, in a new tab', async () => {
@@ -209,14 +211,14 @@ describe('ExchangeDetailSheet', () => {
   it('says who planned an exchange still to come', async () => {
     await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
 
-    expect(screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Planifié le jeu\. 15 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
   })
 
   it('says an exchange cancelled was planned, by whom, then cancelled, never that it was noted', async () => {
     await renderTheDetail(anExchange({ status: 'cancelled', canceller: 'contact', channel: 'call' }))
 
     expect(
-      screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier, puis annulé$/),
+      screen.getByText(/^Planifié le jeu\. 15 oct\. · .* par Michel Maier, puis annulé$/),
     ).toBeInTheDocument()
     expect(screen.queryByText(/Noté le/)).not.toBeInTheDocument()
   })
@@ -224,7 +226,7 @@ describe('ExchangeDetailSheet', () => {
   it('says who noted a missed exchange', async () => {
     await renderTheDetail(anExchange({ status: 'missed', channel: 'call' }))
 
-    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Noté le jeu\. 15 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
   })
 
   it('shows the link its calendar created once it comes, without reloading the page', async () => {
@@ -356,7 +358,7 @@ describe('ExchangeDetailSheet', () => {
       anExchange({ noted: { at: '2026-10-15T12:35:00+00:00', by: { name: {}, email: null } } }),
     )
 
-    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Membre sans nom$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Noté le jeu\. 15 oct\. · .* par Membre sans nom$/)).toBeInTheDocument()
   })
 
   it('offers to correct the exchange with what it is', async () => {
@@ -449,7 +451,7 @@ describe('ExchangeDetailSheet', () => {
       }),
     )
 
-    expect(screen.getByText(/^Rendu conforme le 16 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.getByText(/^Rendu conforme le ven\. 16 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
     expect(screen.queryByText(/retouchez ce contenu/)).not.toBeInTheDocument()
   })
 
