@@ -14,6 +14,12 @@ describe('StatusMark', () => {
     expect(screen.getByRole('img', { name }).querySelector(`.lucide-${icon}`)).toBeInTheDocument()
   })
 
+  it('sits inline beside the text, never squeezed', () => {
+    render(<StatusMark status="done" />)
+
+    expect(screen.getByRole('img')).toHaveClass('inline-flex', 'shrink-0')
+  })
+
   it('says a late exchange is late, with a warning, whatever its status', () => {
     render(<StatusMark status="planned" late />)
 

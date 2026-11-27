@@ -22,6 +22,32 @@ describe('EventPill', () => {
     expect(screen.getByRole('img', { name: 'À venir' }).querySelector('.lucide-clock')).toBeInTheDocument()
   })
 
+  it.each<[Channel, string]>([
+    ['meeting', 'meeting'],
+    ['videoCall', 'video'],
+    ['email', 'written'],
+  ])('fills an upcoming %s with the %s tint, its text white', (channel, family) => {
+    renderThePill(channel, 'planned')
+
+    expect(thePill()).toHaveClass(`bg-event-${family}`, 'text-primary-foreground')
+  })
+
+  it.each<[Channel, string]>([
+    ['call', 'call'],
+    ['videoCall', 'video'],
+    ['email', 'written'],
+  ])('writes a missed %s in the %s tint, on its red hatching', (channel, family) => {
+    renderThePill(channel, 'missed')
+
+    expect(thePill()).toHaveClass('missed-hatching', `text-event-${family}`)
+  })
+
+  it('lays an exchange out as a small rounded row', () => {
+    renderThePill('call', 'planned')
+
+    expect(thePill()).toHaveClass('flex', 'items-center', 'rounded-md', 'px-1.5', 'text-xs')
+  })
+
   it('gives a done video call the video calls soft tint, with a check', () => {
     renderThePill('videoCall', 'done')
 
