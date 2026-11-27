@@ -8,13 +8,12 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\OrganizationContacts;
-use Prospecter\Core\Prospecting\Application\PersonDescription;
 use Tests\Core\Acceptance\Expect;
-use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The organizations of several contacts at once, as a list of contacts names them.
@@ -35,14 +34,14 @@ final class OrganizationsOfContactsContext implements Context
     #[When('je consulte les contacts de :name')]
     public function iConsultTheContactsOf(string $name): void
     {
-        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->scenario->idOf($name)));
+        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->scenario->idOf($name)));
     }
 
     #[When('je consulte les contacts d\'une organisation inconnue')]
     public function iConsultTheContactsOfAnUnknownOrganization(): void
     {
         $this->askedOrganization = $this->application->newIdentity();
-        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->askedOrganization));
+        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->askedOrganization));
     }
 
     #[Then('le refus nomme l\'organisation demandée')]
@@ -56,12 +55,7 @@ final class OrganizationsOfContactsContext implements Context
     {
         $contacts = Expect::present($this->contactsOfTheOrganization, sprintf('The contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
 
-        Expect::same($expected->getColumnsHash(), array_map(static fn (PersonDescription $contact): array => [
-            'contact' => trim(sprintf('%s %s', $contact->firstName, $contact->lastName)),
-            'masqué' => Vocabulary::describeYesOrNo($contact->masked),
-            'fonction' => (string) $contact->jobTitle,
-            'e-mail' => (string) $contact->email,
-        ], $contacts->contacts));
+        Expect::same(array_column($expected->getColumnsHash(), 'contact'), array_map(fn (string $contact): string => $this->scenario->nameOfPerson(new PersonId($contact)), $contacts->contactIds));
     }
 
     #[When('je consulte les organisations de mes contacts :')]
