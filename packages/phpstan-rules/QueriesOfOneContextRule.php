@@ -17,7 +17,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * A class asks the queries of one context at most (ADR 0223). An anticorruption adapter asks one context. Only a
  * `*Composition` joins the answers of several. A query is a class that its `<Class>Handler` handles as a
- * `QueryHandler`, or the question of a published service: a class of the core beside its `<Class>Service`. Its context
+ * `QueryHandler`, or the question of a published service: a class beside its `<Class>Service`. Its context
  * is the namespace that follows `Prospecter\Core\`. The rule applies to the code, not to its tests.
  *
  * @implements Rule<InClassNode>
@@ -34,7 +34,7 @@ final class QueriesOfOneContextRule implements Rule
      */
     private const string ORCHESTRATES_COMMANDS = 'App\\Identification\\ContactRecorder';
 
-    private const string QUERY_HANDLER ='Prospecter\\Core\\SharedKernel\\Application\\Handler\\QueryHandler';
+    private const string QUERY_HANDLER = 'Prospecter\\Core\\SharedKernel\\Application\\Handler\\QueryHandler';
 
     public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
@@ -96,7 +96,7 @@ final class QueriesOfOneContextRule implements Rule
 
     private function isAPublishedQuestion(string $class): bool
     {
-        return str_starts_with($class, self::CORE) && $this->reflectionProvider->hasClass($class.'Service');
+        return $this->reflectionProvider->hasClass($class.'Service');
     }
 
     private static function contextOf(string $class): string
