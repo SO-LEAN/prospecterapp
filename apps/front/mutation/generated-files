@@ -6,7 +6,5 @@ src/app/routeTree.gen.ts
 src/shared/ui/alert.tsx
 src/shared/ui/badge.tsx
 src/shared/ui/label.tsx
-src/shared/ui/popover.tsx
 src/shared/ui/skeleton.tsx
 src/shared/ui/switch.tsx
-src/shared/ui/tooltip.tsx
