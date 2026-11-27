@@ -398,6 +398,29 @@
             "readBy": []
         },
         {
+            "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostPresentations",
+            "slug": "externalSystem:HostPresentations",
+            "type": "externalSystem",
+            "label": "Host presentations",
+            "feature": null,
+            "name": "HostPresentations",
+            "class": "Prospecter\\Core\\Booking\\Domain\\Port\\HostPresentations",
+            "context": "Booking",
+            "module": null,
+            "detail": "PersonalDataHostPresentations",
+            "answeredBy": [
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:PresentMembers",
+                    "label": "Present members"
+                }
+            ],
+            "readBy": []
+        },
+        {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "slug": "externalSystem:Hosts",
             "type": "externalSystem",
@@ -407,21 +430,15 @@
             "class": "Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "context": "Booking",
             "module": null,
-            "detail": "AccountsAndPersonalDataHosts",
+            "detail": "AccountsHosts",
             "answeredBy": [
-                "Accounts",
-                "PersonalData"
+                "Accounts"
             ],
             "answers": [
                 {
                     "context": "Accounts",
                     "slug": "readModel:ConsultMembers",
                     "label": "Members"
-                },
-                {
-                    "context": "PersonalData",
-                    "slug": "readModel:PresentMembers",
-                    "label": "Present members"
                 }
             ],
             "readBy": []
@@ -938,6 +955,13 @@
         {
             "from": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
+            "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostPresentations",
             "via": null,
             "certain": true,
             "when": null

@@ -3199,8 +3199,8 @@
             "readBy": [
                 {
                     "context": "Campaigns",
-                    "slug": "externalSystem:Addressees",
-                    "label": "Addressees"
+                    "slug": "externalSystem:AddresseeOrganizations",
+                    "label": "Addressee organizations"
                 }
             ]
         },
@@ -3267,8 +3267,8 @@
             "readBy": [
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:CorrespondentAddresses",
-                    "label": "Correspondent addresses"
+                    "slug": "externalSystem:OrganizationAddresses",
+                    "label": "Organization addresses"
                 }
             ]
         },
@@ -3288,8 +3288,8 @@
             "readBy": [
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:Correspondents",
-                    "label": "Correspondents"
+                    "slug": "externalSystem:OrganizationCorrespondents",
+                    "label": "Organization correspondents"
                 }
             ]
         },

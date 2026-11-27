@@ -637,26 +637,43 @@
             "readBy": []
         },
         {
-            "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
-            "slug": "externalSystem:Addressees",
+            "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
+            "slug": "externalSystem:AddresseeNames",
             "type": "externalSystem",
-            "label": "Addressees",
+            "label": "Addressee names",
             "feature": null,
-            "name": "Addressees",
-            "class": "Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
+            "name": "AddresseeNames",
+            "class": "Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
             "context": "Campaigns",
             "module": null,
-            "detail": "PersonalDataAndProspectingAddressees",
+            "detail": "PersonalDataAddresseeNames",
             "answeredBy": [
-                "PersonalData",
-                "Prospecting"
+                "PersonalData"
             ],
             "answers": [
                 {
                     "context": "PersonalData",
                     "slug": "readModel:NameContacts",
                     "label": "Name contacts"
-                },
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
+            "slug": "externalSystem:AddresseeOrganizations",
+            "type": "externalSystem",
+            "label": "Addressee organizations",
+            "feature": null,
+            "name": "AddresseeOrganizations",
+            "class": "Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
+            "context": "Campaigns",
+            "module": null,
+            "detail": "ProspectingAddresseeOrganizations",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
                 {
                     "context": "Prospecting",
                     "slug": "readModel:NameOrganizationsOfContacts",
@@ -1652,7 +1669,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
-            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
             "when": null
@@ -2128,7 +2152,14 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
-            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
             "when": null
@@ -2177,7 +2208,14 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
-            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
             "when": null
