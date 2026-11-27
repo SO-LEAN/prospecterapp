@@ -1,6 +1,6 @@
 # language: fr
 @ConsultMembers @ListAccounts @ConsultAppointments @NameCampaigns @WhichRecipientsArePending
-@WhichHaveAConnectedCalendar @ListContactFacts @DescribePersons @NameContacts @PresentMembers @WhichAreContacts
+@WhichHaveAConnectedCalendar @ListContactFacts @NameContacts @PresentMembers @WhichAreContacts
 @WhichContactsHaveTheseEmails @WhichEmailsHaveTheseContacts @ConsultHeldExchanges @ConsultPlannedExchanges
 @ListExchangeFacts @ListOrganizationFacts @NameOrganizationsOfContacts @WhichAreProspected
 @WhichContactsHaveExchangesOfCampaign @WhichEmailsHaveTheseOrganizations @WhichOrganizationsHaveTheseEmails
@@ -86,31 +86,6 @@ Fonctionnalité: Le langage publié des contextes
       | Charles Babbage |
     Alors PersonalData ne répond ni l'e-mail ni le téléphone de "Ada Lovelace"
     Et PersonalData ne répond ni l'e-mail ni le téléphone de "Charles Babbage"
-
-  Scénario: PersonalData décrit des personnes comme un membre les lit, en clair ou masquées
-    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
-    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
-    Et la fonction de "Ada Lovelace" est "CTO"
-    Et "Ada Lovelace" a noté le lien "https://www.linkedin.com/in/ada-lovelace"
-    Et le contact "Charles Babbage" de "ACME" a le téléphone "06 12 34 56 78" et parle "EN"
-    Quand un autre contexte demande à PersonalData de décrire, comme "Grace Hopper" les lit :
-      | Ada Lovelace    |
-      | Charles Babbage |
-      | Personne        |
-    Alors PersonalData décrit :
-      | personne        | masquée | prénom  | nom      | civilité | fonction | e-mail        | téléphone        | langue | liens                                                      |
-      | Ada Lovelace    | non     | Ada     | Lovelace | x        | CTO      | ada@acme.test |                  |        | linkedInProfile ada-lovelace https://www.linkedin.com/in/ada-lovelace |
-      | Charles Babbage | non     | Charles | Babbage  | x        |          |               | +33 6 12 34 56 78 | EN     |                                                            |
-    Quand un autre contexte demande à PersonalData de décrire, comme "Alan Turing" les lit :
-      | Ada Lovelace    |
-      | Charles Babbage |
-    Alors PersonalData décrit :
-      | personne        | masquée | prénom  | nom      | civilité | fonction | e-mail   | téléphone | langue | liens       |
-      | Ada Lovelace    | oui     | Ada     | Lovelace | x        | C***O    | a***@*** |           |        | *** *** *** |
-      | Charles Babbage | oui     | Charles | Babbage  | x        |          |          | ******78  | EN     |             |
-    Quand un autre contexte demande à PersonalData de décrire, comme "Personne" les lit :
-      | Ada Lovelace |
-    Alors PersonalData ne décrit personne
 
   Scénario: PersonalData présente des membres, leur nom et leur photo, jamais une personne prospectée
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

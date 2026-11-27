@@ -16,9 +16,6 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersons;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\LinkResponse;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\PersonDescriptionResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
@@ -98,10 +95,6 @@ final class PublishedLanguageContext implements Context
      * @var list<ContactNameResponse>
      */
     private array $names = [];
-    /**
-     * @var list<PersonDescriptionResponse>
-     */
-    private array $described = [];
     /**
      * @var list<HeldExchangeResponse>
      */
@@ -488,36 +481,6 @@ final class PublishedLanguageContext implements Context
         $member = $this->consulted[$this->memberIdOf($name)] ?? null;
         $member = Expect::present($member, sprintf('Accounts did not answer about "%s"', $name));
         Expect::same(null, $member->reminderMinutesBefore);
-    }
-
-    #[When('un autre contexte demande à PersonalData de décrire, comme :reader les lit :')]
-    public function anotherContextAsksToDescribe(string $reader, TableNode $persons): void
-    {
-        $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $persons->getColumn(0)), $persons->getColumn(0));
-        $this->described = $this->application->describePersons(new DescribePersons($this->memberIdOf($reader), array_keys($this->asked)));
-    }
-
-    #[Then('PersonalData décrit :')]
-    public function personalDataDescribes(TableNode $persons): void
-    {
-        Expect::same($persons->getColumnsHash(), array_map(fn (PersonDescriptionResponse $person): array => [
-            'personne' => $this->asked[$person->personId] ?? $person->personId,
-            'masquée' => Vocabulary::describeYesOrNo($person->masked),
-            'prénom' => (string) $person->firstName,
-            'nom' => (string) $person->lastName,
-            'civilité' => $person->title,
-            'fonction' => (string) $person->jobTitle,
-            'e-mail' => (string) $person->email,
-            'téléphone' => (string) $person->phoneNumber,
-            'langue' => (string) $person->language,
-            'liens' => implode(', ', array_map(static fn (LinkResponse $link): string => sprintf('%s %s %s', $link->source, $link->identifier, $link->address), $person->links)),
-        ], $this->described));
-    }
-
-    #[Then('PersonalData ne décrit personne')]
-    public function personalDataDescribesNobody(): void
-    {
-        Expect::same([], $this->described);
     }
 
     #[When('un autre contexte demande à PersonalData les noms, comme :reader les lit, de :')]

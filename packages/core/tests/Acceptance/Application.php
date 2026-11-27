@@ -222,7 +222,6 @@ use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\KeptPerson;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\Person\DescribePersons\DescribePersonsHandler;
 use Prospecter\Core\PersonalData\Application\Person\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
@@ -236,9 +235,6 @@ use Prospecter\Core\PersonalData\Application\Policy\SuspectDuplicateInReturnPoli
 use Prospecter\Core\PersonalData\Application\Profile\CollectTheFounderProfile\CollectTheFounderProfileHandler;
 use Prospecter\Core\PersonalData\Application\Profile\CollectTheMemberProfile\CollectTheMemberProfileHandler;
 use Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersons;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\KeptPersonDescriptions;
-use Prospecter\Core\PersonalData\Contract\Service\DescribePersons\PersonDescriptionResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
@@ -699,7 +695,6 @@ final class Application
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
     private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
     private readonly NameContactsHandler $nameContactsService;
-    private readonly DescribePersonsHandler $describePersonsService;
     private readonly AgendaInterlocutors $agendaInterlocutors;
     private readonly PresentMembersHandler $presentMembersService;
     private readonly ProspectingHeldExchanges $heldExchanges;
@@ -832,7 +827,6 @@ final class Application
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
-        $this->describePersonsService = new DescribePersonsHandler($this->personCardRetriever, $this->readers);
         $this->agendaInterlocutors = new AgendaInterlocutors($this->organizationSheetRetriever, new InMemoryOrganizationOfContactRetriever($database));
         $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
         $this->connectingMembers = new AccountsAndPersonalDataMembers($this->consultMembersService, $this->presentMembersService);
@@ -1653,17 +1647,6 @@ final class Application
         ($this->presentMembersService)($query, $kept);
 
         return $kept->members;
-    }
-
-    /**
-     * @return list<PersonDescriptionResponse>
-     */
-    public function describePersons(DescribePersons $query): array
-    {
-        $kept = new KeptPersonDescriptions();
-        ($this->describePersonsService)($query, $kept);
-
-        return $kept->persons;
     }
 
     /**
