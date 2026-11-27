@@ -20,11 +20,14 @@ describe('SheetContent', () => {
       renderTheSheet(side)
 
       expect(theSlot('sheet-content')).toHaveClass(
+        'animate-in',
         'duration-220',
         'ease-enter',
         'fade-in-0',
         slidingIn,
         'data-[state=closed]:duration-160',
+        'data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0',
         'data-[state=closed]:ease-exit',
         slidingOut,
       )
