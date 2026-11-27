@@ -58,7 +58,7 @@ Dates, hours and counters use tabular figures: `time` has them, other numbers ta
 
 Each kind of element has its radius: `rounded-chip` 6 px, `rounded-button` 8 px (`Button`), `rounded-field` 10 px (`Input`, `Textarea`, `SelectTrigger`), `rounded-row` 12 px, `rounded-card` 16 px (`Card`), `rounded-dialog` 18 px (`DialogContent`). The former `rounded-sm` to `rounded-xl`, from `--radius`, remain for what has no kind yet.
 
-Three shadow levels, tinted with the ink and never black (`--shadow-ink`): `shadow-rest` (the cards), `shadow-float` (the menus, the popovers, the select lists), `shadow-lift` (the dialogs, the side panels). `shadow-card` is the softer shadow of the organization cards in lists. An element has one border at most.
+The shadows have three levels, tinted with the ink and never black (`--shadow-ink`): `shadow-rest` (the cards), `shadow-float` (the menus, the popovers, the select lists), `shadow-lift` (the dialogs, the side panels). `shadow-card` is the softer shadow of the organization cards in lists. An element has one border at most.
 
 ### Motion
 
