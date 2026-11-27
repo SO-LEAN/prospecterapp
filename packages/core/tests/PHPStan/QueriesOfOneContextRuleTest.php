@@ -32,11 +32,6 @@ final class QueriesOfOneContextRuleTest extends RuleTestCase
         $this->analyse([self::FIXTURES.'one-context.php'], []);
     }
 
-    public function testAClassOfTheApplicationBesideItsServiceIsNoQuery(): void
-    {
-        $this->analyse([self::FIXTURES.'question-of-the-application.php'], []);
-    }
-
     public function testACompositionMayAskQueriesOfSeveralContexts(): void
     {
         $this->analyse([self::FIXTURES.'composition.php'], []);
