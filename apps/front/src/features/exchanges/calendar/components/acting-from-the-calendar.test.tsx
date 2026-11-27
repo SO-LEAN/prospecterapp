@@ -158,9 +158,14 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
         onShow={onShow}
         contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>}
         interlocutorSearch={(onChoose) => (
-          <button type="button" onClick={() => onChoose({ kind: 'person', id: ADA, name: 'Ada Lovelace' })}>
-            Ada Lovelace
-          </button>
+          <>
+            <button type="button" onClick={() => onChoose({ kind: 'person', id: ADA, name: 'Ada Lovelace' })}>
+              Ada Lovelace
+            </button>
+            <button type="button" onClick={() => onChoose({ kind: 'organization', id: ACME, name: 'ACME' })}>
+              ACME
+            </button>
+          </>
         )}
         toDoBox={() => null}
         reviseToDo={() => undefined}
@@ -556,6 +561,47 @@ describe('a free slot', () => {
     expect(await within(dialog).findByLabelText('Date')).toHaveValue('2026-11-19')
     expect(within(dialog).getByLabelText('Heure')).toHaveValue('10:00')
     expect(within(dialog).getByLabelText('Durée')).toHaveValue(30)
+  })
+
+  it.each([
+    ['Ada Lovelace', `/api/contacts/${ADA}`, (exchange: object) => exchange],
+    ['ACME', `/api/organizations/${ACME}`, (exchange: object) => ({ personId: null, exchange })],
+  ])('plans there with %s, sending the moment and the duration of the slot', async (name, path, bodyOf) => {
+    const planning = {
+      items: [],
+      _links: {
+        self: { href: `${path}/exchanges`, method: 'GET' },
+        planExchange: { href: `${path}/upcoming-exchanges`, method: 'POST' },
+      },
+    }
+    theApiAnswers({
+      [`GET ${path}/exchanges`]: () => ({ body: planning }),
+      [`GET ${path}/meeting-place`]: () => ({ body: { address: null } }),
+      [`POST ${path}/upcoming-exchanges`]: () => ({ status: 201, body: planning }),
+    })
+    await showTheCalendar('week', aCalendarOf([]))
+    const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
+    fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
+    fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })
+    const dialog = await screen.findByRole('dialog', { name: 'Planifier' })
+
+    await userEvent.click(within(dialog).getByRole('button', { name }))
+    await userEvent.click(await within(dialog).findByLabelText('Appel'))
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Planifier' })).not.toBeInTheDocument())
+    expect(await sent('POST')).toEqual([
+      [
+        `${path}/upcoming-exchanges`,
+        bodyOf(
+          expect.objectContaining({
+            channel: 'call',
+            occurredAt: new Date(2026, 10, 19, 10, 0).toISOString(),
+            durationInMinutes: 30,
+          }),
+        ),
+      ],
+    ])
   })
 
   it('says when the contact chosen may not be planned with, and goes back to the search', async () => {
