@@ -443,17 +443,7 @@
                 {
                     "context": null,
                     "slug": null,
-                    "label": "AccountsAndPersonalDataPersonDescriptions"
-                },
-                {
-                    "context": null,
-                    "slug": null,
-                    "label": "CampaignAuthors"
-                },
-                {
-                    "context": null,
-                    "slug": null,
-                    "label": "ExchangeReader"
+                    "label": "PersonsOfAView"
                 },
                 {
                     "context": "Booking",
