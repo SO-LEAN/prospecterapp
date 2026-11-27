@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { formatClockTime } from '@/shared/lib/format'
 import { readerTimeZone } from '@/shared/lib/time-zone'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -109,7 +110,7 @@ function TimeSelect({ label, value, disabled, onChange }: TimeProps) {
       <SelectContent>
         {QUARTER_HOURS.map((time) => (
           <SelectItem key={time} value={time}>
-            {time}
+            {formatClockTime(time)}
           </SelectItem>
         ))}
       </SelectContent>

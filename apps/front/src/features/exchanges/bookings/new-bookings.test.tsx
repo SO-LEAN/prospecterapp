@@ -98,7 +98,7 @@ const myAgendaIsReadAgainWith = (agenda: CalendarExchange[]) => {
   return act(() => vi.advanceTimersByTimeAsync(READ_AGAIN_MS))
 }
 
-const THE_TOAST = 'Nouvelle réservation : Visio avec Ada Lovelace, mardi 9h00'
+const THE_TOAST = 'Nouvelle réservation : Visio avec Ada Lovelace, mar. 24 nov. · 9h00'
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true })

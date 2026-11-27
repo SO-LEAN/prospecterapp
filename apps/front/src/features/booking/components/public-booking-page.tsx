@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CardPage } from '@/app/layout/card-page'
 import type { components } from '@/shared/api/schema'
-import { initials } from '@/shared/lib/format'
+import { formatCalendarDay, formatHour, formatMoment, initials } from '@/shared/lib/format'
 import { readerTimeZone } from '@/shared/lib/time-zone'
 import { cn } from '@/shared/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
@@ -11,7 +11,7 @@ import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 import { publicBookingPageQuery } from '../queries'
-import { appointmentMoment, cityOf, dayLabel, slotTime } from '../slots'
+import { cityOf } from '../slots'
 import { BookingForm, type BookingOutcome } from './booking-form'
 
 type PublicPage = components['schemas']['PublicBookingPageResource']
@@ -86,7 +86,7 @@ function OpenPage({ code, onSlotTaken, host, channels, hostTimeZone, days }: Ope
       <CardPage
         title={t('booking.public.title')}
         description={t('booking.public.alreadyBooked', {
-          moment: appointmentMoment(outcome.appointment, visitorTimeZone),
+          moment: formatMoment(outcome.appointment, new Date(), visitorTimeZone),
           host: host.firstName ?? '',
         })}
       />
@@ -152,7 +152,7 @@ function OpenPage({ code, onSlotTaken, host, channels, hostTimeZone, days }: Ope
             slot={slot}
             recap={t('booking.public.recap', {
               channel: t(`booking.channels.${channel}`),
-              moment: appointmentMoment(slot, visitorTimeZone),
+              moment: formatMoment(slot, new Date(), visitorTimeZone),
             })}
             onDone={done}
           />
@@ -212,7 +212,7 @@ type DayProps = {
 
 function DayOfSlots({ day, timeZone, choosable, chosen, onChoose }: DayProps) {
   const { t } = useTranslation()
-  const label = dayLabel(day.day)
+  const label = formatCalendarDay(day.day)
   const empty = day.slots.length === 0
 
   return (
@@ -237,7 +237,7 @@ function DayOfSlots({ day, timeZone, choosable, chosen, onChoose }: DayProps) {
             disabled={!choosable}
             onClick={() => onChoose(moment)}
           >
-            {slotTime(moment, timeZone)}
+            {formatHour(moment, timeZone)}
           </Button>
         ))
       )}

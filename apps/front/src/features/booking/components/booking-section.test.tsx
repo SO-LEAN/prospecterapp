@@ -197,7 +197,7 @@ describe('BookingSection', () => {
 
     await user.click(screen.getByRole('switch', { name: 'Jeudi\u00a0: on peut me réserver' }))
     await user.click(screen.getByRole('combobox', { name: 'Jeudi, à' }))
-    await user.click(await screen.findByRole('option', { name: '11:30' }))
+    await user.click(await screen.findByRole('option', { name: '11h30' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer les plages' }))
 
     expect((await sent()).body.windows).toEqual([{ weekday: 'thursday', from: '09:00', to: '11:30' }])
@@ -236,7 +236,9 @@ describe('BookingSection', () => {
     theApi.mockResolvedValue(Response.json({ ...open, inactivePeriods: [] }))
     const user = await renderTheSection(open)
 
-    await user.click(screen.getByRole('button', { name: 'Supprimer la période du 21/12/2026 au 04/01/2027' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Supprimer la période du lun. 21 déc. au lun. 4 janv. 2027' }),
+    )
 
     expect(await sent()).toEqual({
       path: `/api/me/booking-page/inactive-periods/${PERIOD}`,
