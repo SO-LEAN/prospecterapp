@@ -6,7 +6,7 @@ import type { ToDo, ToDoInput } from './queries'
 
 const MAX_TEXT = 500
 
-/** The choice of the organization itself, among its contacts. */
+/** The value that chooses the organization itself rather than one of its contacts. */
 export const ITSELF = ''
 
 /**
