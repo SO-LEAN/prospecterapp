@@ -3,7 +3,7 @@
 - Date: 2026-11-27
 - Type: architecture
 - Status: Accepted
-- Supersedes: for "a job per part", [0219](0219-a-pull-request-mutates-its-added-lines-in-its-ci-a-job-per-part-beside-the-checks.md)
+- Supersedes: for "a job per part", [0219](0219-a-pull-request-mutates-its-added-lines-in-its-ci.md)
 - Implemented by: `.github/workflows/ci.yml` (the `changes`, `mutation` and `mutation-summary` jobs; the core's jobs install its dependencies only), `make/mutation.mk` (`SHARD`), `packages/core/Makefile`, `apps/front/Makefile`, `Makefile` (`mutation-shards`, `mutation-summary`, `mutation-merge`), `apps/front/mutation/`, `docs/architecture/workflow.md`, `docs/architecture/tests.md`, `docs/architecture/commands.md`
 
 ## Context
