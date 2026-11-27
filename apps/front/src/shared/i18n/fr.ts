@@ -16,6 +16,7 @@ export const fr = {
     unfold: 'Déplier la barre latérale',
     expand: 'Ouvrir le menu',
     mainNavigation: 'Navigation principale',
+    breadcrumb: "Fil d'Ariane",
     userMenu: '{{name}}, menu du compte',
     new: 'Nouveau',
     counts: {

@@ -188,4 +188,29 @@ describe('the shell of a signed-in member', () => {
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: 'Configuration' })).not.toBeInTheDocument()
   })
+
+  it('shows in the top bar the breadcrumb of the page, from my account to the page shown', async () => {
+    await renderTheSpaAt('/calendar')
+
+    const breadcrumb = await screen.findByRole('navigation', { name: "Fil d'Ariane" })
+    expect(breadcrumb).toHaveTextContent(/^Babbage & Co.*Calendrier$/)
+    expect(within(breadcrumb).getByText('Calendrier')).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('leads by the breadcrumb of a page back to its section', async () => {
+    await renderTheSpaAt('/organizations/new')
+
+    const breadcrumb = await screen.findByRole('navigation', { name: "Fil d'Ariane" })
+    expect(within(breadcrumb).getByRole('link', { name: 'Organisations' })).toHaveAttribute(
+      'href',
+      '/organizations',
+    )
+  })
+
+  it('shows in the top bar the day and the number of its week', async () => {
+    await renderTheSpaAt('/')
+
+    const theTopBar = (await screen.findByRole('navigation', { name: "Fil d'Ariane" })).closest('header')
+    expect(theTopBar).toContainElement(screen.getByText('mer. 18 nov. · S47'))
+  })
 })
