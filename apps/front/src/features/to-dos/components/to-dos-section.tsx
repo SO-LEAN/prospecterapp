@@ -26,8 +26,6 @@ import { useToggle } from '../use-toggle'
 import { ReviseToDoDialog } from './revise-to-do-dialog'
 import { type Recipients, ToDoForm } from './to-do-form'
 
-export type { Recipients }
-
 /** Called once a to-do is ticked off. The page may then propose to log the exchange it led to. */
 export type OnTickedOff = (toDo: ToDo) => void
 
@@ -71,7 +69,7 @@ export function OrganizationToDosSection({
 
 type CardProps = SectionProps & {
   list: ToDoList
-  /** Gets the to-do, and the contact chosen among the recipients, null for the organization itself or without them. */
+  /** Gets the to-do and the contact chosen among the recipients. The contact is null for the organization itself, or without recipients. */
   onNote: (body: ToDoInput, contactId: string | null) => Promise<unknown>
   withTheirContact?: boolean
   recipients?: Recipients
