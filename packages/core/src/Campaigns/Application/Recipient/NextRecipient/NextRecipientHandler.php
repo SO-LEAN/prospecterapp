@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\Recipient\NextRecipient;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
-use Prospecter\Core\Campaigns\Domain\Port\Addressees;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
+use Prospecter\Core\Campaigns\Domain\Service\Addressees;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

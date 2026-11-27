@@ -80,6 +80,17 @@ Fonctionnalité: Préparer une campagne
     Quand je lis le message pour "Ada Lovelace"
     Alors il vaut "Bonjour Ada Lovelace, chez ACME…"
 
+  Scénario: Le message d'un contact de plusieurs organisations nomme celle où il a été rattaché le plus récemment
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et l'organisation "Initech" appartient à "SOLEAN IT"
+    Et nous sommes le 24/11/2026 à 9h00
+    Et le contact "Ada Lovelace" est aussi contact de "Initech"
+    Et nous sommes le 25/11/2026 à 9h00
+    Et le contact "Ada Lovelace" est aussi contact de "Globex"
+    Et la campagne "Relance ESN" a le message "Bonjour {firstName}, chez {organization}"
+    Quand je lis le message pour "Ada Lovelace"
+    Alors il vaut "Bonjour Ada, chez Globex"
+
   Scénario: Une variable sans valeur est rendue vide
     Soit la campagne "Relance ESN" a le message "Bonjour {firstName}, {jobTitle} chez {organization}"
     Et la fonction de "Ada Lovelace" est "CTO"
