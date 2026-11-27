@@ -40,7 +40,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
         $late = $this->lateExchanges($holder, $query->at);
         $toDos = $this->toDosDueBy($holder, $query->at);
         $contactsToAttach = $this->stillContacts($this->contactsToAttachRetriever->heldBy($holder->id), $holder);
-        $interlocutors = $this->agendaInterlocutors->of($holder, $late, $toDos, $contactsToAttach);
+        $interlocutors = $this->agendaInterlocutors->of($holder, $late);
         $exchanges = $interlocutors->known($late);
 
         $output->present(new WhatIsToProcess(

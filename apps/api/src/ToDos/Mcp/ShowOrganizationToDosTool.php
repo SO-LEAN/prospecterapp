@@ -10,7 +10,7 @@ use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 
@@ -23,7 +23,7 @@ final readonly class ShowOrganizationToDosTool
     public function __construct(
         private ToolAccess $access,
         private OrganizationResolver $organizations,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDos,
         private ToolResults $results,
     ) {
     }
@@ -41,6 +41,6 @@ final readonly class ShowOrganizationToDosTool
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->toDoReader->ofOrganization($this->access->member()->memberId(), $organization->id));
+        return $this->results->of($this->toDos->ofOrganization($this->access->member()->memberId(), $organization->id));
     }
 }

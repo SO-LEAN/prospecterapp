@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\PeriodQuery;
 use App\Contacts\Resource\MyDayResource;
 use App\Security\User;
@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowMyDayController
 {
     public function __construct(
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private JsonResponses $jsonResponses,
     ) {
@@ -39,6 +39,6 @@ final readonly class ShowMyDayController
     #[OA\Response(response: 422, description: 'Invalid day: a missing bound, or an end before the start', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] PeriodQuery $day): JsonResponse
     {
-        return $this->jsonResponses->of($this->agendaReader->readMyDay($user->memberId(), $day->start(), $day->end(), $this->clock->now()));
+        return $this->jsonResponses->of($this->agenda->readMyDay($user->memberId(), $day->start(), $day->end(), $this->clock->now()));
     }
 }

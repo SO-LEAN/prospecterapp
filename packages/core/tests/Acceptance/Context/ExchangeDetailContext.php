@@ -18,7 +18,6 @@ use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeVenue\Correc
 use Prospecter\Core\Prospecting\Application\Exchange\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\NoteOrganizationExchange\NoteOrganizationExchange;
-use Prospecter\Core\Prospecting\Application\PersonDescription;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
@@ -150,31 +149,14 @@ final class ExchangeDetailContext implements Context
         Expect::same($expected, array_replace($expected, array_intersect_key($this->describe($this->consulted()), $expected)));
     }
 
-    #[Then('il nomme :')]
-    public function itNames(TableNode $table): void
+    #[Then('il est avec :')]
+    public function itIsWith(TableNode $table): void
     {
         $exchange = $this->consulted();
-        $participants = Expect::present($this->application->consultExchangeParticipants(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now())), 'The participants were expected');
-        $named = [
-            'interlocuteur' => null === $exchange->personId ? (string) $participants->organization?->fullName : self::named($participants->persons->contacts[$exchange->personId] ?? null),
-            'noté par' => self::named($participants->persons->members[$exchange->createdBy] ?? null),
-            'modifié par' => null === $exchange->correctedBy ? '' : self::named($participants->persons->members[$exchange->correctedBy] ?? null),
-            'rendu conforme par' => null === $exchange->madeConformBy ? '' : self::named($participants->persons->members[$exchange->madeConformBy] ?? null),
-        ];
-        $expected = Vocabulary::rows($table);
+        $organizationItself = $this->application->consultExchangeOrganizationItself(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
+        $interlocutor = null === $exchange->personId ? (string) $organizationItself?->fullName : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
 
-        Expect::same($expected, array_intersect_key($named, $expected));
-    }
-
-    private static function named(?PersonDescription $person): string
-    {
-        if (null === $person) {
-            return 'personne';
-        }
-
-        $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
-
-        return null === $person->email ? $name : sprintf('%s <%s>', $name, $person->email);
+        Expect::same(Vocabulary::rows($table), ['interlocuteur' => $interlocutor]);
     }
 
     #[Then('je peux sur l\'échange :')]

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Input\CorrectionInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -34,7 +34,7 @@ final readonly class CorrectExchangeController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private ExchangeRevisions $revisions,
         private JsonResponses $jsonResponses,
     ) {
@@ -65,6 +65,6 @@ final readonly class CorrectExchangeController
             madeConform: $input->redacted,
         ), $this->revisions->readAt($exchange->id, $revision));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id));
     }
 }

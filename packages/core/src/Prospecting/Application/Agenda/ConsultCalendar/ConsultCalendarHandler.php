@@ -36,7 +36,7 @@ final readonly class ConsultCalendarHandler implements QueryHandler
 
         $held = $this->calendarRetriever->heldBy($holder, $period);
         $toDos = $this->toDoListRetriever->dueIn($holder->id, $period);
-        $interlocutors = $this->agendaInterlocutors->of($holder, $held, $toDos);
+        $interlocutors = $this->agendaInterlocutors->of($holder, $held);
         $exchanges = $interlocutors->known($held);
 
         $output->present(new Calendar(

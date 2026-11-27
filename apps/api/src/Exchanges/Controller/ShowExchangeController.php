@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Resource\ExchangeDetailResource;
+use App\Security\User;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -15,13 +16,14 @@ use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchang
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowExchangeController
 {
-    public function __construct(private ExchangeReader $exchangeReader, private JsonResponses $jsonResponses)
+    public function __construct(private ExchangeComposition $exchangeComposition, private JsonResponses $jsonResponses)
     {
     }
 
@@ -32,8 +34,8 @@ final readonly class ShowExchangeController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(KeptExchange $exchange): JsonResponse
+    public function __invoke(KeptExchange $exchange, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->exchangeReader->resourceOf($exchange));
+        return $this->jsonResponses->of($this->exchangeComposition->ofKept($user->memberId(), $exchange));
     }
 }

@@ -18,7 +18,6 @@ class DomainBehindTheApplicationTest extends TestCase
 
     private const array ADAPTERS = [
         'Prospecting/AntiCorruption/AccountsProspectors.php',
-        'Prospecting/AntiCorruption/AccountsAndPersonalDataPersonDescriptions.php',
         'Prospecting/AntiCorruption/ConnectorsMailCatchUps.php',
         'Prospecting/AntiCorruption/PersonalDataContactEmails.php',
         'Prospecting/AntiCorruption/PersonalDataKnownContacts.php',

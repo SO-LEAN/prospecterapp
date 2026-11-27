@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Input\VenueCorrectionInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -34,7 +34,7 @@ final readonly class CorrectExchangeVenueController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private ExchangeRevisions $revisions,
         private JsonResponses $jsonResponses,
     ) {
@@ -54,6 +54,6 @@ final readonly class CorrectExchangeVenueController
     {
         $this->commandBus->dispatch(new CorrectExchangeVenue(prospectorId: $user->memberId(), id: $exchange->id, place: $input->place, link: $input->link, executedAt: $this->clock->now()), $this->revisions->readAt($exchange->id, $revision));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id));
     }
 }

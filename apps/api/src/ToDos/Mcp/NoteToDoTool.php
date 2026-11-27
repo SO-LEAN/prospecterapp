@@ -12,7 +12,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use App\ToDos\Input\ToDoInput;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Prospecting\Application\ToDo\NoteToDo\NoteToDo;
@@ -30,7 +30,7 @@ final readonly class NoteToDoTool
         private CommandBus $commandBus,
         private Identities $identities,
         private ClockInterface $clock,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDos,
         private ToolResults $results,
     ) {
     }
@@ -61,6 +61,6 @@ final readonly class NoteToDoTool
             executedAt: $this->clock->now(),
         ));
 
-        return $this->results->of($this->toDoReader->read($memberId, $toDo));
+        return $this->results->of($this->toDos->read($memberId, $toDo));
     }
 }

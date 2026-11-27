@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Input\CancellationInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -31,7 +31,7 @@ final readonly class CancelExchangeController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -49,6 +49,6 @@ final readonly class CancelExchangeController
     {
         $this->commandBus->dispatch(new CancelExchange(prospectorId: $user->memberId(), id: $exchange->id, canceller: $input->canceller, executedAt: $this->clock->now()));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id));
     }
 }

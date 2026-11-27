@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\OrganizationTimelineReader;
+use App\Contacts\OrganizationTimelineComposition;
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\Input\TimelineQuery;
 use App\Prospecting\OrganizationVoter;
@@ -26,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowOrganizationTimelineController
 {
     public function __construct(
-        private OrganizationTimelineReader $organizationTimelineReader,
+        private OrganizationTimelineComposition $organizationTimeline,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -40,6 +40,6 @@ final readonly class ShowOrganizationTimelineController
     #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {
-        return $this->jsonResponses->of($this->organizationTimelineReader->read($user->memberId(), $organization, $query->after));
+        return $this->jsonResponses->of($this->organizationTimeline->read($user->memberId(), $organization, $query->after));
     }
 }

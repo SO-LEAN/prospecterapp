@@ -8,7 +8,7 @@ use App\Security\User;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoResource;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use App\ToDos\ToDoVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowToDoController
 {
-    public function __construct(private ToDoReader $toDoReader, private JsonResponses $jsonResponses)
+    public function __construct(private ToDoComposition $toDos, private JsonResponses $jsonResponses)
     {
     }
 
@@ -37,6 +37,6 @@ final readonly class ShowToDoController
     #[OA\Response(response: 404, description: 'Unknown to-do, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ToDoInList $toDo, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo->id));
+        return $this->jsonResponses->of($this->toDos->read($user->memberId(), $toDo->id));
     }
 }

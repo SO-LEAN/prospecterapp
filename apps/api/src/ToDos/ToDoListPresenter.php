@@ -4,33 +4,35 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
+use App\ToDos\Resource\ToDoLinksResource;
 use App\ToDos\Resource\ToDoListLinksResource;
-use App\ToDos\Resource\ToDoListResource;
-use App\ToDos\Resource\ToDoResource;
-use Prospecter\Core\Prospecting\Application\PersonsShown;
 use Prospecter\Core\Prospecting\Application\ToDo\ToDoListOutput;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 
 /**
- * Presents a list of to-dos, each with its contact and its holder named, under the links its client gives (ADR 0085,
- * 0217).
+ * Presents what Prospecting shows of a list of to-dos: each to-do with its links, under the links its client gives
+ * (ADR 0085, 0217).
  */
 final class ToDoListPresenter implements ToDoListOutput
 {
-    public private(set) ToDoListResource $resource;
+    public private(set) ToDoList $toDos;
+
+    /** @var array<string, ToDoLinksResource> by to-do id */
+    public private(set) array $links = [];
 
     public function __construct(
         private readonly ToDoResourceFactory $toDoResourceFactory,
-        private readonly ToDoListLinksResource $links,
+        public readonly ToDoListLinksResource $listLinks,
     ) {
     }
 
-    public function present(ToDoList $toDos, PersonsShown $persons): void
+    public function present(ToDoList $toDos): void
     {
-        $this->resource = new ToDoListResource(
-            array_map(fn (ToDoInList $toDo): ToDoResource => $this->toDoResourceFactory->of($toDo, $persons), $toDos->toDos),
-            $this->links,
+        $this->toDos = $toDos;
+        $this->links = array_combine(
+            array_map(static fn (ToDoInList $toDo): string => $toDo->id, $toDos->toDos),
+            array_map($this->toDoResourceFactory->linksOf(...), $toDos->toDos),
         );
     }
 }

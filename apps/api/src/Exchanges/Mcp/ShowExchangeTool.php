@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Mcp;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeResolver;
 use App\Exchanges\ExchangeVoter;
 use App\Security\ToolAccess;
@@ -22,7 +22,7 @@ final readonly class ShowExchangeTool
     public function __construct(
         private ToolAccess $access,
         private ExchangeResolver $exchanges,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private ToolResults $results,
     ) {
     }
@@ -40,6 +40,6 @@ final readonly class ShowExchangeTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ExchangeVoter::ACCESS, $exchange);
 
-        return $this->results->of($this->exchangeReader->resourceOf($exchange));
+        return $this->results->of($this->exchangeComposition->ofKept($member->memberId(), $exchange));
     }
 }

@@ -6,7 +6,7 @@ namespace Tests\App\Architecture;
 
 use App\Contacts\Mcp\CollectContactTool;
 use App\Contacts\Mcp\NoteOrganizationExchangeTool;
-use App\Contacts\OrganizationTimelineReader;
+use App\Contacts\OrganizationTimelineComposition;
 use App\PersonalData\Input\CollectContactInput;
 use App\Prospecting\Input\StartProspectingInput;
 use App\Prospecting\Mcp\NoteCampaignExchangeTool;
@@ -54,7 +54,7 @@ class EveryToolIsWiredAsItsControllerTest extends KernelTestCase
     private const array DONE_OTHERWISE = [
         NoteExchangeTool::class => [TimelineReader::class.'::read'],
         NoteCampaignExchangeTool::class => [TimelineReader::class.'::read'],
-        NoteOrganizationExchangeTool::class => [OrganizationTimelineReader::class.'::read'],
+        NoteOrganizationExchangeTool::class => [OrganizationTimelineComposition::class.'::read'],
         StartProspectingTool::class => [StartProspectingInput::class.'::commandOf'],
         CollectContactTool::class => [CollectContactInput::class.'::commandOf'],
     ];

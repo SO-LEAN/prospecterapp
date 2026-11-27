@@ -7,13 +7,7 @@ namespace App\Exchanges;
 use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\AttachmentLinksResource;
 use App\Exchanges\Resource\AttachmentResource;
-use App\Exchanges\Resource\AuthorResource;
 use App\Exchanges\Resource\ExchangeDetailLinksResource;
-use App\Exchanges\Resource\ExchangeDetailResource;
-use App\Exchanges\Resource\StampResource;
-use App\PersonalData\Resource\PersonNameResource;
-use App\Prospecting\Persistence\ExchangeRevisions;
-use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
@@ -21,7 +15,7 @@ use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\AttachmentDetail;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchangeOutput;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\Participants;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * Presents an exchange's detail. It gives one link for each intent that the exchange's state offers and that the
@@ -35,8 +29,8 @@ use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\Participant
  * Each link names its intent, its route, and the role its controller requires beyond reaching the exchange. Those who
  * read the campaigns get a link to the campaign the exchange was logged in, while the campaign exists (ADR 0152).
  * Those who manage personal data get a link that opens an imported exchange's message in Gmail (ADR 0174). The
- * presenter is built for one call. It names the participants as the query read them, and keeps the resource (ADR
- * 0085, 0217).
+ * presenter is built for one call. It keeps what Prospecting shows: the exchange, its links and the organization
+ * itself when the exchange has no contact (ADR 0085, 0217).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
@@ -59,75 +53,25 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
 
     private const string GMAIL_MESSAGE = 'https://mail.google.com/mail/#all/%s';
 
-    public private(set) ExchangeDetailResource $resource;
+    public private(set) ExchangeDetail $exchange;
 
-    public function __construct(private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly ExchangeRevisions $revisions)
+    public private(set) ?OrganizationSheet $organizationItself = null;
+
+    public private(set) ExchangeDetailLinksResource $links;
+
+    /** @var list<AttachmentResource> */
+    public private(set) array $attachments = [];
+
+    public function __construct(private readonly Links $routes, private readonly IntentLinks $intentLinks)
     {
     }
 
-    public function present(ExchangeDetail $exchange, Participants $participants): void
+    public function present(ExchangeDetail $exchange, ?OrganizationSheet $organizationItself): void
     {
-        $members = $participants->persons->members;
-        $authorOf = static fn (string $member): AuthorResource => new AuthorResource(new PersonNameResource($members[$member]->firstName ?? null, $members[$member]->lastName ?? null), $members[$member]->email ?? null);
-        $interlocutor = self::interlocutorOf($exchange, $participants);
-
-        $this->resource = new ExchangeDetailResource(
-            id: $exchange->id,
-            interlocutor: $interlocutor,
-            channel: $exchange->channel,
-            direction: $exchange->direction,
-            occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
-            status: $exchange->status,
-            canceller: $exchange->canceller,
-            durationInMinutes: $exchange->durationInMinutes,
-            text: $exchange->text,
-            place: $exchange->place,
-            link: $exchange->link,
-            linkAwaited: $exchange->linkAwaited,
-            phoneNumber: self::numberToCall($exchange, $participants),
-            textFlagged: $exchange->textFlagged,
-            textToRedact: $exchange->textToMakeConform,
-            toRedact: $exchange->toMakeConform,
-            organizationIds: $exchange->organizationIds,
-            noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
-            corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
-            redacted: null === $exchange->madeConformAt || null === $exchange->madeConformBy ? null : new StampResource($exchange->madeConformAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->madeConformBy)),
-            attachments: array_map(fn (AttachmentDetail $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
-            hiddenAttachments: $exchange->hiddenAttachments,
-            campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
-            bookedByLink: $exchange->bookedByLink,
-            importedFrom: $exchange->importedFrom,
-            createdByAnAI: $exchange->createdByAnAI,
-            revision: $this->revisions->lastRead($exchange->id),
-            links: $this->linksOf($exchange, $interlocutor),
-        );
-    }
-
-    /**
-     * The organization itself when the exchange has no contact, unnamed once it is no longer known. Its contact
-     * otherwise.
-     */
-    private static function interlocutorOf(ExchangeDetail $exchange, Participants $participants): InterlocutorResource
-    {
-        if (null === $exchange->personId) {
-            return null === $participants->organization ? InterlocutorResource::ofAnOrganizationNoLongerKnown($exchange->organizationIds[0]) : InterlocutorResource::ofTheOrganization($participants->organization);
-        }
-
-        return InterlocutorResource::ofPerson($exchange->personId, $participants->persons->contacts[$exchange->personId] ?? null, $exchange->contactPresence);
-    }
-
-    /**
-     * The organization's own number, or the contact's number read in clear. A masked number calls nobody.
-     */
-    private static function numberToCall(ExchangeDetail $exchange, Participants $participants): ?string
-    {
-        if (null !== $participants->organization) {
-            return $participants->organization->phoneNumber;
-        }
-
-        $contact = $participants->persons->contacts[$exchange->personId ?? ''] ?? null;
-
-        return null === $contact || $contact->masked ? null : $contact->phoneNumber;
+        $this->exchange = $exchange;
+        $this->organizationItself = $organizationItself;
+        $this->attachments = array_map(fn (AttachmentDetail $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments);
+        $this->links = $this->linksOf($exchange, $organizationItself);
     }
 
     /**
@@ -138,20 +82,20 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         $ids = ['id' => $exchange->id, 'attachmentId' => $attachment->id];
 
         return new AttachmentResource($attachment->id, $attachment->name, $attachment->size, $attachment->mediaType, $attachment->toMakeConform, new AttachmentLinksResource(
-            $this->links->to('api_exchanges_download_attachment', $ids),
-            $this->intentLinks->shows('RemoveAttachment', $exchange->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
+            $this->routes->to('api_exchanges_download_attachment', $ids),
+            $this->intentLinks->shows('RemoveAttachment', $exchange->possibleIntents, User::PERSONAL_DATA) ? $this->routes->to('api_exchanges_remove_attachment', $ids) : null,
         ));
     }
 
-    private function linksOf(ExchangeDetail $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
+    private function linksOf(ExchangeDetail $exchange, ?OrganizationSheet $organizationItself): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
         $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $exchange->possibleIntents, $link['role']));
 
         return new ExchangeDetailLinksResource(
-            $this->links->to('api_exchanges_show', $id),
-            $this->cardOf($interlocutor),
-            ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
+            $this->routes->to('api_exchanges_show', $id),
+            $this->cardOf($exchange, $organizationItself),
+            ...array_map(fn (array $link): LinkResource => $this->routes->to($link['route'], $id), $granted),
             campaign: $this->campaignOf($exchange),
             openInMailbox: $this->openInMailboxOf($exchange),
         );
@@ -176,19 +120,19 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             return null;
         }
 
-        return $this->links->to('api_campaigns_show', ['id' => $exchange->campaignId]);
+        return $this->routes->to('api_campaigns_show', ['id' => $exchange->campaignId]);
     }
 
     /**
      * The card of the contact, or of the organization itself. A forgotten contact no longer has one, and neither has an
-     * organization no longer known, which goes unnamed.
+     * organization no longer known.
      */
-    private function cardOf(InterlocutorResource $interlocutor): ?LinkResource
+    private function cardOf(ExchangeDetail $exchange, ?OrganizationSheet $organizationItself): ?LinkResource
     {
-        if (InterlocutorResource::FORGOTTEN === $interlocutor->presence || (InterlocutorResource::ORGANIZATION === $interlocutor->kind && null === $interlocutor->name)) {
-            return null;
+        if (null === $exchange->personId) {
+            return null === $organizationItself ? null : $this->routes->to('api_organizations_show', ['id' => $organizationItself->id]);
         }
 
-        return $this->links->to(InterlocutorResource::PERSON === $interlocutor->kind ? 'api_contacts_show' : 'api_organizations_show', ['id' => $interlocutor->id]);
+        return InterlocutorResource::FORGOTTEN === $exchange->contactPresence ? null : $this->routes->to('api_contacts_show', ['id' => $exchange->personId]);
     }
 }

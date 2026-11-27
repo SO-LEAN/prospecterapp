@@ -69,7 +69,7 @@ final class MyDayContext implements Context
     #[Then('il montre aujourd\'hui, avec :')]
     public function itShowsTodayWith(TableNode $table): void
     {
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => ['échange' => self::describe($exchange), ...self::shownInterlocutorOf($exchange, $this->myDay()->interlocutors)], $this->myDay()->today));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => ['échange' => self::describe($exchange), ...$this->shownInterlocutorOf($exchange, $this->myDay()->interlocutors)], $this->myDay()->today));
     }
 
     #[Then('/^les (?<count>\d+) prochains rendez-vous, du plus proche au plus lointain$/')]

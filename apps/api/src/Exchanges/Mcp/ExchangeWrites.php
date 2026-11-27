@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Mcp;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeResolver;
 use App\Exchanges\ExchangeVoter;
 use App\Prospecting\Persistence\ExchangeRevisions;
@@ -29,7 +29,7 @@ final readonly class ExchangeWrites
         private ToolInputs $inputs,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private ToolResults $results,
         private ExchangeRevisions $revisions,
     ) {
@@ -87,7 +87,7 @@ final readonly class ExchangeWrites
      */
     public function answer(string $id, ?\DateTimeImmutable $movedFrom = null): array
     {
-        return $this->results->of($this->exchangeReader->read($this->access->member()->memberId(), $id, $movedFrom));
+        return $this->results->of($this->exchangeComposition->read($this->access->member()->memberId(), $id, $movedFrom));
     }
 
     /**

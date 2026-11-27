@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
-use App\Security\User;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDo;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\KeptToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -19,7 +17,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  */
 final readonly class ToDoResolver implements ValueResolverInterface
 {
-    public function __construct(private QueryHandler $consultToDo, private Security $security)
+    public function __construct(private QueryHandler $consultToDo)
     {
     }
 
@@ -28,22 +26,20 @@ final readonly class ToDoResolver implements ValueResolverInterface
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $member = $this->security->getUser();
-
-        if (ToDoInList::class !== $argument->getType() || !$member instanceof User) {
+        if (ToDoInList::class !== $argument->getType()) {
             return [];
         }
 
-        return [$this->read($member->memberId(), $request->attributes->getString('id'))];
+        return [$this->read($request->attributes->getString('id'))];
     }
 
     /**
      * Reads the to-do with this id for the voter, whatever its account. The core refuses an unknown to-do.
      */
-    public function read(string $reader, string $id): ToDoInList
+    public function read(string $id): ToDoInList
     {
         $kept = new KeptToDo();
-        $this->consultToDo->__invoke(new ConsultToDo($reader, $id), $kept);
+        $this->consultToDo->__invoke(new ConsultToDo($id), $kept);
 
         return $kept->toDo;
     }

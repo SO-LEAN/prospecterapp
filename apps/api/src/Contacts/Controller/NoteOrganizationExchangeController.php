@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\OrganizationTimelineReader;
+use App\Contacts\OrganizationTimelineComposition;
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\Input\OrganizationExchangeInput;
 use App\Prospecting\OrganizationVoter;
@@ -35,7 +35,7 @@ final readonly class NoteOrganizationExchangeController
         private CommandBus $commandBus,
         private Identities $identities,
         private ClockInterface $clock,
-        private OrganizationTimelineReader $organizationTimelineReader,
+        private OrganizationTimelineComposition $organizationTimeline,
         private JsonResponses $jsonResponses,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -71,6 +71,6 @@ final readonly class NoteOrganizationExchangeController
             noteOnce: false,
         ));
 
-        return $this->jsonResponses->of($this->organizationTimelineReader->read($user->memberId(), $organization), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_exchanges_show', ['id' => $noted])]);
+        return $this->jsonResponses->of($this->organizationTimeline->read($user->memberId(), $organization), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_exchanges_show', ['id' => $noted])]);
     }
 }

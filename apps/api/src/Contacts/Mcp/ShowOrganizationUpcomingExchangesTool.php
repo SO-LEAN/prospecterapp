@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\OrganizationTimelineReader;
+use App\Contacts\OrganizationTimelineComposition;
 use App\Prospecting\Input\TimelineQuery;
 use App\Prospecting\OrganizationResolver;
 use App\Prospecting\OrganizationVoter;
@@ -25,7 +25,7 @@ final readonly class ShowOrganizationUpcomingExchangesTool
         private ToolAccess $access,
         private ToolInputs $inputs,
         private OrganizationResolver $organizations,
-        private OrganizationTimelineReader $timelineReader,
+        private OrganizationTimelineComposition $organizationTimeline,
         private ToolResults $results,
     ) {
     }
@@ -44,6 +44,6 @@ final readonly class ShowOrganizationUpcomingExchangesTool
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $query = $this->inputs->valid(new TimelineQuery($after));
 
-        return $this->results->of($this->timelineReader->readUpcoming($this->access->member()->memberId(), $organization, $query->after));
+        return $this->results->of($this->organizationTimeline->readUpcoming($this->access->member()->memberId(), $organization, $query->after));
     }
 }

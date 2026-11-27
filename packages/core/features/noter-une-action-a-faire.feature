@@ -37,25 +37,6 @@ Fonctionnalité: Noter une action à faire
     Alors elle est dans les actions à faire de "ACME"
     Et elle est dans les actions à faire de "Groupe ACME"
 
-  Scénario: Une action à faire nomme son contact et le membre qui la tient
-    Soit mon profil est :
-      | prénom | Grace                |
-      | nom    | Hopper               |
-      | e-mail | grace@solean-it.test |
-    Et j'ai noté à faire pour "Ada Lovelace" "Appeler" pour le 14/11/2026
-    Alors les actions à faire de "Ada Lovelace" sont :
-      | texte   | contact      | tenue par                           |
-      | Appeler | Ada Lovelace | Grace Hopper <grace@solean-it.test> |
-    Et les actions à faire de "ACME" sont :
-      | texte   | contact      | tenue par                           |
-      | Appeler | Ada Lovelace | Grace Hopper <grace@solean-it.test> |
-    Quand je consulte mes actions à faire
-    Alors mes actions à faire sont :
-      | texte   | contact      | tenue par                           |
-      | Appeler | Ada Lovelace | Grace Hopper <grace@solean-it.test> |
-    Quand je la consulte
-    Alors elle est pour "Ada Lovelace", tenue par "Grace Hopper <grace@solean-it.test>"
-
   Scénario: Une action à faire est à moi
     Soit "Michel" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Et "Michel" a noté à faire pour "Ada Lovelace" "Appeler" pour le 14/11/2026

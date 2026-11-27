@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\ReaderClockQuery;
 use App\Contacts\Resource\ExchangesToProcessResource;
 use App\Security\User;
@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowExchangesToProcessController
 {
     public function __construct(
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private JsonResponses $jsonResponses,
     ) {
@@ -39,6 +39,6 @@ final readonly class ShowExchangesToProcessController
     #[OA\Response(response: 422, description: 'An unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] ReaderClockQuery $clock): JsonResponse
     {
-        return $this->jsonResponses->of($this->agendaReader->readExchangesToProcess($user->memberId(), $clock->read($this->clock->now())));
+        return $this->jsonResponses->of($this->agenda->readExchangesToProcess($user->memberId(), $clock->read($this->clock->now())));
     }
 }

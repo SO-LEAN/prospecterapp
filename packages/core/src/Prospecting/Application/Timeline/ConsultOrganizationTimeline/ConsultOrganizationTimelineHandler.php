@@ -6,7 +6,6 @@ namespace Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTi
 
 use Prospecter\Core\Prospecting\Application\Port\MailCatchUpRetriever;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
-use Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
@@ -23,7 +22,6 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         private OrganizationSheetRetriever $organizationSheetRetriever,
         private Prospectors $prospectors,
         private CampaignsOfTimeline $campaignsOfTimeline,
-        private PersonDescriptionRetriever $personDescriptionRetriever,
         private MailCatchUpRetriever $mailCatchUpRetriever,
     ) {
     }
@@ -38,7 +36,6 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $output->present(new OrganizationTimeline(
             $timeline,
             $organization,
-            $this->personDescriptionRetriever->shownTo($prospector->id, $timeline->contacts(), []),
             $this->mailCatchUpRetriever->intentsOn($prospector->id, new OrganizationId($organization->id)),
         ));
     }

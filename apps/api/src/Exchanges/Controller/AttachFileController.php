@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Input\AttachmentInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -34,7 +34,7 @@ final readonly class AttachFileController
         private CommandBus $commandBus,
         private ClockInterface $clock,
         private Identities $identities,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -60,6 +60,6 @@ final readonly class AttachFileController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id), Response::HTTP_CREATED);
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id), Response::HTTP_CREATED);
     }
 }

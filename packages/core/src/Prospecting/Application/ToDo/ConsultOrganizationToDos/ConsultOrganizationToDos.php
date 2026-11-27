@@ -11,7 +11,6 @@ namespace Prospecter\Core\Prospecting\Application\ToDo\ConsultOrganizationToDos;
 final readonly class ConsultOrganizationToDos
 {
     public function __construct(
-        public string $prospectorId,
         public string $organizationId,
     ) {
     }

@@ -42,7 +42,6 @@ services:
             - '../src/*/Resource/'
             - '../src/*/Presenter/'
             - '../src/*/*Presenter.php'
-            - '../src/Exchanges/ExchangeParticipants.php'
             - '../src/Connectors/Google/AuthorizationRequest.php'
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Security/User.php'
@@ -106,7 +105,6 @@ services:
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline: ~
-    Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos: ~
     Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors: ~
     Prospecter\Core\PersonalData\Application\Identification\PersonIdentifier: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
@@ -262,7 +260,6 @@ services:
     App\Campaigns\Persistence\DynamoFactRepository:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
-    Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever: '@App\Prospecting\AntiCorruption\AccountsAndPersonalDataPersonDescriptions'
     Prospecter\Core\Prospecting\Application\Port\MailCatchUpRetriever: '@App\Prospecting\AntiCorruption\ConnectorsMailCatchUps'
     Prospecter\Core\Prospecting\Application\Port\ContactEmailRetriever: '@App\Prospecting\AntiCorruption\PersonalDataContactEmails'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'

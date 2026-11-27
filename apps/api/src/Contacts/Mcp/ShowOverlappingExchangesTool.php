@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\SlotQuery;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
@@ -22,7 +22,7 @@ final readonly class ShowOverlappingExchangesTool
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ToolResults $results,
     ) {
     }
@@ -40,6 +40,6 @@ final readonly class ShowOverlappingExchangesTool
         $slot = $this->inputs->mapped(SlotQuery::class, ['startsAt' => $startsAt, 'durationInMinutes' => $durationInMinutes]);
         \assert(null !== $slot->startsAt);
 
-        return $this->results->of($this->agendaReader->readOverlapping($this->access->member()->memberId(), $slot->startsAt, $slot->durationInMinutes));
+        return $this->results->of($this->agenda->readOverlapping($this->access->member()->memberId(), $slot->startsAt, $slot->durationInMinutes));
     }
 }

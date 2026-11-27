@@ -31,44 +31,12 @@ Fonctionnalité: Consulter le détail d'un échange
       | joindre un fichier       |
       | retirer une pièce jointe |
 
-  Scénario: Le détail nomme son contact et les membres qui l'ont noté et corrigé, comme PersonalData me les lit
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
-    Et mon profil est :
-      | prénom | Grace                |
-      | nom    | Hopper               |
-      | e-mail | grace@solean-it.test |
-    Quand je corrige le texte de cet échange en "Intéressée par une mission en avril"
-    Alors il nomme :
-      | interlocuteur | Ada Lovelace                        |
-      | noté par      |                                     |
-      | modifié par   | Grace Hopper <grace@solean-it.test> |
-
-  Scénario: Le détail nomme le membre qui l'a rendu conforme, même corrigé ensuite par un autre
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
-    Et mon profil est :
-      | prénom | Grace                |
-      | nom    | Hopper               |
-      | e-mail | grace@solean-it.test |
-    Et j'efface la fiche de "Ada Lovelace"
-    Et je corrige le texte de cet échange en "La contact attend notre devis" et le déclare rendu conforme
-    Et je suis connecté en tant que "Michel"
-    Quand je corrige le texte de cet échange en "La contact attend toujours notre devis"
-    Alors il nomme :
-      | modifié par        |                                     |
-      | rendu conforme par | Grace Hopper <grace@solean-it.test> |
-
-  Scénario: Le détail d'un échange avec l'organisation elle-même nomme l'organisation
-    Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
-    Et je suis connecté en tant que "Michel"
-    Alors il nomme :
-      | interlocuteur | ACME |
-
   Scénario: Un échange avec une organisation que je ne prospecte plus se lit encore, sans la nommer, tant qu'il n'est pas effacé
     Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
     Et je suis connecté en tant que "Michel"
     Et les réactions aux gestes n'ont pas encore suivi
     Quand j'arrête de prospecter "ACME"
-    Alors il nomme :
+    Alors il est avec :
       | interlocuteur |  |
 
   Scénario: Un échange avec l'organisation elle-même a l'organisation pour interlocuteur

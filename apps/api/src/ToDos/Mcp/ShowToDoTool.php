@@ -8,7 +8,7 @@ use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use App\ToDos\ToDoResolver;
 use App\ToDos\ToDoVoter;
 use Mcp\Schema\ToolAnnotations;
@@ -23,7 +23,7 @@ final readonly class ShowToDoTool
     public function __construct(
         private ToolAccess $access,
         private ToDoResolver $toDos,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDoComposition,
         private ToolResults $results,
     ) {
     }
@@ -36,11 +36,11 @@ final readonly class ShowToDoTool
     #[McpTool(name: 'get-todo', description: 'Get a to-do. Needs the right to manage personal data. Returns its text, its due date, its holder, its contact or organization, and whether it is done.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
-        $toDo = $this->toDos->read($this->access->member()->memberId(), $id);
+        $toDo = $this->toDos->read($id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ToDoVoter::ACCESS, $toDo);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->toDoReader->read($this->access->member()->memberId(), $toDo->id));
+        return $this->results->of($this->toDoComposition->read($this->access->member()->memberId(), $toDo->id));
     }
 }

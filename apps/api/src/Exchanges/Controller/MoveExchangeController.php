@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Input\MomentInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -31,7 +31,7 @@ final readonly class MoveExchangeController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -49,6 +49,6 @@ final readonly class MoveExchangeController
     {
         $this->commandBus->dispatch(new MoveExchange(prospectorId: $user->memberId(), id: $exchange->id, plannedAt: $input->occurredAt ?? throw new \LogicException('The moment is validated'), executedAt: $this->clock->now(), durationInMinutes: $input->durationInMinutes));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
     }
 }
