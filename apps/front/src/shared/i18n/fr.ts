@@ -119,6 +119,13 @@ export const fr = {
       contacts: 'Contacts',
       exchanges: 'Échanges notés',
       exchangesThisMonth: 'Échanges ce mois-ci',
+      leadsTo: '{{figure}} {{label}} : voir {{destination}}',
+      destination: {
+        organizations: 'la liste des organisations',
+        map: 'la carte des organisations',
+        contacts: 'la liste des contacts',
+        calendar: 'le calendrier du mois',
+      },
     },
     map: { title: 'Carte des organisations', empty: 'Aucune organisation géolocalisée pour l’instant.' },
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
