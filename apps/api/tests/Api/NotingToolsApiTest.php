@@ -78,7 +78,7 @@ class NotingToolsApiTest extends ApiTestCase
 
         $this->assertFalse($again['isError'] ?? false);
         $this->assertSame('erasedBefore', self::valueAt($again, 'structuredContent', 'status'));
-        $this->assertSame(['firstName' => 'Camille', 'lastName' => 'Martin'], self::valueAt($again, 'structuredContent', 'erasedBy', 'name'));
+        $this->assertSame(['name' => ['firstName' => 'Camille', 'lastName' => 'Martin'], 'email' => 'prospector@solean-it.io'], self::valueAt($again, 'structuredContent', 'erasedBy'));
         $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($again, 'structuredContent', 'erasedAt'));
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
     }

@@ -193,6 +193,22 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame('nothingToRedact', $problem['reason']);
     }
 
+    public function testARedactedExchangeNamesWhoRedactedItOnceCorrectedByAnother(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
+        $exchange = self::stringAt($this->note($organization, ['personId' => $ada, 'exchange' => ['channel' => 'email', 'direction' => 'inbound', 'text' => 'Ada attend notre devis']]), 'items', 0, 'exchange', 'id');
+        $this->requestJson('DELETE', '/api/contacts/'.$ada);
+        $this->login('assistant-user');
+        $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'La directrice attend notre devis', 'redacted' => true]);
+        $this->login('prospector-user');
+
+        $corrected = $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'La directrice attend toujours notre devis']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['prospector@solean-it.io', 'assistant@solean-it.io'], [self::valueAt($corrected, 'corrected', 'by', 'email'), self::valueAt($corrected, 'redacted', 'by', 'email')]);
+    }
+
     public function testAnOrganizationOfAnotherAccountIsNotFound(): void
     {
         $this->note(self::newIdentity(), ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
