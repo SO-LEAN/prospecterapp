@@ -54,6 +54,7 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\AppointmentResp
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\KeptAppointments;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Booking\Domain\Service\HostIdentities;
 use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets;
 use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\ConsultCampaign;
@@ -510,9 +511,9 @@ use Prospecter\Core\SharedKernel\Application\Service\FileStore;
 use Prospecter\Core\SharedKernel\Application\Service\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
-use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsAndPersonalDataMembers;
 use Tests\Core\Double\AccountsCampaigners;
+use Tests\Core\Double\AccountsHosts;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
@@ -594,6 +595,7 @@ use Tests\Core\Double\PersonalDataContactEmails;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
+use Tests\Core\Double\PersonalDataHostPresentations;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\PersonalDataTaggableContacts;
 use Tests\Core\Double\ProspectingAddresseeOrganizations;
@@ -738,7 +740,8 @@ final class Application
     private readonly ProspectingHostAgendas $hostAgendas;
     private readonly BusyPeriods $busyPeriods;
     private readonly ConsultAppointmentsHandler $consultAppointmentsService;
-    private readonly AccountsAndPersonalDataHosts $hosts;
+    private readonly AccountsHosts $hosts;
+    private readonly HostIdentities $hostIdentities;
     private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
@@ -862,7 +865,8 @@ final class Application
 
         $this->bookingPages = new InMemoryBookingPageRepository($database);
         $this->appointments = new InMemoryAppointmentRepository($database);
-        $this->hosts = new AccountsAndPersonalDataHosts($this->consultMembersService, $this->presentMembersService);
+        $this->hosts = new AccountsHosts($this->consultMembersService);
+        $this->hostIdentities = new HostIdentities($this->hosts, new PersonalDataHostPresentations($this->presentMembersService));
         $this->hostedPages = new BookingPages($this->bookingPages, $this->hosts);
         $this->whichHaveAConnectedCalendarService = new WhichHaveAConnectedCalendarHandler($this->connections);
         $this->connectedCalendars = new ConnectorsConnectedCalendars($this->whichHaveAConnectedCalendarService);
@@ -1794,7 +1798,7 @@ final class Application
     {
         $kept = new KeptPublicBookingPage();
 
-        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->busyPeriods, new LinkAvailability($this->connectedCalendars, $this->hosts), $this->hosts), $query, $kept) ? $kept->page : null;
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->busyPeriods, new LinkAvailability($this->connectedCalendars, $this->hosts), $this->hostIdentities), $query, $kept) ? $kept->page : null;
     }
 
     /**

@@ -16,9 +16,9 @@ use Prospecter\Core\Booking\Domain\Model\WallClockTime;
 use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
-use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\Booking\Domain\Rule\FreeSlots;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Booking\Domain\Service\HostIdentities;
 use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
@@ -35,7 +35,7 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
         private PublicBookingPageRetriever $pages,
         private BusyPeriods $busyPeriods,
         private LinkAvailability $links,
-        private Hosts $hosts,
+        private HostIdentities $hosts,
     ) {
     }
 
