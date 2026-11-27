@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './../routes/_app'
 import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
 import { Route as AppCalendarRouteImport } from './../routes/_app/calendar'
+import { Route as AppCatalogueRouteImport } from './../routes/_app/catalogue'
 import { Route as AppSettingsRouteImport } from './../routes/_app/settings'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
 import { Route as BookingCodeRouteImport } from './../routes/booking.$code'
@@ -44,6 +45,11 @@ const AppAccountRoute = AppAccountRouteImport.update({
 const AppCalendarRoute = AppCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCatalogueRoute = AppCatalogueRouteImport.update({
+  id: '/catalogue',
+  path: '/catalogue',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/account': typeof AppAccountRoute
   '/calendar': typeof AppCalendarRoute
+  '/catalogue': typeof AppCatalogueRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/booking/$code': typeof BookingCodeRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/account': typeof AppAccountRoute
   '/calendar': typeof AppCalendarRoute
+  '/catalogue': typeof AppCatalogueRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/booking/$code': typeof BookingCodeRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/account': typeof AppAccountRoute
   '/_app/calendar': typeof AppCalendarRoute
+  '/_app/catalogue': typeof AppCatalogueRoute
   '/_app/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/booking/$code': typeof BookingCodeRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/calendar'
+    | '/catalogue'
     | '/settings'
     | '/auth/sign-in'
     | '/booking/$code'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
   to:
     | '/account'
     | '/calendar'
+    | '/catalogue'
     | '/settings'
     | '/auth/sign-in'
     | '/booking/$code'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_app/account'
     | '/_app/calendar'
+    | '/_app/catalogue'
     | '/_app/settings'
     | '/auth/sign-in'
     | '/booking/$code'
@@ -263,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/catalogue': {
+      id: '/_app/catalogue'
+      path: '/catalogue'
+      fullPath: '/catalogue'
+      preLoaderRoute: typeof AppCatalogueRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/settings': {
@@ -362,6 +381,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
   AppCalendarRoute: typeof AppCalendarRoute
+  AppCatalogueRoute: typeof AppCatalogueRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppCampaignsCampaignIdRoute: typeof AppCampaignsCampaignIdRoute
@@ -379,6 +399,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
   AppCalendarRoute: AppCalendarRoute,
+  AppCatalogueRoute: AppCatalogueRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppCampaignsCampaignIdRoute: AppCampaignsCampaignIdRoute,
