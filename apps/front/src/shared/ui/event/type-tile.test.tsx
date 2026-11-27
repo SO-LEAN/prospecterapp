@@ -4,26 +4,28 @@ import type { Channel } from './channel'
 import { TypeTile } from './type-tile'
 
 describe('TypeTile', () => {
-  it('tints a call in the calls family, and says it', () => {
+  it('tints a call in the calls family, draws its handset, and says it', () => {
     render(<TypeTile channel="call" direction="outbound" />)
 
     const tile = screen.getByRole('img', { name: 'Appel, sortant' })
     expect(tile).toHaveClass('bg-event-call-soft', 'text-event-call')
+    expect(tile.querySelector('.lucide-phone')).toBeInTheDocument()
   })
 
-  it.each<[Channel, string, string]>([
-    ['meeting', 'Rendez-vous', 'meeting'],
-    ['videoCall', 'Visio', 'video'],
-    ['email', 'E-mail', 'written'],
-    ['sms', 'SMS', 'written'],
-    ['linkedIn', 'LinkedIn', 'written'],
-    ['malt', 'Malt', 'written'],
-    ['other', 'Autre', 'written'],
-  ])('tints a %s in the %s family', (channel, name, family) => {
+  it.each<[Channel, string, string, string]>([
+    ['meeting', 'Rendez-vous', 'meeting', 'calendar-days'],
+    ['videoCall', 'Visio', 'video', 'video'],
+    ['email', 'E-mail', 'written', 'mail'],
+    ['sms', 'SMS', 'written', 'message-square-text'],
+    ['linkedIn', 'LinkedIn', 'written', 'briefcase-business'],
+    ['malt', 'Malt', 'written', 'handshake'],
+    ['other', 'Autre', 'written', 'message-circle'],
+  ])('tints a %s in the %s family, and draws its own icon', (channel, name, family, icon) => {
     render(<TypeTile channel={channel} direction="inbound" />)
 
     const tile = screen.getByRole('img', { name: `${name}, entrant` })
     expect(tile).toHaveClass(`bg-event-${family}-soft`, `text-event-${family}`)
+    expect(tile.querySelector(`.lucide-${icon}`)).toBeInTheDocument()
   })
 
   it('points its arrow out when the account reached out', () => {

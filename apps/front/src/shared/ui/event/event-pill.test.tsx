@@ -19,7 +19,7 @@ describe('EventPill', () => {
     renderThePill('call', 'planned')
 
     expect(thePill()).toHaveClass('bg-event-call', 'text-primary-foreground')
-    expect(screen.getByRole('img', { name: 'À venir' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'À venir' }).querySelector('.lucide-clock')).toBeInTheDocument()
   })
 
   it('gives a done video call the video calls soft tint, with a check', () => {
@@ -33,6 +33,7 @@ describe('EventPill', () => {
     renderThePill('email', 'done')
 
     expect(thePill()).toHaveClass('bg-event-written-soft', 'text-event-written')
+    expect(thePill()?.querySelector('.lucide-mail')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Fait' })).toBeInTheDocument()
   })
 
@@ -40,7 +41,7 @@ describe('EventPill', () => {
     renderThePill('meeting', 'missed')
 
     expect(thePill()).toHaveClass('missed-hatching', 'border-l-2', 'border-destructive', 'text-event-meeting')
-    expect(screen.getByRole('img', { name: 'Manqué' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Manqué' }).querySelector('.lucide-x')).toBeInTheDocument()
   })
 
   it('outlines a cancelled call in dashes, its text grey and struck through', () => {
@@ -48,13 +49,15 @@ describe('EventPill', () => {
 
     expect(thePill()).toHaveClass('border', 'border-dashed', 'text-muted-foreground', 'line-through')
     expect(thePill()).not.toHaveClass('bg-event-call')
-    expect(screen.getByRole('img', { name: 'Annulé' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Annulé' }).querySelector('.lucide-ban')).toBeInTheDocument()
   })
 
   it('edges a late exchange in red, and says it is late', () => {
     renderThePill('call', 'planned', true)
 
     expect(thePill()).toHaveClass('bg-event-call', 'border-l-4', 'border-destructive')
-    expect(screen.getByRole('img', { name: 'En retard' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: 'En retard' }).querySelector('.lucide-triangle-alert'),
+    ).toBeInTheDocument()
   })
 })
