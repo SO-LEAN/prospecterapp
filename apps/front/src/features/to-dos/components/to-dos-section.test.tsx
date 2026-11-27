@@ -6,7 +6,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import type { ToDo, ToDoInput, ToDoList } from '../queries'
-import { OrganizationToDosSection, type Recipients, ToDosCard } from './to-dos-section'
+import type { Recipients } from './to-do-form'
+import { OrganizationToDosSection, ToDosCard } from './to-dos-section'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -220,21 +221,27 @@ describe('ToDosCard', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
-  it('offers to note it for the organization, first and by default, or for one of its contacts, noting it for the organization', async () => {
-    const onNote = vi.fn(async () => undefined)
-    await renderTheCard(listOf([]), onNote, true, undefined, undefined, SAFRAN)
+  it('offers the organization, first and by default, then each of its contacts', async () => {
+    await renderTheCard(listOf([]), undefined, true, undefined, undefined, SAFRAN)
 
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
-    const dialog = await screen.findByRole('dialog')
-    const recipients = within(dialog).getByRole('group', { name: 'Pour' })
+
+    const recipients = within(await screen.findByRole('dialog')).getByRole('group', { name: 'Pour' })
     expect(
       within(recipients)
         .getAllByRole('radio')
         .map((radio) => radio.closest('label')?.textContent),
     ).toEqual(['Safran SA', 'Nicolas Bonnet'])
     expect(within(recipients).getByRole('radio', { name: 'Safran SA' })).toBeChecked()
+  })
+
+  it('notes it for the organization by default', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([]), onNote, true, undefined, undefined, SAFRAN)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
     await userEvent.type(
-      within(dialog).getByLabelText('Ce qu’il y a à faire'),
+      within(await screen.findByRole('dialog')).getByLabelText('Ce qu’il y a à faire'),
       'Préparer la proposition{Enter}',
     )
 
