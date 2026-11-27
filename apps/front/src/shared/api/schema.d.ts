@@ -2553,6 +2553,7 @@ export interface components {
         OrganizationContactLinksResource: {
             contact: components["schemas"]["LinkResource"];
             removeFromOrganization?: components["schemas"]["LinkResource"];
+            noteToDo?: components["schemas"]["LinkResource"];
         };
         OrganizationContactResource: {
             id: string;

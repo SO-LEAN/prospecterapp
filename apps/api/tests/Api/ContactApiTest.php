@@ -250,6 +250,29 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame([['+33 3 88 00 00 42', 'FR'], ['******42', 'FR']], array_map(static fn (array $contacts): array => [self::valueAt($contacts, 0, 'contactDetails', 'phoneNumber'), self::valueAt($contacts, 0, 'contactDetails', 'language')], [$read, $masked]));
     }
 
+    #[DataProvider('collectors')]
+    public function testAnOrganizationsContactsOfferToNoteAToDoForThemToAMemberWithTheRight(string $reference, Role ...$roles): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $contact = $this->collectedId(self::ADA, $organization);
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+
+        $contacts = self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts'), 'items');
+
+        $this->assertSame(['href' => '/api/contacts/'.$contact.'/to-dos', 'method' => 'POST'], self::valueAt($contacts, 0, '_links', 'noteToDo'));
+    }
+
+    public function testWithoutTheRightAnOrganizationsContactsOfferNoToDoForThem(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $this->collect(self::ADA, $organization);
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $contacts = self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts'), 'items');
+
+        $this->assertSame(['contact'], array_keys(self::recordAt($contacts[0], '_links')));
+    }
+
     public function testRemovedFromAnotherOrganizationTheContactStays(): void
     {
         $organization = $this->anOrganization('ACME');
