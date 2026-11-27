@@ -4,7 +4,7 @@ export const EVENT_STORMING_OVERVIEW = '/docs/event-storming/'
 
 /**
  * Whether the instance serves the documents generated from the code. Every release holds them, and the instance
- * decides whether it serves them, never the build (ADR 0066). The answer holds for the whole session.
+ * decides whether it serves them, never the build (ADR 0066).
  */
 export const servedDocumentsQuery = () =>
   queryOptions({
@@ -13,5 +13,5 @@ export const servedDocumentsQuery = () =>
       const answer = await fetch(new URL(EVENT_STORMING_OVERVIEW, window.location.origin), { method: 'HEAD' })
       return answer.ok
     },
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 'static',
   })
