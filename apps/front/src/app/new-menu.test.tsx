@@ -32,7 +32,7 @@ const me: Account = {
 /** A member who manages the personal data: my account offers the campaigns, the contacts list offers to collect one. */
 const aManagerOfThePersonalData = {
   '/api/me': { ...me, _links: { ...me._links, campaigns: { href: '/api/campaigns', method: 'GET' } } },
-  '/api/contacts': {
+  '/api/contacts?q=': {
     items: [],
     _links: {
       self: { href: '/api/contacts', method: 'GET' },
@@ -59,7 +59,7 @@ const acme: Organization = {
 
 type Sent = { method: string; path: string; body: unknown }
 
-/** The API serves my account, the shell's reads and the answers given, by path or by `POST <path>`; any other read finds nothing. */
+/** The API serves my account, the shell's reads and the answers given, by path and query, by path or by `POST <path>`; any other read finds nothing. */
 function theApiAnswers(answers: Record<string, unknown> = {}) {
   const sent: Sent[] = []
   theApi.mockImplementation(async (input) => {
@@ -84,7 +84,9 @@ function theApiAnswers(answers: Record<string, unknown> = {}) {
       '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
       ...answers,
     }
-    return Response.json(read[url.pathname] ?? { items: [], _links: {} })
+    return Response.json(
+      read[`${url.pathname}${url.search}`] ?? read[url.pathname] ?? { items: [], _links: {} },
+    )
   })
   return sent
 }
@@ -96,7 +98,7 @@ describe('« Nouveau »', () => {
     theApiAnswers()
     await renderTheSpaAt(path)
 
-    expect(await screen.findByRole('button', { name: 'Nouveau' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Nouveau' })).toHaveTextContent('Nouveau')
   })
 
   it('offers the creations that exist, in this order', async () => {
@@ -129,7 +131,7 @@ describe('« Nouveau »', () => {
   it('offers no new contact to a member the contacts list does not offer to collect one', async () => {
     theApiAnswers({
       ...aManagerOfThePersonalData,
-      '/api/contacts': { items: [], _links: { self: { href: '/api/contacts', method: 'GET' } } },
+      '/api/contacts?q=': { items: [], _links: { self: { href: '/api/contacts', method: 'GET' } } },
     })
     await renderTheSpaAt('/')
 
@@ -161,20 +163,16 @@ describe('« Nouveau »', () => {
     ])
   })
 
-  it('leads to the forms of a new contact and of a new campaign', async () => {
+  it.each([
+    ['Nouveau contact', '/contacts/new'],
+    ['Nouvelle campagne', '/campaigns/new'],
+  ])('leads « %s » to its form', async (entry, href) => {
     theApiAnswers(aManagerOfThePersonalData)
     await renderTheSpaAt('/')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
 
-    expect(await screen.findByRole('menuitem', { name: 'Nouveau contact' })).toHaveAttribute(
-      'href',
-      '/contacts/new',
-    )
-    expect(screen.getByRole('menuitem', { name: 'Nouvelle campagne' })).toHaveAttribute(
-      'href',
-      '/campaigns/new',
-    )
+    expect(await screen.findByRole('menuitem', { name: entry })).toHaveAttribute('href', href)
   })
 
   it('notes an exchange from the calendar with the organization chosen first by the search', async () => {
