@@ -44,18 +44,18 @@ class BoundedContextsTest extends TestCase
     private const array NOT_A_CONTEXT = [
         'Campaigning' => 'composes Campaigns with Accounts and PersonalData, which name the campaigns\' authors, and with the contexts that show their recipients',
         'Consistency' => 'checks the tables of every context against each other',
-        'Contacts' => 'composes PersonalData\'s contacts with Prospecting, Campaigns and Connectors',
+        'Contacts' => 'composes PersonalData\'s contacts with Prospecting, Campaigns and Connectors, and Prospecting\'s agenda and timelines with the persons Accounts and PersonalData name',
         'Dashboard' => 'composes Accounts, Prospecting and Reporting',
         'Demo' => 'writes the demonstration data of every context',
         'Doc' => 'serves the API\'s documentation',
-        'Exchanges' => 'shows Prospecting\'s exchanges. Accounts and PersonalData name the member who erased one',
+        'Exchanges' => 'composes Prospecting\'s exchanges with the persons Accounts and PersonalData name',
         'Identification' => 'composes Prospecting and PersonalData',
         'Keys' => 'rebuilds the keys of every context\'s tables',
         'Me' => 'composes the member\'s Accounts and PersonalData',
         'Security' => 'authenticates the member and checks the access to the resources',
         'SignIn' => 'signs the members and the AIs in on Cognito',
         'Tags' => 'composes Campaigns\' tags with Prospecting',
-        'ToDos' => 'shows Prospecting\'s to-dos with PersonalData\'s name resources',
+        'ToDos' => 'composes Prospecting\'s to-dos with the persons Accounts and PersonalData name',
     ];
 
     /**

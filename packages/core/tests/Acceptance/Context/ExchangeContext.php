@@ -18,14 +18,12 @@ use Prospecter\Core\Prospecting\Application\Exchange\PlanOrganizationExchange\Pl
 use Prospecter\Core\Prospecting\Application\Exchange\ProposeMeetingPlace\MeetingPlace;
 use Prospecter\Core\Prospecting\Application\Exchange\ProposeMeetingPlace\ProposeMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Application\PersonsShown;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
-use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -70,7 +68,6 @@ final class ExchangeContext implements Context
     private ?InMemoryPrivateStorage $privateStorageBeforeDeliveredAgain = null;
     private string $timelineOf = '';
     private ?OverlappingExchanges $overlapping = null;
-    private PersonsShown $shownPersons;
 
     /**
      * @var list<string>|null
@@ -260,7 +257,7 @@ final class ExchangeContext implements Context
         $overlapping = Expect::present($this->overlapping, sprintf('The overlapping exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key([...$this->describe($exchange, ''), ...self::shownInterlocutorOf($exchange, $overlapping->interlocutors)], $columns)), $overlapping->exchanges));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key([...$this->describe($exchange, ''), ...$this->shownInterlocutorOf($exchange, $overlapping->interlocutors)], $columns)), $overlapping->exchanges));
     }
 
     #[Then('rien ne le chevauche')]
@@ -398,9 +395,7 @@ final class ExchangeContext implements Context
     #[When('je consulte les échanges à rendre conformes de :organization')]
     public function iConsultTheExchangesToMakeConform(string $organization): void
     {
-        $toMakeConform = $this->application->consultExchangesToMakeConform(new ConsultExchangesToMakeConform($this->application->signedIn(), $this->scenario->idOf($organization)));
-        $this->shownPersons = $toMakeConform->persons ?? new PersonsShown();
-        $this->timeline = $toMakeConform?->timeline;
+        $this->timeline = $this->application->consultExchangesToMakeConform(new ConsultExchangesToMakeConform($this->application->signedIn(), $this->scenario->idOf($organization)))?->timeline;
     }
 
     #[Then('les échanges à rendre conformes de :organization sont, du plus récent au plus ancien :')]
@@ -473,7 +468,7 @@ final class ExchangeContext implements Context
     {
         $prospector = $this->application->signedIn();
         $upcoming = $this->scenario->isAnOrganization($name)
-            ? $this->shownWith($this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now())))
+            ? $this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now()))?->timeline
             : $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($prospector, $this->scenario->personIdOf($name), $this->application->now()));
         $upcoming = Expect::present($upcoming, sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
 
@@ -511,18 +506,8 @@ final class ExchangeContext implements Context
         $prospector = $this->application->signedIn();
 
         return $this->scenario->isAnOrganization($name)
-            ? $this->shownWith($this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($prospector, $this->scenario->idOf($name), $this->application->now(), $after)))
+            ? $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($prospector, $this->scenario->idOf($name), $this->application->now(), $after))?->timeline
             : $this->application->consultTimeline(new ConsultTimeline($prospector, $this->scenario->personIdOf($name), $this->application->now(), $after));
-    }
-
-    /**
-     * Keeps the persons an organization's timeline names, to describe its exchanges as it shows them.
-     */
-    private function shownWith(?OrganizationTimeline $timeline): ?Timeline
-    {
-        $this->shownPersons = $timeline->persons ?? new PersonsShown();
-
-        return $timeline?->timeline;
     }
 
     /**
@@ -554,13 +539,6 @@ final class ExchangeContext implements Context
     /**
      * Who took part in the exchange: the contact, or the timeline's organization itself.
      */
-    private function namedAsShown(string $personId): string
-    {
-        $person = $this->shownPersons->contacts[$personId] ?? null;
-
-        return null === $person ? 'inconnu' : trim(sprintf('%s %s', $person->firstName, $person->lastName));
-    }
-
     private function interlocutorOf(ExchangeInTimeline $exchange, string $timelineOf): string
     {
         return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPersonAsRead(new ContactId($exchange->personId));
@@ -574,7 +552,6 @@ final class ExchangeContext implements Context
         return [
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
             'interlocuteur' => $this->interlocutorOf($exchange, $timelineOf),
-            'nommé' => null === $exchange->personId ? $timelineOf : $this->namedAsShown($exchange->personId),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'durée' => Vocabulary::describeDuration($exchange->durationInMinutes),
             'statut' => Vocabulary::describeStatus($exchange->status),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\ReaderClockQuery;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
@@ -23,7 +23,7 @@ final readonly class ShowExchangesToProcessTool
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private ToolResults $results,
     ) {
@@ -40,6 +40,6 @@ final readonly class ShowExchangesToProcessTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $clock = $this->inputs->valid(new ReaderClockQuery($timeZone));
 
-        return $this->results->of($this->agendaReader->readExchangesToProcess($this->access->member()->memberId(), $clock->read($this->clock->now())));
+        return $this->results->of($this->agenda->readExchangesToProcess($this->access->member()->memberId(), $clock->read($this->clock->now())));
     }
 }

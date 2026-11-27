@@ -7,11 +7,10 @@ namespace Prospecter\Core\Prospecting\Application\Agenda;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\PersonsShown;
 
 /**
- * Who an agenda's exchanges and to-dos are with (ADR 0217): the persons, as PersonalData lets the reader read them,
- * the organizations met with no contact, and the organizations each contact works for.
+ * Who an agenda's exchanges are with, as Prospecting knows them (ADR 0217): the organizations met with no contact, and
+ * the organizations each contact works for. The persons are PersonalData's, named next to the agenda by their ids.
  */
 final readonly class Interlocutors
 {
@@ -20,7 +19,6 @@ final readonly class Interlocutors
      * @param array<string, list<OrganizationOfContact>> $organizationsOfContacts by person id
      */
     public function __construct(
-        public PersonsShown $persons = new PersonsShown(),
         public array $organizationsMetAlone = [],
         public array $organizationsOfContacts = [],
     ) {

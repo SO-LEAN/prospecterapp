@@ -23,18 +23,6 @@ Fonctionnalité: La timeline d'une organisation
       | 12/10/2026 11:00 | Robert Noyce  | Appel  | envoyé |
       | 10/10/2026 09:00 | Ada Lovelace  | E-mail | reçu   |
 
-  Scénario: La timeline et les échanges à venir d'une organisation nomment ses contacts comme PersonalData me les lit
-    Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00
-    Et j'ai noté un appel reçu de "ACME" elle-même le 12/10/2026 à 11h00
-    Et j'ai planifié un appel avec "Robert Noyce" le 20/10/2026 à 9h00
-    Alors la timeline de "ACME" est, du plus récent au plus ancien :
-      | moment           | nommé        |
-      | 12/10/2026 11:00 | ACME         |
-      | 10/10/2026 09:00 | Ada Lovelace |
-    Et les échanges à venir de "ACME" sont, du plus proche au plus lointain :
-      | moment           | nommé        |
-      | 20/10/2026 09:00 | Robert Noyce |
-
   Scénario: Un échange avec l'organisation elle-même n'apparaît dans la timeline d'aucun contact
     Quand je note un appel reçu de "ACME" elle-même
     Alors la timeline de "Ada Lovelace" est vide

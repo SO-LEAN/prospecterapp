@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
-use App\Exchanges\Resource\AuthorResource;
-use App\PersonalData\Resource\PersonNameResource;
+use App\Contacts\PersonsShown;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
@@ -13,13 +12,12 @@ use App\Shared\Resource\LinkResource;
 use App\ToDos\Resource\ToDoContactResource;
 use App\ToDos\Resource\ToDoLinksResource;
 use App\ToDos\Resource\ToDoResource;
-use Prospecter\Core\Prospecting\Application\PersonDescription;
-use Prospecter\Core\Prospecting\Application\PersonsShown;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * A to-do as the API shows it, with its holder and its contact named. Its text may hold personal data, so each of
- * its intents needs the right to manage personal data.
+ * A to-do as the API shows it: Prospecting's to-do and its links, with its holder and its contact named by
+ * PersonalData (ADR 0217). Its text may hold personal data, so each of its intents needs the right to manage personal
+ * data.
  */
 final readonly class ToDoResourceFactory
 {
@@ -40,28 +38,21 @@ final readonly class ToDoResourceFactory
     /**
      * @param PersonsShown $persons the to-do's contact and holder
      */
-    public function of(ToDoInList $toDo, PersonsShown $persons): ToDoResource
+    public function of(ToDoInList $toDo, ToDoLinksResource $links, PersonsShown $persons): ToDoResource
     {
-        $holder = $persons->members[$toDo->heldBy] ?? null;
-
         return new ToDoResource(
             id: $toDo->id,
             text: $toDo->text,
             dueOn: $toDo->dueOn,
             dueAt: $toDo->dueAt,
             doneAt: $toDo->doneAt?->format(\DateTimeInterface::ATOM),
-            heldBy: new AuthorResource(self::nameOf($holder), $holder?->email),
-            contact: null === $toDo->personId ? null : new ToDoContactResource($toDo->personId, self::nameOf($persons->contacts[$toDo->personId] ?? null)),
-            links: $this->linksOf($toDo),
+            heldBy: $persons->author($toDo->heldBy),
+            contact: null === $toDo->personId ? null : new ToDoContactResource($toDo->personId, $persons->nameOfContact($toDo->personId)),
+            links: $links,
         );
     }
 
-    private static function nameOf(?PersonDescription $person): PersonNameResource
-    {
-        return new PersonNameResource($person?->firstName, $person?->lastName);
-    }
-
-    private function linksOf(ToDoInList $toDo): ToDoLinksResource
+    public function linksOf(ToDoInList $toDo): ToDoLinksResource
     {
         $id = ['id' => $toDo->id];
         $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $toDo->possibleIntents, User::PERSONAL_DATA));

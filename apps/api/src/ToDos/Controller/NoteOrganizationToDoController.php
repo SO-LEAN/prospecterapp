@@ -12,7 +12,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Input\ToDoInput;
 use App\ToDos\Resource\ToDoResource;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
@@ -35,7 +35,7 @@ final readonly class NoteOrganizationToDoController
         private CommandBus $commandBus,
         private Identities $identities,
         private ClockInterface $clock,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDos,
         private JsonResponses $jsonResponses,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -63,6 +63,6 @@ final readonly class NoteOrganizationToDoController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_to_dos_show', ['id' => $toDo])]);
+        return $this->jsonResponses->of($this->toDos->read($user->memberId(), $toDo), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_to_dos_show', ['id' => $toDo])]);
     }
 }

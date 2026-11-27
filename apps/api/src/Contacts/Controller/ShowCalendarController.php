@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\CalendarQuery;
 use App\Contacts\Resource\CalendarResource;
 use App\Security\User;
@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowCalendarController
 {
     public function __construct(
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private JsonResponses $jsonResponses,
     ) {
@@ -39,6 +39,6 @@ final readonly class ShowCalendarController
     #[OA\Response(response: 422, description: 'Invalid period: a missing bound, an end before the start, or more than six weeks. Or an unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] CalendarQuery $period): JsonResponse
     {
-        return $this->jsonResponses->of($this->agendaReader->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
+        return $this->jsonResponses->of($this->agenda->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
     }
 }

@@ -5,30 +5,39 @@ declare(strict_types=1);
 namespace App\Contacts;
 
 use App\Contacts\Resource\CalendarLinksResource;
-use App\Contacts\Resource\CalendarResource;
-use App\Contacts\Resource\InterlocutorResource;
-use App\Contacts\Resource\OrganizationExchangeResource;
+use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\TimelineResourceFactory;
-use App\ToDos\Resource\ToDoResource;
+use App\ToDos\Resource\ToDoLinksResource;
 use App\ToDos\ToDoResourceFactory;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\ConsultCalendarOutput;
-use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * Presents the signed-in member's calendar over a period. Each exchange names who it is with, as the query read them:
- * the person, or the organization itself. Each exchange also gets its links. Only a member with the right to manage
- * personal data reads the calendar's to-dos, because their text may hold some. The calendar says what is late among
- * what it shows. One presenter serves one call and keeps the resource (ADR 0085, 0217).
+ * Presents what Prospecting shows of the signed-in member's calendar over a period: each exchange and each to-do with
+ * its links, and who they are with, by ids. Only a member with the right to manage personal data reads the calendar's
+ * to-dos, because their text may hold some. The calendar says what is late among what it shows. One presenter serves
+ * one call (ADR 0085, 0217).
  */
 final class CalendarPresenter implements ConsultCalendarOutput
 {
-    public private(set) CalendarResource $resource;
+    public private(set) Calendar $calendar;
+
+    /** @var array<string, ExchangeResource> by exchange id */
+    public private(set) array $exchanges = [];
+
+    /** @var list<ToDoInList> the to-dos the member reads */
+    public private(set) array $toDos = [];
+
+    /** @var array<string, ToDoLinksResource> by to-do id */
+    public private(set) array $toDoLinks = [];
+
+    /** @var list<string> the ids of the exchanges and to-dos shown that are late */
+    public private(set) array $late = [];
 
     public function __construct(
         private readonly TimelineResourceFactory $timelineResourceFactory,
-        private readonly CalendarLinksResource $links,
+        public readonly CalendarLinksResource $links,
         private readonly ToDoResourceFactory $toDoResourceFactory,
         private readonly bool $readsToDos,
     ) {
@@ -36,14 +45,17 @@ final class CalendarPresenter implements ConsultCalendarOutput
 
     public function present(Calendar $calendar): void
     {
-        $toDos = $this->readsToDos ? array_map(fn (ToDoInList $toDo): ToDoResource => $this->toDoResourceFactory->of($toDo, $calendar->interlocutors->persons), $calendar->toDos) : [];
-        $shown = [...array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $calendar->exchanges), ...array_map(static fn (ToDoResource $toDo): string => $toDo->id, $toDos)];
+        $this->calendar = $calendar;
+        $this->toDos = $this->readsToDos ? $calendar->toDos : [];
 
-        $this->resource = new CalendarResource(
-            array_map(fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createCalendarExchange($exchange, $calendar), InterlocutorResource::of($exchange, $calendar->interlocutors)), $calendar->exchanges),
-            $toDos,
-            array_values(array_intersect($calendar->late, $shown)),
-            $this->links,
-        );
+        foreach ($calendar->exchanges as $exchange) {
+            $this->exchanges[$exchange->id] = $this->timelineResourceFactory->createCalendarExchange($exchange, $calendar);
+        }
+
+        foreach ($this->toDos as $toDo) {
+            $this->toDoLinks[$toDo->id] = $this->toDoResourceFactory->linksOf($toDo);
+        }
+
+        $this->late = array_values(array_intersect($calendar->late, [...array_keys($this->exchanges), ...array_keys($this->toDoLinks)]));
     }
 }

@@ -166,7 +166,7 @@ final class CalendarContext implements Context
             'signalé' => $exchange->textFlagged ? 'oui' : 'non',
             'statut' => Vocabulary::describeStatus($exchange->status),
             'déplaçable' => in_array($exchange->id, $this->calendar()->movable, true) ? 'oui' : 'non',
-            ...self::shownInterlocutorOf($exchange, $this->calendar()->interlocutors),
+            ...$this->shownInterlocutorOf($exchange, $this->calendar()->interlocutors),
         ];
     }
 }

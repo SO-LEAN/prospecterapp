@@ -9,7 +9,7 @@ use App\Shared\CommandBus;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoResource;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use App\ToDos\ToDoVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -29,7 +29,7 @@ final readonly class TickOffToDoController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDos,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -47,6 +47,6 @@ final readonly class TickOffToDoController
     {
         $this->commandBus->dispatch(new TickOffToDo($user->memberId(), $toDo->id, $this->clock->now()));
 
-        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo->id));
+        return $this->jsonResponses->of($this->toDos->read($user->memberId(), $toDo->id));
     }
 }

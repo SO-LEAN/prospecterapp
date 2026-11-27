@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\CalendarQuery;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
@@ -23,7 +23,7 @@ final readonly class ShowCalendarTool
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private ToolResults $results,
     ) {
@@ -42,6 +42,6 @@ final readonly class ShowCalendarTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $period = $this->inputs->mapped(CalendarQuery::class, ['from' => $from, 'to' => $to, 'timeZone' => $timeZone]);
 
-        return $this->results->of($this->agendaReader->readCalendar($this->access->member()->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
+        return $this->results->of($this->agenda->readCalendar($this->access->member()->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
     }
 }

@@ -9,7 +9,7 @@ use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use App\ToDos\ToDoResolver;
 use App\ToDos\ToDoVoter;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
@@ -28,7 +28,7 @@ final readonly class ToDoWrites
         private ToolInputs $inputs,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ToDoReader $toDoReader,
+        private ToDoComposition $toDoComposition,
         private ToolResults $results,
     ) {
     }
@@ -92,7 +92,7 @@ final readonly class ToDoWrites
      */
     private function answer(ToDoInList $toDo): array
     {
-        return $this->results->of($this->toDoReader->read($this->access->member()->memberId(), $toDo->id));
+        return $this->results->of($this->toDoComposition->read($this->access->member()->memberId(), $toDo->id));
     }
 
     /**
@@ -101,7 +101,7 @@ final readonly class ToDoWrites
      */
     private function writable(string $id): ToDoInList
     {
-        $toDo = $this->toDos->read($this->access->member()->memberId(), $id);
+        $toDo = $this->toDos->read($id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ToDoVoter::ACCESS, $toDo);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);

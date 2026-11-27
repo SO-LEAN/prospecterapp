@@ -53,7 +53,7 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     }
 
     /**
-     * The same, with the participants that its detail names, so that the detail is presented without a second read.
+     * The same, with the organization itself that its detail shows, so that the detail is composed without a second read.
      */
     public function kept(User $reader, string $id): KeptExchange
     {

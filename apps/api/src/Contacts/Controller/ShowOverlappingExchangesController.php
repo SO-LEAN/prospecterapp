@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\AgendaReader;
+use App\Contacts\AgendaComposition;
 use App\Contacts\Input\SlotQuery;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Security\User;
@@ -24,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowOverlappingExchangesController
 {
     public function __construct(
-        private AgendaReader $agendaReader,
+        private AgendaComposition $agenda,
         private ClockInterface $clock,
         private JsonResponses $jsonResponses,
     ) {
@@ -38,6 +38,6 @@ final readonly class ShowOverlappingExchangesController
     #[OA\Response(response: 422, description: 'Invalid slot: no start, or a duration outside 5 minutes to 8 hours', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] SlotQuery $slot = new SlotQuery()): JsonResponse
     {
-        return $this->jsonResponses->of($this->agendaReader->readOverlapping($user->memberId(), $slot->startsAt ?? $this->clock->now(), $slot->durationInMinutes));
+        return $this->jsonResponses->of($this->agenda->readOverlapping($user->memberId(), $slot->startsAt ?? $this->clock->now(), $slot->durationInMinutes));
     }
 }

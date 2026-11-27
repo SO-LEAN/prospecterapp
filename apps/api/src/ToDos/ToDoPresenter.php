@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
-use App\ToDos\Resource\ToDoResource;
-use Prospecter\Core\Prospecting\Application\PersonsShown;
+use App\ToDos\Resource\ToDoLinksResource;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDoOutput;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * Presents a to-do with its contact and its holder named, as the core read them (ADR 0085, 0217).
+ * Presents what Prospecting shows of a to-do: the to-do and its links (ADR 0085, 0217).
  */
 final class ToDoPresenter implements ConsultToDoOutput
 {
-    public private(set) ToDoResource $resource;
+    public private(set) ToDoInList $toDo;
+
+    public private(set) ToDoLinksResource $links;
 
     public function __construct(private readonly ToDoResourceFactory $toDoResourceFactory)
     {
     }
 
-    public function present(ToDoInList $toDo, PersonsShown $persons): void
+    public function present(ToDoInList $toDo): void
     {
-        $this->resource = $this->toDoResourceFactory->of($toDo, $persons);
+        $this->toDo = $toDo;
+        $this->links = $this->toDoResourceFactory->linksOf($toDo);
     }
 }

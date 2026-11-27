@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\OrganizationTimelineReader;
+use App\Contacts\OrganizationTimelineComposition;
 use App\Prospecting\Input\OrganizationPlannedExchangeInput;
 use App\Prospecting\Mcp\OrganizationWrites;
 use App\Security\ToolAccess;
@@ -32,7 +32,7 @@ final readonly class PlanOrganizationExchangeTool
         private CommandBus $commandBus,
         private Identities $identities,
         private ClockInterface $clock,
-        private OrganizationTimelineReader $organizationTimelineReader,
+        private OrganizationTimelineComposition $organizationTimeline,
         private ToolResults $results,
     ) {
     }
@@ -76,6 +76,6 @@ final readonly class PlanOrganizationExchangeTool
             byAnAI: true,
         ));
 
-        return $this->results->of($this->organizationTimelineReader->readUpcoming($memberId, $organization));
+        return $this->results->of($this->organizationTimeline->readUpcoming($memberId, $organization));
     }
 }

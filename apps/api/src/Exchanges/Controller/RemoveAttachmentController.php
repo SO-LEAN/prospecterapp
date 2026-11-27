@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
-use App\Exchanges\ExchangeReader;
+use App\Exchanges\ExchangeComposition;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Security\User;
@@ -29,7 +29,7 @@ final readonly class RemoveAttachmentController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ExchangeReader $exchangeReader,
+        private ExchangeComposition $exchangeComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -46,6 +46,6 @@ final readonly class RemoveAttachmentController
     {
         $this->commandBus->dispatch(new RemoveAttachment(prospectorId: $user->memberId(), exchangeId: $exchange->id, id: $attachmentId, executedAt: $this->clock->now()));
 
-        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeComposition->read($user->memberId(), $exchange->id));
     }
 }

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Contacts;
 
+use App\Contacts\Resource\InterlocutorResource;
+use App\Contacts\Resource\OrganizationExchangeResource;
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Shared\Links;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
@@ -16,18 +19,20 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Reads an organization's timeline (ADR 0076). Each read is one query of Prospecting, which names the slice's persons
- * and says whether the e-mails exchanged with the organization itself may be caught up, and a presenter built for the
- * call (ADR 0085, 0217). A command returns nothing, so a controller calls this reader after it to answer with the
- * fresh resource.
+ * Composes an organization's timeline (ADR 0076, 0217). Each read is one query of Prospecting, which gives the slice's
+ * exchanges and their links, and says whether the e-mails exchanged with the organization itself may be caught up.
+ * PersonalData names the persons the exchanges were with, joined by their ids. The person may still be a contact of
+ * the organization, or may be removed or forgotten. A command returns nothing, so a controller calls this composition
+ * after it to answer with the fresh resource.
  */
-final readonly class OrganizationTimelineReader
+final readonly class OrganizationTimelineComposition
 {
     public function __construct(
         private QueryHandler $consultOrganizationTimeline,
         private QueryHandler $consultExchangesToMakeConform,
         private QueryHandler $consultOrganizationUpcomingExchanges,
         private TimelineResourceFactory $timelines,
+        private PersonsOfAView $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
         private ClockInterface $clock,
@@ -39,7 +44,7 @@ final readonly class OrganizationTimelineReader
         $presenter = OrganizationTimelinePresenter::ofTheTimeline($this->timelines, $this->links, $this->intentLinks);
         $this->consultOrganizationTimeline->__invoke(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $presenter);
 
-        return $presenter->resource;
+        return $this->withItsPersons($reader, $presenter);
     }
 
     /**
@@ -50,7 +55,7 @@ final readonly class OrganizationTimelineReader
         $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($this->timelines, $this->links);
         $this->consultOrganizationUpcomingExchanges->__invoke(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $presenter);
 
-        return $presenter->resource;
+        return $this->withItsPersons($reader, $presenter);
     }
 
     /**
@@ -61,6 +66,24 @@ final readonly class OrganizationTimelineReader
         $presenter = OrganizationTimelinePresenter::ofTheExchangesToMakeConform($this->timelines, $this->links);
         $this->consultExchangesToMakeConform->__invoke(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $presenter);
 
-        return $presenter->resource;
+        return $this->withItsPersons($reader, $presenter);
+    }
+
+    private function withItsPersons(string $reader, OrganizationTimelinePresenter $presenter): OrganizationTimelineResource
+    {
+        $organizationTimeline = $presenter->timeline;
+        $exchanges = $organizationTimeline->timeline->exchanges;
+        $persons = $this->personsOfAView->shownTo($reader, array_values(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $exchanges))));
+
+        return new OrganizationTimelineResource(
+            items: array_map(static fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource(
+                $presenter->exchanges[$exchange->id],
+                null === $exchange->personId
+                    ? InterlocutorResource::ofTheOrganization($organizationTimeline->organization)
+                    : InterlocutorResource::ofPerson($exchange->personId, $persons->contact($exchange->personId), $exchange->contactPresence),
+            ), $exchanges),
+            toRedact: $organizationTimeline->timeline->toMakeConform,
+            links: $presenter->links,
+        );
     }
 }

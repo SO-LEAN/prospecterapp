@@ -8,7 +8,7 @@ use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
-use App\ToDos\ToDoReader;
+use App\ToDos\ToDoComposition;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 
@@ -18,7 +18,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_contacts_to_dos')]
 final readonly class ShowToDosTool
 {
-    public function __construct(private ToolAccess $access, private ToDoReader $toDoReader, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private ToDoComposition $toDos, private ToolResults $results)
     {
     }
 
@@ -33,6 +33,6 @@ final readonly class ShowToDosTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->toDoReader->ofContact($this->access->member()->memberId(), $id));
+        return $this->results->of($this->toDos->ofContact($this->access->member()->memberId(), $id));
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
-use Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
@@ -20,7 +19,6 @@ final readonly class ConsultExchangesToMakeConformHandler implements QueryHandle
         private TimelineRetriever $timelineRetriever,
         private OrganizationSheetRetriever $organizationSheetRetriever,
         private Prospectors $prospectors,
-        private PersonDescriptionRetriever $personDescriptionRetriever,
     ) {
     }
 
@@ -31,6 +29,6 @@ final readonly class ConsultExchangesToMakeConformHandler implements QueryHandle
 
         $timeline = $this->timelineRetriever->toMakeConformIn($organization, $prospector, $query->after, $query->max);
 
-        $output->present(new OrganizationTimeline($timeline, $organization, $this->personDescriptionRetriever->shownTo($prospector->id, $timeline->contacts(), [])));
+        $output->present(new OrganizationTimeline($timeline, $organization));
     }
 }

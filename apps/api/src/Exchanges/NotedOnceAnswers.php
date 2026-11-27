@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Exchanges;
 
+use App\Contacts\PersonsOfAView;
 use App\Exchanges\Resource\NotingResource;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 
 /**
  * What a tool that logs an exchange answers the AI. It answers the logged exchange. When the core refuses the
- * exchange as logged before, it answers why the exchange is not logged again. That answer is a result, not a tool
- * error (ADR 0166).
+ * exchange as logged before, it answers why the exchange is not logged again, with who erased it named by Accounts and
+ * PersonalData (ADR 0217). That answer is a result, not a tool error (ADR 0166).
  */
 final readonly class NotedOnceAnswers
 {
@@ -18,7 +19,7 @@ final readonly class NotedOnceAnswers
     private const string ERASED_BEFORE = 'exchangeErasedBefore';
     private const string NOTED_MEANWHILE = 'exchangeNotedMeanwhile';
 
-    public function __construct(private ExchangeReader $exchangeReader)
+    public function __construct(private ExchangeComposition $exchangeComposition, private PersonsOfAView $personsOfAView)
     {
     }
 
@@ -45,14 +46,14 @@ final readonly class NotedOnceAnswers
             return $this->notNotedAgain($member, $refusal);
         }
 
-        return NotingResource::noted($this->exchangeReader->read($member, $exchange()));
+        return NotingResource::noted($this->exchangeComposition->read($member, $exchange()));
     }
 
     private function notNotedAgain(string $member, UseCaseRefused $refusal): NotingResource
     {
         return match ($refusal->reason) {
-            self::ALREADY_NOTED => NotingResource::alreadyNoted($this->exchangeReader->read($member, $refusal->context['exchange'])),
-            self::ERASED_BEFORE => NotingResource::erasedBefore($this->exchangeReader->memberNamed($member, $refusal->context['erasedBy']), $refusal->context['erasedAt']),
+            self::ALREADY_NOTED => NotingResource::alreadyNoted($this->exchangeComposition->read($member, $refusal->context['exchange'])),
+            self::ERASED_BEFORE => NotingResource::erasedBefore($this->personsOfAView->shownTo($member, [], [$refusal->context['erasedBy']])->author($refusal->context['erasedBy']), $refusal->context['erasedAt']),
             self::NOTED_MEANWHILE => NotingResource::alreadyNoted(null),
             default => throw $refusal,
         };
