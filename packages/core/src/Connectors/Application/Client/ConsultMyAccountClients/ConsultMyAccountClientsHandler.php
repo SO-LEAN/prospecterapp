@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\Client\ConsultMyAccountClients;
 
 use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
-use Prospecter\Core\Connectors\Domain\Port\Members;
+use Prospecter\Core\Connectors\Domain\Service\Members;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

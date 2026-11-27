@@ -9,9 +9,9 @@ use Prospecter\Core\Connectors\Domain\Model\AuthorizationRequest;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
-use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
+use Prospecter\Core\Connectors\Domain\Service\Members;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

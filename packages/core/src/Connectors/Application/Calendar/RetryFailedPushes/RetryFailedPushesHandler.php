@@ -6,8 +6,8 @@ namespace Prospecter\Core\Connectors\Application\Calendar\RetryFailedPushes;
 
 use Prospecter\Core\Connectors\Application\Calendar\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
-use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
+use Prospecter\Core\Connectors\Domain\Service\Members;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
