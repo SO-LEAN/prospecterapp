@@ -443,7 +443,7 @@
                 {
                     "context": null,
                     "slug": null,
-                    "label": "PersonsOfAView"
+                    "label": "PersonsOfAViewComposition"
                 },
                 {
                     "context": "Booking",
@@ -462,8 +462,8 @@
                 },
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:Members",
-                    "label": "Members"
+                    "slug": "externalSystem:AccountMembers",
+                    "label": "Account members"
                 },
                 {
                     "context": "PersonalData",

@@ -713,6 +713,75 @@
             "readBy": []
         },
         {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "slug": "externalSystem:AccountMembers",
+            "type": "externalSystem",
+            "label": "Account members",
+            "feature": null,
+            "name": "AccountMembers",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "context": "Connectors",
+            "module": null,
+            "detail": "AccountsMembers",
+            "answeredBy": [
+                "Accounts"
+            ],
+            "answers": [
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ConsultMembers",
+                    "label": "Members"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
+            "slug": "externalSystem:ContactAddresses",
+            "type": "externalSystem",
+            "label": "Contact addresses",
+            "feature": null,
+            "name": "ContactAddresses",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
+            "context": "Connectors",
+            "module": null,
+            "detail": "PersonalDataContactAddresses",
+            "answeredBy": [
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:WhichEmailsHaveTheseContacts",
+                    "label": "Which emails have these contacts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactCorrespondents",
+            "slug": "externalSystem:ContactCorrespondents",
+            "type": "externalSystem",
+            "label": "Contact correspondents",
+            "feature": null,
+            "name": "ContactCorrespondents",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ContactCorrespondents",
+            "context": "Connectors",
+            "module": null,
+            "detail": "PersonalDataContactCorrespondents",
+            "answeredBy": [
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:WhichContactsHaveTheseEmails",
+                    "label": "Which contacts have these emails"
+                }
+            ],
+            "readBy": []
+        },
+        {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "slug": "externalSystem:ContactNames",
             "type": "externalSystem",
@@ -731,64 +800,6 @@
                     "context": "PersonalData",
                     "slug": "readModel:NameContacts",
                     "label": "Name contacts"
-                }
-            ],
-            "readBy": []
-        },
-        {
-            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
-            "slug": "externalSystem:CorrespondentAddresses",
-            "type": "externalSystem",
-            "label": "Correspondent addresses",
-            "feature": null,
-            "name": "CorrespondentAddresses",
-            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
-            "context": "Connectors",
-            "module": null,
-            "detail": "PersonalDataAndProspectingCorrespondentAddresses",
-            "answeredBy": [
-                "PersonalData",
-                "Prospecting"
-            ],
-            "answers": [
-                {
-                    "context": "PersonalData",
-                    "slug": "readModel:WhichEmailsHaveTheseContacts",
-                    "label": "Which emails have these contacts"
-                },
-                {
-                    "context": "Prospecting",
-                    "slug": "readModel:WhichEmailsHaveTheseOrganizations",
-                    "label": "Which emails have these organizations"
-                }
-            ],
-            "readBy": []
-        },
-        {
-            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
-            "slug": "externalSystem:Correspondents",
-            "type": "externalSystem",
-            "label": "Correspondents",
-            "feature": null,
-            "name": "Correspondents",
-            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
-            "context": "Connectors",
-            "module": null,
-            "detail": "PersonalDataAndProspectingCorrespondents",
-            "answeredBy": [
-                "PersonalData",
-                "Prospecting"
-            ],
-            "answers": [
-                {
-                    "context": "PersonalData",
-                    "slug": "readModel:WhichContactsHaveTheseEmails",
-                    "label": "Which contacts have these emails"
-                },
-                {
-                    "context": "Prospecting",
-                    "slug": "readModel:WhichOrganizationsHaveTheseEmails",
-                    "label": "Which organizations have these emails"
                 }
             ],
             "readBy": []
@@ -822,30 +833,70 @@
             "readBy": []
         },
         {
-            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
-            "slug": "externalSystem:Members",
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
+            "slug": "externalSystem:MemberFirstNames",
             "type": "externalSystem",
-            "label": "Members",
+            "label": "Member first names",
             "feature": null,
-            "name": "Members",
-            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "name": "MemberFirstNames",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "context": "Connectors",
             "module": null,
-            "detail": "AccountsAndPersonalDataMembers",
+            "detail": "PersonalDataMemberFirstNames",
             "answeredBy": [
-                "Accounts",
                 "PersonalData"
             ],
             "answers": [
                 {
-                    "context": "Accounts",
-                    "slug": "readModel:ConsultMembers",
-                    "label": "Members"
-                },
-                {
                     "context": "PersonalData",
                     "slug": "readModel:PresentMembers",
                     "label": "Present members"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
+            "slug": "externalSystem:OrganizationAddresses",
+            "type": "externalSystem",
+            "label": "Organization addresses",
+            "feature": null,
+            "name": "OrganizationAddresses",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
+            "context": "Connectors",
+            "module": null,
+            "detail": "ProspectingOrganizationAddresses",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichEmailsHaveTheseOrganizations",
+                    "label": "Which emails have these organizations"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationCorrespondents",
+            "slug": "externalSystem:OrganizationCorrespondents",
+            "type": "externalSystem",
+            "label": "Organization correspondents",
+            "feature": null,
+            "name": "OrganizationCorrespondents",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationCorrespondents",
+            "context": "Connectors",
+            "module": null,
+            "detail": "ProspectingOrganizationCorrespondents",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichOrganizationsHaveTheseEmails",
+                    "label": "Which organizations have these emails"
                 }
             ],
             "readBy": []
@@ -1535,6 +1586,13 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
@@ -1549,7 +1607,7 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1591,6 +1649,13 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
@@ -1605,7 +1670,7 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1661,6 +1726,13 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
@@ -1675,7 +1747,7 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1731,6 +1803,13 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
@@ -1745,7 +1824,7 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1787,6 +1866,13 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
@@ -1801,7 +1887,7 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1829,7 +1915,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1843,7 +1936,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1857,7 +1957,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1871,14 +1978,28 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1892,7 +2013,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1927,7 +2055,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1962,7 +2097,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1983,7 +2125,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -1997,14 +2146,28 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
             "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
             "via": null,
             "certain": true,
             "when": null
@@ -2025,7 +2188,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactCorrespondents",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationCorrespondents",
             "via": null,
             "certain": true,
             "when": null
@@ -2053,7 +2223,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2074,7 +2251,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2095,7 +2279,14 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2228,6 +2419,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
@@ -2235,7 +2433,7 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2270,7 +2468,14 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2326,7 +2531,14 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
             "when": null
@@ -2340,14 +2552,28 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
             "when": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
-            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
             "via": null,
             "certain": true,
             "when": null

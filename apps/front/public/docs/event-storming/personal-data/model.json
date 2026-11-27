@@ -1238,8 +1238,8 @@
             "readBy": [
                 {
                     "context": "Campaigns",
-                    "slug": "externalSystem:Addressees",
-                    "label": "Addressees"
+                    "slug": "externalSystem:AddresseeNames",
+                    "label": "Addressee names"
                 },
                 {
                     "context": "Connectors",
@@ -1264,13 +1264,13 @@
             "readBy": [
                 {
                     "context": "Booking",
-                    "slug": "externalSystem:Hosts",
-                    "label": "Hosts"
+                    "slug": "externalSystem:HostPresentations",
+                    "label": "Host presentations"
                 },
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:Members",
-                    "label": "Members"
+                    "slug": "externalSystem:MemberFirstNames",
+                    "label": "Member first names"
                 }
             ]
         },
@@ -1316,8 +1316,8 @@
             "readBy": [
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:Correspondents",
-                    "label": "Correspondents"
+                    "slug": "externalSystem:ContactCorrespondents",
+                    "label": "Contact correspondents"
                 }
             ]
         },
@@ -1342,8 +1342,8 @@
                 },
                 {
                     "context": "Connectors",
-                    "slug": "externalSystem:CorrespondentAddresses",
-                    "label": "Correspondent addresses"
+                    "slug": "externalSystem:ContactAddresses",
+                    "label": "Contact addresses"
                 }
             ]
         }
