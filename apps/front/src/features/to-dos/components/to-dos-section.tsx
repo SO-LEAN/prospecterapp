@@ -24,7 +24,9 @@ import {
 } from '../queries'
 import { useToggle } from '../use-toggle'
 import { ReviseToDoDialog } from './revise-to-do-dialog'
-import { ToDoForm } from './to-do-form'
+import { type Recipients, ToDoForm } from './to-do-form'
+
+export type { Recipients }
 
 /** Called once a to-do is ticked off. The page may then propose to log the exchange it led to. */
 export type OnTickedOff = (toDo: ToDo) => void
@@ -69,18 +71,23 @@ export function OrganizationToDosSection({
 
 type CardProps = SectionProps & {
   list: ToDoList
-  onNote: (body: ToDoInput) => Promise<unknown>
+  /** Gets the to-do, and the contact chosen among the recipients, null for the organization itself or without them. */
+  onNote: (body: ToDoInput, contactId: string | null) => Promise<unknown>
   withTheirContact?: boolean
+  recipients?: Recipients
 }
 
-type AddProps = Pick<CardProps, 'onNote'> & { open: boolean; onOpenChange: (open: boolean) => void }
+type AddProps = Pick<CardProps, 'onNote' | 'recipients'> & {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
 
 /**
  * Adds a new to-do in a dialog. The dialog closes once the to-do is added, or stays open for another one. It then shows
  * a new, empty form, due tomorrow, with its text focused. Emptying the same form in place would count on a render that
  * registers its fields again, and the React Compiler skips that render (`docs/architecture/front.md`, Forms).
  */
-function AddToDoDialog({ onNote, open, onOpenChange }: AddProps) {
+function AddToDoDialog({ onNote, recipients, open, onOpenChange }: AddProps) {
   const { t } = useTranslation()
   const [added, setAdded] = useState(0)
 
@@ -94,13 +101,14 @@ function AddToDoDialog({ onNote, open, onOpenChange }: AddProps) {
         <ToDoForm
           key={added}
           submitLabel={t('toDos.add')}
+          recipients={recipients}
           onCancel={() => onOpenChange(false)}
-          onSubmit={async (body) => {
-            await onNote(body)
+          onSubmit={async (body, contactId) => {
+            await onNote(body, contactId)
             onOpenChange(false)
           }}
-          onSubmitThenAnother={async (body) => {
-            await onNote(body)
+          onSubmitThenAnother={async (body, contactId) => {
+            await onNote(body, contactId)
             setAdded((count) => count + 1)
           }}
         />
@@ -120,7 +128,14 @@ function AddButton({ onClick }: { onClick: () => void }) {
 }
 
 /** What there is to do, the soonest due first and the overdue ones in red. The done ones are folded beneath. */
-export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false, className }: CardProps) {
+export function ToDosCard({
+  list,
+  onNote,
+  onTickedOff,
+  withTheirContact = false,
+  recipients,
+  className,
+}: CardProps) {
   const { t } = useTranslation()
   const { toDo, done } = split(list.toDos)
   const now = new Date()
@@ -167,7 +182,9 @@ export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false,
             />
           </details>
         )}
-        {mayAdd && <AddToDoDialog onNote={onNote} open={adding} onOpenChange={setAdding} />}
+        {mayAdd && (
+          <AddToDoDialog onNote={onNote} recipients={recipients} open={adding} onOpenChange={setAdding} />
+        )}
       </CardContent>
     </Card>
   )

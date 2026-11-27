@@ -933,6 +933,7 @@ export const fr = {
     textPlaceholder: 'Envoyer mon CV',
     dueOn: 'Pour le',
     dueAt: 'À',
+    for: 'Pour',
     shortcuts: 'Échéances rapides',
     shortcut: {
       today: 'Aujourd’hui',
