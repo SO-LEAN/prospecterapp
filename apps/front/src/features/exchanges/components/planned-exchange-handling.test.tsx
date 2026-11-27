@@ -229,6 +229,26 @@ describe('handling a planned exchange', () => {
     expect(theApi).not.toHaveBeenCalled()
   })
 
+  it('clears the refusal of the duration once a quick duration is chosen', async () => {
+    const user = await renderTheDetail(aPlannedExchange({ occurredAt: IN_THE_FUTURE }))
+
+    await user.click(screen.getByRole('button', { name: 'Déplacer' }))
+    await user.clear(screen.getByLabelText('Durée'))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+    await waitFor(() =>
+      expect(screen.getByLabelText('Durée')).toHaveAccessibleDescription(
+        'Une durée de 5 minutes à 8 heures.',
+      ),
+    )
+    await user.click(screen.getByRole('button', { name: '1 h' }))
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Durée')).not.toHaveAccessibleDescription(
+        'Une durée de 5 minutes à 8 heures.',
+      ),
+    )
+  })
+
   it('shows the refusal of the API under the duration it refuses', async () => {
     theApi.mockResolvedValue(
       Response.json(
@@ -270,7 +290,7 @@ describe('handling a planned exchange', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
-  it('moves it to another moment, its duration left as it is kept', async () => {
+  it('moves it to another moment and keeps the duration it is not given', async () => {
     theApi.mockResolvedValue(Response.json(aPlannedExchange({ occurredAt: '2099-11-18T08:00:00+00:00' })))
     const user = await renderTheDetail(aPlannedExchange({}))
 

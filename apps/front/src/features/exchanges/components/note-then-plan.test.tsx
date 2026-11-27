@@ -146,6 +146,17 @@ describe('noting an exchange, then planning what follows', () => {
     )
   })
 
+  it('titles and describes the planning window opened from the card', async () => {
+    theApiAnswers()
+    const user = await renderTheContactCard()
+
+    await user.click(screen.getByRole('button', { name: 'Planifier' }))
+
+    expect(screen.getByRole('dialog', { name: 'Planifier' })).toHaveAccessibleDescription(
+      'Un appel, un rendez-vous ou une visio à venir avec Ada Lovelace.',
+    )
+  })
+
   it('titles the window after the noting again once it is opened again', async () => {
     theApiAnswers()
     const user = await renderTheContactCard()
