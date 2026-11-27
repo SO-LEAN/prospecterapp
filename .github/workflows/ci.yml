@@ -254,9 +254,10 @@ jobs:
           path: apps/front/node_modules
           key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
 
+      # Infection runs in the core, with its own dependencies only
       - name: Install the Composer dependencies
         if: matrix.part == 'core'
-        run: make vendor
+        run: make -C packages/core vendor
 
       - name: Install the pnpm dependencies
         if: matrix.part != 'core'
