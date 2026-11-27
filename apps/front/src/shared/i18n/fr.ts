@@ -699,7 +699,6 @@ export const fr = {
       reportTitle: 'Compte rendu',
       report: 'Ce qui s’est dit',
       moveTitle: 'Déplacer l’échange',
-      durationKept: 'Sa durée reste la même.',
     },
     followUp: {
       question: 'Planifier la suite avec ce même interlocuteur ?',

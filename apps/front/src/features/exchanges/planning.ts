@@ -75,11 +75,15 @@ export const planFields = [
   'personId',
 ] as const
 
-/** Mirrors the API's `MomentInput`: another upcoming moment. The duration stays the same, so the form sends none. */
+/**
+ * Mirrors the API's `MomentInput`: another upcoming moment, and its duration. The API checks the duration's bounds, and
+ * names it `duration` when it refuses it.
+ */
 export const moveSchema = z
   .object({
     date: z.string().min(1, { error: () => i18n.t('validation.required') }),
     time: z.string().min(1, { error: () => i18n.t('validation.required') }),
+    duration: z.number({ error: () => i18n.t('exchanges.chooseDuration') }),
   })
   .refine((values) => momentOf(values).getTime() > Date.now(), {
     path: ['time'],
@@ -88,11 +92,12 @@ export const moveSchema = z
 
 export type MoveValues = z.input<typeof moveSchema>
 
-export const moveFields = ['date', 'time'] as const
+export const moveFields = ['date', 'time', 'duration'] as const
 
-export const toMoment = (values: MoveValues): Moment => ({
+/** The new moment, and the duration only when it changes: the API keeps the duration it is not sent. */
+export const toMoment = (values: MoveValues, currentDuration?: number | null): Moment => ({
   occurredAt: momentOf(values).toISOString(),
-  durationInMinutes: null,
+  durationInMinutes: values.duration === currentDuration ? null : values.duration,
 })
 
 /** The date and the time for a moment's inputs, in the browser's time zone. */
