@@ -215,13 +215,13 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
   - the organizations an account prospects (`Organization`), and `StopProspecting`;
   - its contacts (`ContactId`s only, `AddContact` / `RemoveContact`). A contact is never left alone: `OrphanContacts`;
   - the `Prospector` who acts or reads, with or without the right to manage personal data. Its `Gesture` starts prospecting an organization (`Organization::prospectedBy()`). The `Prospectors` port reads it (`prospectorFrom()`), implemented outside the core from Accounts' members;
-  - the `KnownContacts` port says whether a person is one the account prospects. PersonalData answers it;
+  - the `KnownContacts` port says whether a person is one the account prospects, or which of several persons are. PersonalData answers it;
   - an organization's possible duplicates (ADR 0162):
     - `ResemblanceKey`, and `DuplicateSuspicion` before the organization is saved;
     - `Organization::reconsiderDuplicates()`, `suspectDuplicateOf()`, `liftSuspicionOf()`, `dismissSuspicionOf()`, `knowItIsNoDuplicateOf()`;
     - `DismissPossibleDuplicate`, and the commands in return `SuspectDuplicateInReturn`, `LiftSuspicionInReturn`, `DismissSuspicionInReturn`, which their policies send (ADR 0203);
     - read as `PossibleDuplicate`;
-  - `ListOrganizationContacts` reads an organization's contacts in the order they were attached, as PersonalData lets the reader read them. A contact PersonalData no longer reads is left out (ADR 0217);
+  - `ListOrganizationContacts` reads an organization's contacts, by their ids, in the order they were attached. A contact PersonalData no longer knows is left out, asked through `KnownContacts` (ADR 0217);
   - `ConsultOrganizationsOfContacts` (batch), `RecognizeCallingOrganization` (which organization has a number), and `IdentifyOrganizations` (which organizations clues designate, read through the `DesignatedOrganizationRetriever` port, ADR 0173).
 - Logging and planning exchanges:
   - the exchanges with a contact or with the organization itself (`Exchange`: a real-world fact, its `ExchangeFacts`, ADR 0074, 0076);
@@ -230,8 +230,8 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
   - `NoteCampaignExchange` logs it for a campaign recipient (`RecipientCorrespondent`, `RecipientInCampaign`, the `CampaignRecipients` and `CampaignNames` ports). `CampaignsOfTimeline` names a timeline's campaigns (ADR 0145);
   - `PlanExchange` and `PlanOrganizationExchange` work likewise, for a planned exchange (`Exchange::planned()`, `ExchangeFacts::planned()` with its `withVenue()` and `askingALink()`, `Duration`, ADR 0111);
   - its holder runs `MarkExchangeDone`, `MarkExchangeMissed`, `MoveExchange` and `CancelExchange` (`Exchange::markDone()`, `markMissed()`, `moveTo()`, `cancel()`, its `Cancellation`). A cancelled exchange is listed from its cancellation (`ExchangeChronology`, ADR 0112).
-- Reading exchanges. A view of Prospecting shows persons only as PersonalData lets its reader read them. It reads them through the port `PersonDescriptionRetriever`, which Accounts and PersonalData answer: the contacts, and the members who hold or wrote what it shows (`PersonsShown`, ADR 0217). It keeps none of them:
-  - `ConsultTimeline` reads up to the moment of reading, most recent first. `TimelineIntent` says what it offers. `ConsultOrganizationTimeline` reads an organization's exchanges and its contacts'. It names its persons, and says whether Connectors lets the reader catch up the e-mails exchanged with the organization itself (`OrganizationTimeline`, the port `MailCatchUpRetriever`). `ConsultOrganizationUpcomingExchanges` and `ConsultExchangesToMakeConform` name their persons too;
+- Reading exchanges. A view of Prospecting answers with the ids of the contacts it shows and of the members who hold or wrote what it shows. The API names them through Accounts and PersonalData, next to the view (ADR 0217):
+  - `ConsultTimeline` reads up to the moment of reading, most recent first. `TimelineIntent` says what it offers. `ConsultOrganizationTimeline` reads an organization's exchanges and its contacts' (`OrganizationTimeline`). `ConsultOrganizationUpcomingExchanges` and `ConsultExchangesToMakeConform` read the same way;
   - `ConsultUpcomingExchanges` and `ConsultOrganizationUpcomingExchanges` read after that moment, soonest first;
   - `ConsultOverlappingExchanges` reads the exchanges in a prospector's agenda that a `Slot` overlaps, through the `AgendaRetriever` port;
   - `ConsultCalendar` (ADR 0115, 0119, 0134):
@@ -244,10 +244,10 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
     - the exchanges a prospector planned whose `Slot` has ended at the moment of reading and that are still planned. They are late, as `Lateness` says. They come oldest first, with what each offers, read through the `AgendaRetriever` port;
     - their to-dos still to do on the reading day and before (`Due::daysOverdueAt()`, ADR 0134);
     - the contacts to attach they hold, the first to be erased first, read through the `ContactsToAttachRetriever` port (ADR 0146);
-  - each agenda reading names its interlocutors (`AgendaInterlocutors`, `Interlocutors`): its persons, its organizations met with no contact, read alone, and its contacts' organizations. An organization no longer known leaves out its exchanges, which a reaction erases later;
+  - each agenda reading gives its interlocutors as Prospecting knows them (`AgendaInterlocutors`, `Interlocutors`): its organizations met with no contact, read alone, and its contacts' organizations. An organization no longer known leaves out its exchanges, which a reaction erases later. The contacts to attach leave out a contact PersonalData no longer knows, asked through `KnownContacts`;
   - `ConsultContactToAttach` says until when a person waits for the prospector to attach them;
   - `ConsultTimelineIntents` says what a person's timeline offers without reading it. It offers nothing for a person who is not a contact. A contact's card links to it;
-  - `ConsultExchange` reads the whole exchange, who logged it and who corrected it last. `ExchangeIntent` says what its state offers its reader at the moment of reading. Just after a move, it is read from the moment it was moved from. It then offers to move it back there while that moment is to come (`MoveExchangeBack`, ADR 0135). Every prospector of the account reads it. Without the right, the text is flagged and the attachments hidden (`textFlagged`, `hiddenAttachments`, ADR 0078). It names its contact and the members who logged, corrected and redacted it, or the organization itself when it has no contact (`Participants`, ADR 0217).
+  - `ConsultExchange` reads the whole exchange, who logged it and who corrected it last. `ExchangeIntent` says what its state offers its reader at the moment of reading. Just after a move, it is read from the moment it was moved from. It then offers to move it back there while that moment is to come (`MoveExchangeBack`, ADR 0135). Every prospector of the account reads it. Without the right, the text is flagged and the attachments hidden (`textFlagged`, `hiddenAttachments`, ADR 0078). It gives the organization itself when the exchange has no contact, while the organization is still known (ADR 0217).
 - Correcting and erasing exchanges:
   - `CorrectExchangeText` corrects its text only, by every prospector of the account;
   - `CorrectExchangeVenue` corrects a meeting's place or a video call's link (`VideoCallLink`), by every prospector of the account;
@@ -265,5 +265,5 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
   - in an organization's timeline, an exchange's contact is present, removed from it or forgotten (`ContactPresence`). The timeline counts those to redact. `ConsultExchangesToMakeConform` lists them alone.
 - To-dos (`ToDo`, `Due`, ADR 0113). `ToDo::noted()` creates one from the member's `Gesture`, a contact or organization correspondent, and a `Task` (its text and when it is due):
   - `NoteToDo` for a contact, kept for its organizations, and `NoteOrganizationToDo` for the organization itself. Then `ReviseToDo`, `TickOffToDo`, `UntickToDo` and `EraseToDo`;
-  - `ConsultToDo`, `ConsultToDos` (a contact), `ConsultOrganizationToDos` (an organization and its contacts) and `ConsultMyToDos` (those a member still has to do). `ToDoList` orders them, read through the `ToDoListRetriever` port. `PersonsOfToDos` names their contacts and their holders (ADR 0217);
+  - `ConsultToDo`, `ConsultToDos` (a contact), `ConsultOrganizationToDos` (an organization and its contacts) and `ConsultMyToDos` (those a member still has to do). `ToDoList` orders them, read through the `ToDoListRetriever` port;
   - they are erased with their last organization (`StopKeepingToDos`, `ToDoLeftWithoutOrganization`, `EraseToDoLeftWithoutOrganization`). They are also erased with their contact (`ContactForgotten` sends `EraseToDosOfForgottenContact`).

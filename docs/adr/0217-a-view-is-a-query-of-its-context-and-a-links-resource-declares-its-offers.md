@@ -2,9 +2,9 @@
 
 - Date: 2026-11-26
 - Type: architecture
-- Status: Proposed
+- Status: Accepted
 - Supersedes: for "a view's offers are read from a presenter's links", [0213](0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md); for "a reader composing contexts keeps the first answers, then builds the presenter of the last one", [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md)
-- Implemented by: `apps/api/src/Shared/Resource/Offers.php`, the links resources of `apps/api/src/*/Resource`, `apps/api/tests/Base/OffersMatchTheirLinks.php`, `apps/api/tests/Architecture/PiecesOffersMatchTheirContractsTest.php`, `packages/phpstan-rules/EventStorming` (`ClassFactsCollector`, `ContextStorming`), Prospecting's views' queries, `ListCampaignRecipients`, `IdentifyPersonsAndOrganizations` and its port `OrganizationIdentificationRetriever`, the rules on `TaggableContacts` in `SearchContactsByTags` and `ListCampaignRecipients`, the API's `*Composition` classes, `docs/architecture/api.md`, `docs/architecture/core.md`, `docs/architecture/event-storming.md`, `docs/architecture/persistence.md`, `docs/domain/personal-data.md`
+- Implemented by: `apps/api/src/Shared/Resource/Offers.php`, the links resources of `apps/api/src/*/Resource`, `apps/api/tests/Base/OffersMatchTheirLinks.php`, `apps/api/tests/Architecture/PiecesOffersMatchTheirContractsTest.php`, `packages/phpstan-rules/EventStorming` (`ClassFactsCollector`, `ContextStorming`), Prospecting's views' queries, `ListCampaignRecipients`, `IdentifyPersonsAndOrganizations` and its port `OrganizationIdentificationRetriever`, the rules on `TaggableContacts` in `SearchContactsByTags` and `ListCampaignRecipients`, the rules on `KnownContacts` in `ListOrganizationContacts` and `ConsultWhatIsToProcess`, `ContactEmailRetriever` in `ProposeOrganizationToAttach`, the API's `*Composition` classes and `PersonsOfAView`, `docs/architecture/api.md`, `docs/architecture/core.md`, `docs/architecture/event-storming.md`, `docs/architecture/persistence.md`, `docs/domain/personal-data.md`
 
 ## Context
 
@@ -35,8 +35,8 @@ The maintainer took these decisions on the ticket:
 - A nested resource or a list must be typed for the analysis to reach its links. The OpenAPI contract already needs these types.
 - A links resource shared by several views offers its commands on each of them, even when one view never fills a link. A piece of a composition that keeps a links resource of its own offers only what it links.
 - Until a reader becomes a query of its context, or the pieces of a composition, the view it serves offers nothing on the wall. Its commands keep their "Offered where?".
-- The enrichment that Prospecting's queries received through `PersonDescriptionRetriever` before the 26/11 decision moves to compositions in a later change of the same ticket.
-- A view that leaves out what another context no longer knows decides it in its query: the tag search and a campaign's recipients leave out the contacts PersonalData no longer knows, through `TaggableContacts`.
+- Prospecting's views answer with the ids of the persons and members they show, and the API names them (`PersonsOfAView`). Their ports that only enriched them are gone: `PersonDescriptionRetriever`, and `MailCatchUpRetriever`, whose catch-up link is Connectors' own and is composed as on the contact's card. PersonalData's `DescribePersonsService` and Connectors' `WhichMailCatchUpIntentsService` lost their only client and are gone too. `ContactEmailRetriever` stays: the contact's e-mail decides which organization `ProposeOrganizationToAttach` proposes.
+- A view that leaves out what another context no longer knows decides it in its query: the tag search and a campaign's recipients leave out the contacts PersonalData no longer knows, through `TaggableContacts`, and an organization's contacts and the contacts to attach do the same through `KnownContacts`.
 - ADR 0215 keeps its decisions. Its argument against an attribute "written by hand that nothing checks" does not hold for `#[Offers]`, which the API tests check.
 
 ## Alternatives considered
