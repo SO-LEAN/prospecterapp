@@ -33,7 +33,7 @@ export function TypeTile({
         direction: t(`events.directions.${direction}`),
       })}
       className={cn(
-        'relative inline-flex size-[26px] shrink-0 items-center justify-center rounded-md',
+        'relative inline-flex size-6.5 shrink-0 items-center justify-center rounded-md',
         SOFT_TINTS[FAMILY_OF_CHANNEL[channel]],
         className,
       )}

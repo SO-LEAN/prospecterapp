@@ -18,7 +18,7 @@ export const FAMILY_OF_CHANNEL: Record<Channel, ExchangeFamily> = {
 export const LATE_EDGE = 'border-l-4 border-destructive'
 
 /** Each family's tint, on the text. */
-export const TINTS: Record<ExchangeFamily, string> = {
+export const TEXT_TINTS: Record<ExchangeFamily, string> = {
   call: 'text-event-call',
   meeting: 'text-event-meeting',
   video: 'text-event-video',
