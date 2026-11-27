@@ -57,17 +57,22 @@ const acme: Organization = {
   _links: { self: { href: `/api/organizations/${ACME}`, method: 'GET' } },
 }
 
+/** Long enough for a member to open the menu before the answer comes. */
+const A_NETWORK_DELAY_MS = 200
+
 type Sent = { method: string; path: string; body: unknown }
 
 /**
  * The API serves my account, the shell's reads and the given answers. An answer is keyed by its path and query, by its
- * path alone, or by `POST <path>`. Any other read finds nothing.
+ * path alone, or by `POST <path>`. Any other read finds nothing. The read named `slowly` answers after a network's delay.
  */
-function theApiAnswers(answers: Record<string, unknown> = {}) {
+function theApiAnswers(answers: Record<string, unknown> = {}, { slowly }: { slowly?: string } = {}) {
   const sent: Sent[] = []
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     const url = new URL(request.url)
+    if (`${url.pathname}${url.search}` === slowly)
+      await new Promise((answer) => setTimeout(answer, A_NETWORK_DELAY_MS))
     if (request.method !== 'GET') {
       sent.push({ method: request.method, path: url.pathname, body: await request.json() })
       return Response.json(answers[`${request.method} ${url.pathname}`] ?? {}, { status: 201 })
@@ -94,6 +99,13 @@ function theApiAnswers(answers: Record<string, unknown> = {}) {
   return sent
 }
 
+/** Opens « Nouveau » as a member does, once its button is enabled. */
+async function openTheNewMenu() {
+  const button = await screen.findByRole('button', { name: 'Nouveau' })
+  await waitFor(() => expect(button).toBeEnabled())
+  await userEvent.click(button)
+}
+
 describe('« Nouveau »', () => {
   afterEach(() => theApi.mockReset())
 
@@ -104,15 +116,12 @@ describe('« Nouveau »', () => {
     expect(await screen.findByRole('button', { name: 'Nouveau' })).toHaveTextContent('Nouveau')
   })
 
-  it('offers the creations that exist, in this order', async () => {
-    theApiAnswers(aManagerOfThePersonalData)
-    await renderTheSpaAt('/')
+  it('offers every creation the member has the right to as soon as it opens', async () => {
+    theApiAnswers(aManagerOfThePersonalData, { slowly: '/api/contacts?q=' })
+    await renderTheSpaAt('/calendar')
+    await openTheNewMenu()
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
-
-    await screen.findByRole('menuitem', { name: 'Nouveau contact' })
-    const entries = screen.getAllByRole('menuitem')
-    expect(entries.map((entry) => entry.textContent)).toEqual([
+    expect(screen.getAllByRole('menuitem').map((entry) => entry.textContent)).toEqual([
       'Noter un échange',
       'Planifier un échange',
       'Nouveau contact',
@@ -125,7 +134,7 @@ describe('« Nouveau »', () => {
     theApiAnswers({ ...aManagerOfThePersonalData, '/api/me': me })
     await renderTheSpaAt('/')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
 
     expect(await screen.findByRole('menuitem', { name: 'Nouveau contact' })).toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: 'Nouvelle campagne' })).not.toBeInTheDocument()
@@ -138,7 +147,7 @@ describe('« Nouveau »', () => {
     })
     await renderTheSpaAt('/')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
 
     expect(await screen.findByRole('menuitem', { name: 'Nouvelle campagne' })).toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: 'Nouveau contact' })).not.toBeInTheDocument()
@@ -148,7 +157,7 @@ describe('« Nouveau »', () => {
     const sent = theApiAnswers({ 'POST /api/organizations': acme, [`/api/organizations/${ACME}`]: acme })
     const router = await renderTheSpaAt('/calendar')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Commencer à prospecter' }))
     await userEvent.type(await screen.findByLabelText('Raison sociale'), 'QA nouveau')
     await userEvent.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
@@ -173,7 +182,7 @@ describe('« Nouveau »', () => {
     theApiAnswers(aManagerOfThePersonalData)
     await renderTheSpaAt('/')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
 
     expect(await screen.findByRole('menuitem', { name: entry })).toHaveAttribute('href', href)
   })
@@ -194,7 +203,7 @@ describe('« Nouveau »', () => {
     })
     await renderTheSpaAt('/calendar')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Noter un échange' }))
     const dialog = await screen.findByRole('dialog', { name: 'Noter un échange' })
     await userEvent.type(within(dialog).getByRole('searchbox'), 'QA')
@@ -212,7 +221,7 @@ describe('« Nouveau »', () => {
     theApiAnswers()
     await renderTheSpaAt('/campaigns')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Nouveau' }))
+    await openTheNewMenu()
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Planifier un échange' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Planifier un échange' })
