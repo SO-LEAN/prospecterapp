@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { Timeline } from '../queries'
@@ -55,12 +56,22 @@ const OFFERS_ALL = (path: string) => ({
 
 type Sent = { path: string; body: unknown }
 
-/** The timelines offer what is given, the API logs and plans. Any other reading returns nothing. */
+/** The form the API signs to send a file to the storage. */
+const AN_UPLOAD = {
+  upload: 'an-upload',
+  url: 'https://storage.test/upload',
+  fields: {},
+  heaviest: 10_000_000,
+}
+
+/** The timelines offer what is given, the API logs, plans and signs uploads, the storage takes the files. Any other reading returns nothing. */
 function theApiAnswers(offered: (path: string) => Omit<Links, 'self'> = OFFERS_ALL) {
   const sent: Sent[] = []
   theApi.mockImplementation(async (input) => {
-    const request = input as Request
+    if (!(input instanceof Request)) return new Response(null, { status: 204 })
+    const request = input
     const path = new URL(request.url).pathname
+    if (path === '/api/uploads') return Response.json(AN_UPLOAD)
     if (request.method === 'POST') {
       sent.push({ path, body: await request.json() })
       return Response.json(aTimelineOffering(path, offered(path)), {
@@ -75,16 +86,43 @@ function theApiAnswers(offered: (path: string) => Omit<Links, 'self'> = OFFERS_A
   return sent
 }
 
+/** The page that opens the dialog for a gesture, as « Nouveau » does, and is told when it closes. */
+function APage({ onClose }: { onClose: () => void }) {
+  const [gesture, setGesture] = useState<Gesture | null>(null)
+
+  return (
+    <>
+      <button type="button" onClick={() => setGesture('note')}>
+        Ouvrir pour noter
+      </button>
+      <button type="button" onClick={() => setGesture('plan')}>
+        Ouvrir pour planifier
+      </button>
+      <ExchangeWithSomeone
+        gesture={gesture}
+        onClose={() => {
+          setGesture(null)
+          onClose()
+        }}
+        interlocutorSearch={aSearchFinding(ada, acme)}
+      />
+    </>
+  )
+}
+
+const OPENERS = { note: 'Ouvrir pour noter', plan: 'Ouvrir pour planifier' } as const
+
 async function open(gesture: Gesture, onClose = () => {}) {
   await renderInARouter(
     <QueryClientProvider client={new QueryClient()}>
-      <ExchangeWithSomeone
-        gesture={gesture}
-        onClose={onClose}
-        interlocutorSearch={aSearchFinding(ada, acme)}
-      />
+      <APage onClose={onClose} />
     </QueryClientProvider>,
   )
+  return openAgain(gesture)
+}
+
+async function openAgain(gesture: Gesture) {
+  await userEvent.click(screen.getByRole('button', { name: OPENERS[gesture] }))
   return screen.findByRole('dialog')
 }
 
@@ -127,6 +165,26 @@ describe('noting an exchange with someone chosen first', () => {
     ])
   })
 
+  it.each([ada, acme])('attaches the files chosen to the exchange logged with $name', async ({ name }) => {
+    const sent = theApiAnswers()
+    const dialog = await open('note')
+
+    await userEvent.click(within(dialog).getByRole('button', { name }))
+    await userEvent.click(await within(dialog).findByRole('radio', { name: 'Appel' }))
+    await userEvent.upload(
+      within(dialog).getByLabelText('choisissez-les'),
+      new File(['devis'], 'devis.pdf', { type: 'application/pdf' }),
+    )
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() =>
+      expect(sent).toContainEqual({
+        path: `/api/exchanges/${NOTED}/attachments`,
+        body: { upload: 'an-upload', name: 'devis.pdf' },
+      }),
+    )
+  })
+
   it.each([ada, acme])(
     'says when $name may not be noted with, and goes back to the search',
     async ({ name }) => {
@@ -145,11 +203,19 @@ describe('noting an exchange with someone chosen first', () => {
   )
 })
 
+/** A call planned with « Demain 9h », the day after the moment of the tests. */
+const aCallTomorrowAtNine = () =>
+  expect.objectContaining({ channel: 'call', occurredAt: new Date(2026, 10, 19, 9, 0).toISOString() })
+
 describe('planning an exchange with someone chosen first', () => {
   it.each([
-    [ada, `/api/contacts/${ADA}/upcoming-exchanges`],
-    [acme, `/api/organizations/${ACME}/upcoming-exchanges`],
-  ])('plans it with $name once chosen', async ({ name }, path) => {
+    [ada, `/api/contacts/${ADA}/upcoming-exchanges`, aCallTomorrowAtNine],
+    [
+      acme,
+      `/api/organizations/${ACME}/upcoming-exchanges`,
+      () => ({ personId: null, exchange: aCallTomorrowAtNine() }),
+    ],
+  ])('plans it with $name once chosen', async ({ name }, path, planned) => {
     const sent = theApiAnswers()
     const onClose = vi.fn()
     const dialog = await open('plan', onClose)
@@ -161,6 +227,52 @@ describe('planning an exchange with someone chosen first', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
-    expect(sent).toEqual([{ path, body: expect.anything() }])
+    expect(sent).toEqual([{ path, body: planned() }])
+  })
+})
+
+describe('the dialog of an exchange with someone', () => {
+  it('says that the member first chooses who the exchange is with', async () => {
+    theApiAnswers()
+    const dialog = await open('note')
+
+    expect(within(dialog).getByRole('heading', { name: 'Noter un échange' })).toBeInTheDocument()
+    expect(
+      within(dialog).getByText('Avec un contact ou une organisation, à choisir d’abord.'),
+    ).toBeInTheDocument()
+  })
+
+  it('leaves the search once someone is chosen', async () => {
+    theApiAnswers()
+    const dialog = await open('note')
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ada Lovelace' }))
+
+    expect(await within(dialog).findByRole('radio', { name: 'Appel' })).toBeInTheDocument()
+    expect(within(dialog).queryByRole('button', { name: 'ACME' })).not.toBeInTheDocument()
+  })
+
+  it('goes back to the search when the planning is cancelled', async () => {
+    theApiAnswers()
+    const dialog = await open('plan')
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'ACME' }))
+    await userEvent.click(await within(dialog).findByRole('button', { name: 'Annuler' }))
+
+    expect(within(dialog).getByRole('button', { name: 'ACME' })).toBeInTheDocument()
+  })
+
+  it('closes on Escape, and opens again on the search', async () => {
+    theApiAnswers()
+    const onClose = vi.fn()
+    const dialog = await open('plan', onClose)
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ada Lovelace' }))
+    await within(dialog).findByRole('button', { name: 'Annuler' })
+
+    await userEvent.keyboard('{Escape}')
+
+    expect(onClose).toHaveBeenCalledOnce()
+    const again = await openAgain('plan')
+    expect(within(again).getByRole('button', { name: 'Ada Lovelace' })).toBeInTheDocument()
   })
 })
