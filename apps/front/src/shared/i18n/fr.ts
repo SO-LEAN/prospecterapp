@@ -169,7 +169,6 @@ export const fr = {
   },
   toAttach: {
     title: 'Contacts à rattacher',
-    badge: 'À rattacher',
     erasedIn_one: 'Effacé dans {{count}} jour',
     erasedIn_other: 'Effacé dans {{count}} jours',
     daysLeft_one: '{{count}} jour',
@@ -682,7 +681,6 @@ export const fr = {
     toMakeConformCount_other: '{{count}} à rendre conformes',
     onlyToMakeConform: 'Afficher seulement les échanges à rendre conformes',
     madeConform: 'Rendu conforme',
-    campaign: { named: 'Campagne : {{name}}', erased: 'Campagne effacée' },
     upcoming: 'À venir',
     past: 'Passés',
     statuses: { planned: 'À venir', done: 'Fait', missed: 'Manqué', cancelled: 'Annulé' },
@@ -753,13 +751,6 @@ export const fr = {
     },
     lasting: '{{moment}}, {{duration}}',
     nextExchange: 'Prochain échange : {{channel}} {{moment}}',
-    googleSync: {
-      synced: 'Synchronisé avec Google le {{at}}.',
-      pending: 'En attente de synchronisation avec Google.',
-      pendingToReconnect:
-        'En attente de synchronisation avec Google : votre compte Google est à reconnecter.',
-      failed: 'Google a refusé l’événement le {{at}}.',
-    },
     catchUpGmail: {
       action: 'Rattraper Gmail',
       reading: 'Lecture de Gmail…',

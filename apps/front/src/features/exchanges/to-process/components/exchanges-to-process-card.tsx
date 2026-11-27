@@ -8,9 +8,9 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
+import { ToAttachMarker } from '@/shared/ui/event/markers'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import type { StartWith } from '../../components/exchange-detail'
-import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useCancelExchange, useMarkExchangeMissed, useUndoable } from '../../mutations'
 import {
   type ContactsToAttach,
@@ -179,7 +179,7 @@ function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
         </span>
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
-          <ToAttachBadge exchange={exchange} />
+          {exchange.contactToAttach && <ToAttachMarker />}
         </span>
         {organization && (
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>

@@ -84,4 +84,16 @@ describe('ExchangeLine', () => {
 
     expect(screen.queryByTitle('Créé par une IA')).not.toBeInTheDocument()
   })
+
+  it('carries « à rattacher » when its contact waits to be attached, as the API says (ADR 0146)', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ contactToAttach: true })} />)
+
+    expect(screen.getByText('À rattacher')).toBeInTheDocument()
+  })
+
+  it('carries no « à rattacher » when the API says its contact is not to attach', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ contactToAttach: false })} />)
+
+    expect(screen.queryByText('À rattacher')).not.toBeInTheDocument()
+  })
 })

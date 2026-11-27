@@ -17,11 +17,11 @@ import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { CreatedByAnAIBadge } from '@/shared/ui/created-by-an-ai-badge'
 import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
+import { ToAttachMarker } from '@/shared/ui/event/markers'
 import { GmailLogo } from '@/shared/ui/gmail-logo'
 import { directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
-import { ToAttachBadge } from './to-attach-badge'
 
 type Summarized = Pick<
   Exchange,
@@ -126,7 +126,7 @@ export function ExchangeSummary({
               exchange.status === 'missed' ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'
             }
           />
-          <ToAttachBadge exchange={exchange} />
+          {exchange.contactToAttach && <ToAttachMarker />}
           {exchange.createdByAnAI && <CreatedByAnAIBadge />}
         </p>
         {exchange.canceller && (
