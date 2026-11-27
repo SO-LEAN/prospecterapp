@@ -9843,6 +9843,9 @@
                     },
                     "removeFromOrganization": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "noteToDo": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"

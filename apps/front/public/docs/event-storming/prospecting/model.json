@@ -5873,6 +5873,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
+            "via": "noteToDo",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\KnownContacts",
             "via": null,
             "certain": true,

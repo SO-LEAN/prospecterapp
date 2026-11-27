@@ -16,6 +16,9 @@ final readonly class OrganizationContactLinksResource
         #[OA\Property(nullable: false)]
         #[Offers('api_organizations_remove_contact')]
         public ?LinkResource $removeFromOrganization = null,
+        #[OA\Property(nullable: false)]
+        #[Offers('api_contacts_note_to_do')]
+        public ?LinkResource $noteToDo = null,
     ) {
     }
 }
