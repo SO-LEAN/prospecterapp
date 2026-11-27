@@ -29,7 +29,7 @@ const themes = [
 ] as const
 
 /** My avatar at the foot of the sidebar, and its menu: my account, the theme, the architecture, the sign-out. */
-export function UserMenu({ collapsed = false }: { collapsed?: boolean }) {
+export function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { t } = useTranslation()
   const { data: account, isPending } = useQuery(accountQuery())
   const signOut = useSignOut()
