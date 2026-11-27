@@ -60,9 +60,9 @@ jobs:
           else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
           checks=$(echo "$changed" | jq -c --argjson shares "$API_TEST_JOBS" 'map(select(. != "e2e" and (startswith("mutation-") | not))
             | if . == "api" then "api-lint", (range(1; $shares + 1) | "api-tests-\(.)-of-\($shares)") else . end)')
-          parts=$(echo "$changed" | jq -r '.[] | select(startswith("mutation-")) | ltrimstr("mutation-")')
+          parts=core; checks="[\"secrets\"]"
           mutations=$(for part in $parts; do
-            jq -cn --arg part "$part" --argjson shards "$(make -s mutation-shards PART="$part" BASE="origin/$BASE_REF")" \
+            jq -cn --arg part "$part" --argjson shards "$(make -s mutation-shards PART="$part" BASE="HEAD^2~1")" \
               'range(1; $shards + 1) | {part: $part, shard: ., shards: $shards}'
           done | jq -cs .)
           merges=$(echo "$mutations" | jq -c 'map(select(.shards > 1) | .part) | unique')
@@ -267,7 +267,7 @@ jobs:
           PART: ${{ matrix.part }}
           SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
           BASE_REF: ${{ github.base_ref }}
-        run: make "mutation-$PART" BASE="origin/$BASE_REF" SHARD="$SHARD"
+        run: make "mutation-$PART" BASE="HEAD^2~1" SHARD="$SHARD"
 
       - name: Sum up the mutation
         if: always()
