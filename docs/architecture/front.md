@@ -41,7 +41,7 @@ src/
     api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, exchanges.ts (what several features read again when a contact leaves an organization or is erased), slices.ts, upload.ts
     auth/               session.ts: Cognito sign-in, the tab's tokens; sign-in-page.ts: the sign-in screen and its returnTo
     config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066); documents.ts: whether the instance serves the documents under /docs/
-    ui/                 design system components, from shadcn or written by hand + form/, feedback/, map/
+    ui/                 design system components, from shadcn or written by hand + form/, feedback/, map/, event/ (the type tile, the event pills and the markers)
     i18n/               setup, fr.ts, de.ts (elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, an API 404 shown as a not found page; member-name.ts: how a member is shown: their name, else their profile email, else « Membre sans nom »), hooks, Zustand stores
