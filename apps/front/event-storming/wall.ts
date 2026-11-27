@@ -173,6 +173,9 @@ const CLUSTER = {
   hotspot: { x: 13, y: 22 },
 } as const
 
+/** What a command changes, publishes or keeps, in the column its ports would run under. */
+const BESIDE_A_COMMAND: Kind[] = ['aggregate', 'event', 'readModel']
+
 /** How far apart the events of other contexts a policy hears stand, one under the other, each on its paper. */
 const HEARD_PITCH = SIZE.sticky + 52
 
@@ -379,12 +382,16 @@ class WallUnderConstruction {
   }
 
   /**
-   * The ports of a command go down under the aggregates of its later changes, which stand in their column: the first
-   * aggregate ends above them.
+   * The ports of a command go down under the aggregates, the events and the views that stand over their column: the
+   * first of them ends above them.
    */
   private lowerThePortsUnderTheChanges(step: Step, node: Note): void {
     const under = node.y + SIZE.sticky - 3
-    const changes = step.notes.filter((note) => note.kind === 'aggregate' || note.kind === 'readModel')
+    const left = node.x + PORTS.left
+    const right = left + PORTS.stagger + SIZE.port.w
+    const changes = step.notes.filter(
+      (note) => BESIDE_A_COMMAND.includes(note.kind) && note.x < right && left < note.x + note.w,
+    )
     const lower = Math.max(under, ...changes.map((note) => note.y + note.h + PORTS.room)) - under
     for (const port of step.notes.filter((note) => note.port)) port.y += lower
   }
