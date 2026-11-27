@@ -288,7 +288,8 @@ jobs:
           if-no-files-found: error
 
   # The summary of a part mutated in shards: their counts, their survivors and the score of all their mutants, as the
-  # artifact mutation-<part> that a part's only job publishes. Each shard's artifact is kept in it, in a folder of its own
+  # artifact mutation-<part> that a part's only job publishes. Each shard's artifact is kept in it, in a folder of its own.
+  # A job cannot wait for some jobs of a matrix only: the summaries wait for every mutation job, the other parts' too
   mutation-summary:
     needs: [changes, mutation]
     if: always() && needs.changes.outputs.merges != '[]' && needs.changes.outputs.merges != ''
