@@ -52,6 +52,13 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
   - `ErrorState`, a page's `errorComponent`. A failure offers « Réessayer ». A 403, for a role or a right the member lacks, is explained in French, with nothing to retry. The explanation names the right when the API gives its `reason`;
   - `NotFound`;
   - `PageError`, for a page that could not load at all because the API is unreachable. It is the root route's `errorComponent`.
+- `shared/ui/event/`: how an exchange or a to-do looks wherever it shows. The colour says the channel, the material says the status, and neither says it alone: each status and each marker also has an icon, a pattern or a text, and a name for screen readers.
+  - `family.ts` maps each channel to its family, once: calls, meetings, video calls, and the written channels (e-mail, SMS, LinkedIn, Malt, other), which share one tint and differ by their icon. `channel.ts` gives each channel its icon.
+  - `TypeTile`: the channel's icon in a 26 px tile of its family's soft tint, with an arrow for the direction.
+  - `EventPill`: an exchange in the calendar. To come, a solid fill of its family, its text white. Done, its family's soft tint with a check. Missed, red hatching (the `missed-hatching` utility of `app/styles.css`) and a red rule. Cancelled, a dashed outline, its text grey and struck through. Late, a red edge. `StatusMark` is its status's icon, named for screen readers.
+  - `ToDoPill`: a to-do. To do, a box with an amber edge. Done, filled, its text faded and struck through. Late, the same red edge.
+  - `markers.tsx`: an exchange's discreet markers, « IA », Gmail, its campaign, booked by link, « À rattacher », « À mettre en conformité » and « En retard ». `ExchangeMarkers` shows each one only when the API gives its field. `SyncMarker` says where its push into Google stands.
+  - https://prospecter.localhost/catalogue shows them all in every state, to check them by eye in both themes. No navigation leads to it.
 - `shared/ui/map/geo-map.tsx`: a lazy MapLibre map with avatar markers, fitted to show all of them.
 - `shared/ui/unlocated-badge.tsx`: "Non géolocalisée" next to an address that the geocoder could not place. It uses the `warning` token on the stroke and the icon, and `foreground` on the text for contrast. `ExplainedUnlocatedBadge` explains why on hover, focus or press. `UnlocatedBadge` stands alone inside a link (a list card).
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
