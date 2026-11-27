@@ -23,8 +23,18 @@ final readonly class Member
         private bool $administers,
         public ?int $reminderMinutesBefore,
         public bool $managesPersonalData,
+        public string $personId,
         public ?string $firstName = null,
     ) {
+    }
+
+    /**
+     * The member as they present themselves: their first name, when PersonalData knows one.
+     */
+    #[\NoDiscard]
+    public function presentedAs(?string $firstName): self
+    {
+        return new self($this->id, $this->accountId, $this->administers, $this->reminderMinutesBefore, $this->managesPersonalData, $this->personId, $firstName);
     }
 
     /**
