@@ -23,7 +23,7 @@ export function ChannelsCard({ page }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('booking.channels.title')}</CardTitle>
+        <CardTitle>{t('booking.channels.title')}</CardTitle>
         <CardDescription>{t('booking.channels.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-6 text-sm">

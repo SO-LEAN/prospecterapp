@@ -84,7 +84,7 @@ function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boole
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('myDay.today')}</CardTitle>
+        <CardTitle>{t('myDay.today')}</CardTitle>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
@@ -172,7 +172,7 @@ function UpcomingCard({ items, now, onOpen }: CardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('myDay.upcoming')}</CardTitle>
+        <CardTitle>{t('myDay.upcoming')}</CardTitle>
         <CardAction>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/calendar">

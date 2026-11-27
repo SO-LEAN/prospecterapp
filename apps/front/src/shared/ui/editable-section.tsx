@@ -24,7 +24,7 @@ export function EditableSection({ title, children, editable, editor, className }
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle>{title}</CardTitle>
         {editable && !editing && (
           <CardAction>
             <Button

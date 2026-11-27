@@ -92,7 +92,7 @@ function Dashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card id={ORGANIZATIONS_MAP} className="scroll-mt-6 lg:col-span-3">
           <CardHeader>
-            <CardTitle className="text-base">{t('dashboard.map.title')}</CardTitle>
+            <CardTitle>{t('dashboard.map.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             {markers.length > 0 ? (
@@ -113,7 +113,7 @@ function Dashboard() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">{t('dashboard.recent.title')}</CardTitle>
+            <CardTitle>{t('dashboard.recent.title')}</CardTitle>
             <CardAction>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/organizations">

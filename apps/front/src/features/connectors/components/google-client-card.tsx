@@ -48,7 +48,7 @@ export function GoogleClientCard({ client }: Props) {
           <KeyRound aria-hidden className="size-5" />
         </span>
         <div className="min-w-0 space-y-1.5">
-          <CardTitle className="text-base">{t('settings.connectors.client.title')}</CardTitle>
+          <CardTitle>{t('settings.connectors.client.title')}</CardTitle>
           <CardDescription>{t('settings.connectors.client.description')}</CardDescription>
         </div>
       </CardHeader>

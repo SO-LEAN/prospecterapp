@@ -13,7 +13,7 @@ export function LogoSection({ organization }: { organization: Organization }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('organizations.sections.logo')}</CardTitle>
+        <CardTitle>{t('organizations.sections.logo')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ImageUpload

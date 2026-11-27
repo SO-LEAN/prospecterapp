@@ -1,3 +1,4 @@
+import { globSync, readFileSync } from 'node:fs'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Card, CardHeader, CardTitle } from './card'
@@ -20,4 +21,15 @@ describe('Card', () => {
 
     expect(screen.getByText('À traiter')).toHaveClass('font-display', 'text-card-title')
   })
+
+  it('keeps its title’s size on every screen', () => {
+    const resized = globSync('src/**/*.tsx')
+      .filter((module) => TITLE_RESIZED.test(readFileSync(module, 'utf8')))
+      .sort()
+
+    expect(resized).toEqual([])
+  })
 })
+
+/** A card title given a text size of its own, which would replace the card title's. */
+const TITLE_RESIZED = /<CardTitle\b[^>]*className="[^"]*\btext-(xs|sm|base|lg|\d?xl)\b/

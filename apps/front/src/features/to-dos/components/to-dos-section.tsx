@@ -145,7 +145,7 @@ export function ToDosCard({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-base">{t('toDos.title')}</CardTitle>
+        <CardTitle>{t('toDos.title')}</CardTitle>
         {mayAdd && !nothingToDo && (
           <CardAction>
             <AddButton onClick={add} />
