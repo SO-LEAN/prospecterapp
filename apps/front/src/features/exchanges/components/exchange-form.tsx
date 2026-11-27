@@ -9,6 +9,7 @@ import { FormField } from '@/shared/forms/form-field'
 import { formatSize } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
+import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
 import { FileDropZone } from '@/shared/ui/file-drop-zone'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
@@ -23,7 +24,7 @@ import {
   personIdOf,
   toExchangeFacts,
 } from '../schema'
-import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+import { INTERLOCUTOR_ICONS } from './exchange-line'
 import { MadeConformField } from './made-conform-field'
 
 /** Who the member can choose on an organization's card: the organization itself, first and by default, or one of its contacts. */

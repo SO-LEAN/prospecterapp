@@ -11,6 +11,7 @@ import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { formatRange } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
+import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import {
@@ -36,7 +37,7 @@ import {
 } from '../queries'
 import { ITSELF } from '../schema'
 import type { Interlocutors } from './exchange-form'
-import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+import { INTERLOCUTOR_ICONS } from './exchange-line'
 import { QuickDurations } from './quick-durations'
 import { VideoCallLinkInput } from './video-call-link-input'
 
