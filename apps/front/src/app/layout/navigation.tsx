@@ -118,9 +118,7 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
           ) : (
             <PanelLeftClose className="size-[18px]" aria-hidden />
           )}
-          <span className={cn(collapsed && 'sr-only')}>
-            {collapsed ? t('nav.expand') : t('nav.collapse')}
-          </span>
+          <span className={cn(collapsed && 'sr-only')}>{collapsed ? t('nav.unfold') : t('nav.fold')}</span>
         </button>
       )}
     </div>

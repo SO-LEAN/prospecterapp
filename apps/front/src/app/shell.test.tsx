@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import { usePreferences } from '@/shared/stores/preferences'
@@ -134,5 +135,36 @@ describe('the shell of a signed-in member', () => {
     expect(theEntry('Organisations')).toHaveTextContent(/^Organisations$/)
     expect(theEntry('Contacts')).toHaveTextContent(/^Contacts$/)
     expect(theApi.mock.calls.map(([input]) => pathOf(input))).not.toContain('/api/dashboard')
+  })
+
+  it('folds the sidebar to its icons, each entry explained by a tooltip', async () => {
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Replier la barre latérale' }))
+
+    expect(within(theSidebar()).queryByText('Babbage & Co')).not.toBeInTheDocument()
+    await userEvent.hover(theEntry('Contacts'))
+    expect(await screen.findByRole('tooltip', { name: 'Contacts' })).toBeInTheDocument()
+  })
+
+  it('remembers the sidebar folded at the next visit', async () => {
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+    await userEvent.click(screen.getByRole('button', { name: 'Replier la barre latérale' }))
+
+    expect(JSON.parse(localStorage.getItem('prospecter-preferences') ?? '{}').state).toMatchObject({
+      sidebarCollapsed: true,
+    })
+  })
+
+  it('unfolds the sidebar it folded', async () => {
+    usePreferences.setState({ sidebarCollapsed: true })
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Déplier la barre latérale' }))
+
+    expect(within(theSidebar()).getByText('Babbage & Co')).toBeInTheDocument()
   })
 })
