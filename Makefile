@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env image-load agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env image-load agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-merge mutation-shards mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -298,15 +298,31 @@ MUTATION_REPORT_event-storming = apps/front/reports/mutation-event-storming.json
 MUTATION_TITLE_event-storming = the event storming's generator
 MUTATION_PARTS = core front event-storming
 
-mutation-summary: ## Print in Markdown the summary of a part's last mutation, PART=core|front|event-storming: its score, its counts, each survivor and each mutant no test covers
-	@test -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-summary PART=<$(subst $(space),|,$(MUTATION_PARTS))>"; exit 1; }
-	@$(NODE) node apps/front/mutation/summarise.ts $(MUTATION_TOOL_$(PART)) $(MUTATION_REPORT_$(PART)) "$(MUTATION_TITLE_$(PART))"
+# the CI mutates a part in shards, each in a job of its own, when the branch adds many lines to it: SHARD=<i>/<n>
+# mutates the i-th of n shares of its files (make/mutation.mk), and make mutation-shards says how many shares it takes
+MUTATION_SHARDS_core = -C packages/core mutation-shards
+MUTATION_SHARDS_front = -C apps/front mutation-spa-shards
+MUTATION_SHARDS_event-storming = -C apps/front mutation-event-storming-shards
+
+mutation-shards: ## Print how many shards the CI mutates a part in, PART=core|front|event-storming, from the lines the branch adds to it since BASE (origin/dev)
+	@test -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-shards PART=<$(subst $(space),|,$(MUTATION_PARTS))>"; exit 1; }
+	@$(MAKE) -s $(MUTATION_SHARDS_$(PART))
+
+mutation-summary: ## Print in Markdown the summary of a part's last mutation, PART=core|front|event-storming: its score, its counts, each survivor and each mutant no test covers; REPORTS= the JSON reports of a run in shards, from the root
+	@test -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-summary PART=<$(subst $(space),|,$(MUTATION_PARTS))> [REPORTS=<files>]"; exit 1; }
+	@$(NODE) node apps/front/mutation/summarise.ts $(MUTATION_TOOL_$(PART)) "$(MUTATION_TITLE_$(PART))" $(or $(REPORTS),$(MUTATION_REPORT_$(PART)))
 
 mutation-artifact: ## Write in DIR (a folder from the root) a part's last mutation, PART=core|front|event-storming: its summary (summary.md) and its tool's JSON report, when it wrote one
 	@test -n "$(DIR)" -a -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-artifact PART=<$(subst $(space),|,$(MUTATION_PARTS))> DIR=<folder>"; exit 1; }
 	@mkdir -p $(DIR)
 	@$(MAKE) -s mutation-summary PART=$(PART) > $(DIR)/summary.md
 	@if [ -f $(MUTATION_REPORT_$(PART)) ]; then cp $(MUTATION_REPORT_$(PART)) $(DIR)/; fi
+
+mutation-merge: ## Write in DIR (a folder from the root) the summary of a part's mutation in shards, PART=core|front|event-storming, from SHARDS, a folder from the root holding each shard's artifact in a folder of its own; DIR keeps these folders
+	@test -n "$(DIR)" -a -n "$(SHARDS)" -a -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-merge PART=<$(subst $(space),|,$(MUTATION_PARTS))> SHARDS=<folder> DIR=<folder>"; exit 1; }
+	@mkdir -p $(DIR)
+	@cp -R $(SHARDS)/. $(DIR)/
+	@$(MAKE) -s mutation-summary PART=$(PART) REPORTS="$(wildcard $(SHARDS)/*/$(notdir $(MUTATION_REPORT_$(PART))))" > $(DIR)/summary.md
 
 mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/dev), on MiniStack: minutes per mutant, on demand
 	@$(MAKE) -C apps/api mutation

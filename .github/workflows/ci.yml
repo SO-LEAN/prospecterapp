@@ -4,7 +4,8 @@
 # together too (make -j), their output not synchronised, so that the progress of the tests shows while they run (make
 # keeps the output of a command until it ends with any --output-sync, ADR 0180); the job ci sums them up, the check
 # the rulesets require. A pull request also mutates the lines it adds, in a job per part of the code it touches, beside
-# the checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219). dev's
+# the checks, or in several jobs for a part it adds many lines to (ADR 0222); their reports go in artifacts for the
+# definition of done, which judges the threshold (ADR 0219). dev's
 # merge queue runs the checks once more, on the pull request rebased onto dev and onto those queued before it, and the
 # journeys there only, in the job e2e, when the changes need them (ADR 0220): a push to a pull request, to dev or to
 # main runs none. The merge queue mutates nothing. The API's check runs in several jobs. One runs its lint, and each of
@@ -38,6 +39,7 @@ jobs:
     outputs:
       checks: ${{ steps.checks.outputs.checks }}
       mutations: ${{ steps.checks.outputs.mutations }}
+      merges: ${{ steps.checks.outputs.merges }}
       e2e: ${{ steps.checks.outputs.e2e }}
     steps:
       - uses: actions/checkout@v7.0.1
@@ -58,10 +60,16 @@ jobs:
           else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
           checks=$(echo "$changed" | jq -c --argjson shares "$API_TEST_JOBS" 'map(select(. != "e2e" and (startswith("mutation-") | not))
             | if . == "api" then "api-lint", (range(1; $shares + 1) | "api-tests-\(.)-of-\($shares)") else . end)')
-          mutations=$(echo "$changed" | jq -c 'map(select(startswith("mutation-")) | ltrimstr("mutation-"))')
+          parts=$(echo "$changed" | jq -r '.[] | select(startswith("mutation-")) | ltrimstr("mutation-")')
+          mutations=$(for part in $parts; do
+            jq -cn --arg part "$part" --argjson shards "$(make -s mutation-shards PART="$part" BASE="origin/$BASE_REF")" \
+              'range(1; $shards + 1) | {part: $part, shard: ., shards: $shards}'
+          done | jq -cs .)
+          merges=$(echo "$mutations" | jq -c 'map(select(.shards > 1) | .part) | unique')
           e2e=$(echo "$changed" | jq 'index("e2e") != null')
           echo "checks=$checks" >> "$GITHUB_OUTPUT"
           echo "mutations=$mutations" >> "$GITHUB_OUTPUT"
+          echo "merges=$merges" >> "$GITHUB_OUTPUT"
           echo "e2e=$e2e" >> "$GITHUB_OUTPUT"
           echo "checks: $checks, mutations: $mutations, journeys: $e2e"
 
@@ -183,23 +191,51 @@ jobs:
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
 
   # the parts whose code a pull request adds lines to, mutated from its base (the merge-base of dev and its merge
-  # commit), as make mutation BASE= does. A skipped mutant of the core fails the job, as it fails make mutation; a
-  # score under the threshold does not. The job is not part of the check ci: the definition of done reads its artifact
+  # commit), as make mutation BASE= does. A part to which the pull request adds many lines is mutated in shards, a job
+  # each, its files shared among them (make mutation-shards, ADR 0222). A skipped mutant of the core fails its job, as
+  # it fails make mutation; a score under the threshold does not. The jobs are not part of the check ci: the definition
+  # of done reads the artifact mutation-<part>, which a part's only job publishes, or the job summing up its shards
   mutation:
     needs: changes
     if: needs.changes.outputs.mutations != '[]'
-    name: mutation ${{ matrix.part }}
+    name: mutation ${{ matrix.part }}${{ matrix.shards > 1 && format(' {0} of {1}', matrix.shard, matrix.shards) || '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        part: ${{ fromJSON(needs.changes.outputs.mutations) }}
+        include: ${{ fromJSON(needs.changes.outputs.mutations) }}
+    env:
+      PHP: ${{ matrix.part == 'core' }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           # the merge-base with dev, from which the added lines are read
           fetch-depth: 0
+
+      # the images, as the checks take them (ADR 0221): the summary runs in the Node image
+      - name: Name the images
+        run: make images-env >> "$GITHUB_ENV"
+
+      - name: Cache the PHP image
+        if: env.PHP == 'true'
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/images/php.tar
+          key: image-${{ env.PHP_IMAGE }}
+
+      - name: Load the PHP image
+        if: env.PHP == 'true'
+        run: make image-load IMAGE=php ARCHIVE="$RUNNER_TEMP/images/php.tar"
+
+      - name: Cache the Node image
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/images/node.tar
+          key: image-${{ env.NODE_IMAGE }}
+
+      - name: Load the Node image
+        run: make image-load IMAGE=node ARCHIVE="$RUNNER_TEMP/images/node.tar"
 
       - name: Cache the Composer dependencies
         if: matrix.part == 'core'
@@ -229,8 +265,9 @@ jobs:
       - name: Mutate the lines the pull request adds
         env:
           PART: ${{ matrix.part }}
+          SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
           BASE_REF: ${{ github.base_ref }}
-        run: make "mutation-$PART" BASE="origin/$BASE_REF"
+        run: make "mutation-$PART" BASE="origin/$BASE_REF" SHARD="$SHARD"
 
       - name: Sum up the mutation
         if: always()
@@ -240,8 +277,56 @@ jobs:
           make mutation-artifact PART="$PART" DIR=mutation
           cat mutation/summary.md >> "$GITHUB_STEP_SUMMARY"
 
+      # a shard's artifact is not named mutation-<part>: the definition of done reads only the summary of all its shards
       - name: Publish the report
         if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: ${{ matrix.shards > 1 && format('shard-{0}-{1}-of-{2}', matrix.part, matrix.shard, matrix.shards) || format('mutation-{0}', matrix.part) }}
+          path: mutation/
+          if-no-files-found: error
+
+  # The summary of a part mutated in shards: their counts, their survivors and the score of all their mutants, as the
+  # artifact mutation-<part> that a part's only job publishes. Each shard's artifact is kept in it, in a folder of its own
+  mutation-summary:
+    needs: [changes, mutation]
+    if: always() && needs.changes.outputs.merges != '[]' && needs.changes.outputs.merges != ''
+    name: mutation ${{ matrix.part }} summary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.changes.outputs.merges) }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Name the images
+        run: make images-env >> "$GITHUB_ENV"
+
+      - name: Cache the Node image
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/images/node.tar
+          key: image-${{ env.NODE_IMAGE }}
+
+      - name: Load the Node image
+        run: make image-load IMAGE=node ARCHIVE="$RUNNER_TEMP/images/node.tar"
+
+      - name: Bring the shards' artifacts
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: shard-${{ matrix.part }}-*
+          path: shards
+
+      - name: Sum up the shards
+        env:
+          PART: ${{ matrix.part }}
+        run: |
+          make mutation-merge PART="$PART" SHARDS=shards DIR=mutation
+          cat mutation/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the summary
         uses: actions/upload-artifact@v7.0.2
         with:
           name: mutation-${{ matrix.part }}

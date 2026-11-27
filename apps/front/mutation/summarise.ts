@@ -1,21 +1,23 @@
 /**
- * Prints the summary of a mutation run from its tool's JSON report, its paths from the directory it runs in, the root
- * of the repository. This file only reads and prints; what it prints is decided and tested in `summary.ts`.
- * node apps/front/mutation/summarise.ts <infection|stryker> <report.json> <title> (make mutation-summary).
+ * Prints the summary of a mutation run from its tool's JSON reports, one per shard, its paths from the directory it
+ * runs in, the root of the repository. A report the tool did not write is passed over. This file only reads and prints;
+ * what it prints is decided and tested in `summary.ts`.
+ * node apps/front/mutation/summarise.ts <infection|stryker> <title> <report.json>... (make mutation-summary).
  */
 import { existsSync, readFileSync } from 'node:fs'
 import {
   type InfectionReport,
   mutationOfInfection,
+  mutationOfShards,
   mutationOfStryker,
   type StrykerReport,
   summaryOf,
   summaryWithoutReport,
 } from './summary.ts'
 
-const [tool, reportFile, title] = process.argv.slice(2)
-if ((tool !== 'infection' && tool !== 'stryker') || reportFile === undefined || title === undefined) {
-  throw new Error('Usage: node apps/front/mutation/summarise.ts <infection|stryker> <report.json> <title>')
+const [tool, title, ...reportFiles] = process.argv.slice(2)
+if ((tool !== 'infection' && tool !== 'stryker') || title === undefined) {
+  throw new Error('Usage: node apps/front/mutation/summarise.ts <infection|stryker> <title> <report.json>...')
 }
 const root = process.cwd()
 
@@ -24,8 +26,10 @@ const mutationOf = (report: unknown) =>
     ? mutationOfInfection(report as InfectionReport, root)
     : mutationOfStryker(report as StrykerReport, root)
 
+const shards = reportFiles
+  .filter((file) => existsSync(file))
+  .map((file) => mutationOf(JSON.parse(readFileSync(file, 'utf8'))))
+
 process.stdout.write(
-  existsSync(reportFile)
-    ? summaryOf(title, mutationOf(JSON.parse(readFileSync(reportFile, 'utf8'))))
-    : summaryWithoutReport(title),
+  shards.length > 0 ? summaryOf(title, mutationOfShards(shards)) : summaryWithoutReport(title),
 )
