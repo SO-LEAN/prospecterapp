@@ -279,6 +279,10 @@ describe('the « Le Filon » motion', () => {
     expect(TAILWIND_THEME.get(`--ease-${curve}`)).toMatch(/^cubic-bezier\(/)
   })
 
+  it('stills them outside any layer, where the utilities cannot win over it', () => {
+    expect(depthOf('@media (prefers-reduced-motion: reduce)')).toBe(0)
+  })
+
   it.each(movesOfTheAnimations())(
     'only fades under prefers-reduced-motion: %s stays %s',
     (variable, still) => {
@@ -328,6 +332,12 @@ function expectTheColor(theme: Theme, token: string, hex: string) {
       `${token} is ${actual} instead of ${expected}`,
     ).toBeLessThanOrEqual(ROUNDING)
   })
+}
+
+/** How many blocks of the stylesheet hold a rule: 0 for a rule at its top level. */
+function depthOf(rule: string) {
+  const before = styles.slice(0, styles.indexOf(`${rule} {`))
+  return before.split('{').length - before.split('}').length
 }
 
 function blockOf(selector: string) {
