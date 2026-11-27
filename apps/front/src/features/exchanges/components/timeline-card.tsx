@@ -173,15 +173,27 @@ type ExchangeDialogProps = {
   children: (close: () => void) => ReactNode
 }
 
-/** The button that opens the quick entry of an exchange with this name. The dialog closes once the exchange is logged. */
-export function NoteExchangeDialog({ name, children }: ExchangeDialogProps) {
+type NoteDialogProps = {
+  name: string
+  /** Its second argument retitles the window once the member chooses to plan what follows. */
+  children: (close: () => void, planTheFollowUp: () => void) => ReactNode
+}
+
+/**
+ * The button that opens the quick entry of an exchange with this name. The dialog closes once the exchange is logged,
+ * or is retitled when the member then plans what follows.
+ */
+export function NoteExchangeDialog({ name, children }: NoteDialogProps) {
   const { t } = useTranslation()
 
   return (
     <ExchangeDialog
       icon={Plus}
-      title={t('exchanges.note')}
-      description={t('exchanges.noteDescription', { name })}
+      heading={{ title: t('exchanges.note'), description: t('exchanges.noteDescription', { name }) }}
+      followUp={{
+        title: t('exchanges.followUp.plan'),
+        description: t('exchanges.planDescription', { name }),
+      }}
     >
       {children}
     </ExchangeDialog>
@@ -215,30 +227,45 @@ export function PlanExchangeDialog({ name, children }: ExchangeDialogProps) {
     <ExchangeDialog
       icon={CalendarPlus}
       variant="outline"
-      title={t('exchanges.plan')}
-      description={t('exchanges.planDescription', { name })}
+      heading={{ title: t('exchanges.plan'), description: t('exchanges.planDescription', { name }) }}
     >
       {children}
     </ExchangeDialog>
   )
 }
 
+/** A window's title and description. Its title also labels the button that opens it. */
+type Heading = { title: string; description: string }
+
 type DialogProps = {
   icon: LucideIcon
   variant?: 'default' | 'outline'
-  title: string
-  description: string
-  children: (close: () => void) => ReactNode
+  heading: Heading
+  /** The heading once the member goes on to plan what follows. */
+  followUp?: Heading
+  children: (close: () => void, planTheFollowUp: () => void) => ReactNode
 }
 
-function ExchangeDialog({ icon: Icon, variant = 'default', title, description, children }: DialogProps) {
+function ExchangeDialog({
+  icon: Icon,
+  variant = 'default',
+  heading,
+  followUp = heading,
+  children,
+}: DialogProps) {
   const [open, setOpen] = useState(false)
+  const [followingUp, setFollowingUp] = useState(false)
+  const { title, description } = followingUp ? followUp : heading
+  const openOrClose = (opened: boolean) => {
+    setOpen(opened)
+    setFollowingUp(false)
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={openOrClose}>
       <DialogTrigger asChild>
         <Button size="sm" variant={variant}>
-          <Icon aria-hidden /> {title}
+          <Icon aria-hidden /> {heading.title}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
@@ -246,7 +273,10 @@ function ExchangeDialog({ icon: Icon, variant = 'default', title, description, c
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        {children(() => setOpen(false))}
+        {children(
+          () => openOrClose(false),
+          () => setFollowingUp(true),
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -10,11 +10,13 @@ type Props = {
   /** The previous exchange's channel, proposed again for the follow-up. */
   channel: Channel
   plan: (exchange: PlannedExchangeInput) => Promise<unknown>
+  /** Tells that the member chose to plan what follows, so that its window takes its title. */
+  onPlanning?: () => void
   onDone: () => void
 }
 
 /** Right after an exchange, plans what follows with the same interlocutor. One click skips it. */
-export function FollowUp({ channel, plan, onDone }: Props) {
+export function FollowUp({ channel, plan, onPlanning, onDone }: Props) {
   const { t } = useTranslation()
   const [planning, setPlanning] = useState(false)
 
@@ -38,7 +40,13 @@ export function FollowUp({ channel, plan, onDone }: Props) {
         <Button type="button" variant="ghost" onClick={onDone}>
           {t('exchanges.followUp.later')}
         </Button>
-        <Button type="button" onClick={() => setPlanning(true)}>
+        <Button
+          type="button"
+          onClick={() => {
+            setPlanning(true)
+            onPlanning?.()
+          }}
+        >
           <CalendarPlus aria-hidden /> {t('exchanges.followUp.plan')}
         </Button>
       </div>
@@ -55,16 +63,22 @@ type NoteProps = {
   /** Plans with the same interlocutor. It is absent when planning is not offered. */
   plan?: (exchange: PlannedExchangeInput, personId: string | null) => Promise<unknown>
   interlocutors?: Interlocutors
+  onPlanning?: () => void
   close: () => void
 }
 
 /** Logs an exchange. When planning is offered, it then proposes what follows with the same interlocutor. */
-export function NoteThenFollowUp({ note, plan, interlocutors, close }: NoteProps) {
+export function NoteThenFollowUp({ note, plan, interlocutors, onPlanning, close }: NoteProps) {
   const [noted, setNoted] = useState<Noted | null>(null)
 
   if (noted && plan) {
     return (
-      <FollowUp channel={noted.channel} onDone={close} plan={(exchange) => plan(exchange, noted.personId)} />
+      <FollowUp
+        channel={noted.channel}
+        onPlanning={onPlanning}
+        onDone={close}
+        plan={(exchange) => plan(exchange, noted.personId)}
+      />
     )
   }
 

@@ -88,8 +88,9 @@ export function ExchangesSection({ contactId, contactName, mayCatchUpGmail = fal
       noteExchange={
         mayNote && (
           <NoteExchangeDialog name={contactName}>
-            {(close) => (
+            {(close, planTheFollowUp) => (
               <NoteThenFollowUp
+                onPlanning={planTheFollowUp}
                 close={close}
                 note={async (body, _itself, files) => {
                   const { noted } = await note.mutateAsync({ contactId, body })
