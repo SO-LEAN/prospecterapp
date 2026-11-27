@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/mutation.mk ../../make/php.mk
 
-.PHONY: vendor test mutation lint fix
+.PHONY: vendor test mutation mutation-shards lint fix
 
 ##@ Core
 vendor: ## Install the Composer dependencies of the core
@@ -27,10 +27,13 @@ MUTATION_REPORT = var/mutation.json
 # the event storming's generator, beside the core whose tests run its own (infection.json5)
 MUTATED_PHP = 'src/*.php' '../phpstan-rules/EventStorming/*.php'
 
-mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the unit tests, the scenarios and the generator's tests; list the survivors, count the skipped mutants and fail when there is one
+mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the unit tests, the scenarios and the generator's tests; list the survivors, count the skipped mutants and fail when there is one; SHARD=<i>/<n> the i-th of n shares of the files
 	@rm -f $(MUTATION_SUMMARY) $(MUTATION_REPORT)
 	$(infection-on-added-lines)
 	$(call fail-on-skipped-mutants,$(MUTATION_SUMMARY))
+
+mutation-shards: ## Print how many shards the CI mutates the core in, from the lines the branch adds since BASE (origin/dev)
+	@$(call SHARDS_OF,$(ADDED_PHP_LINES))
 
 lint: lint-phpstan lint-style lint-rector ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 

@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: install test mutation mutation-spa mutation-event-storming lint fix build api-types event-storming-page e2e shell package release
+.PHONY: install test mutation mutation-spa mutation-event-storming mutation-spa-shards mutation-event-storming-shards lint fix build api-types event-storming-page e2e shell package release
 
 ##@ Front
 install: ## Install the pnpm dependencies of the front
@@ -21,6 +21,8 @@ MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts' ':!event-storming/genera
 ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
 	/^@@/ { split(substr($$3, 2), new, ","); count = new[2] == "" ? 1 : new[2]; \
 	if (count > 0) { printf "%s%s:%d-%d", separator, file, new[1], new[1] + count - 1; separator = "," } }'
+# the ranges of the files a shard mutates (SHARD=<i>/<n>, make/mutation.mk), none when it has no file
+SHARD_RANGES = files=$$($(call FILES_OF_SHARD,$(call ADDED_LINES,$(1)))); test -z "$$files" || $(call ADDED_LINE_RANGES,$$files)
 
 # Stryker runs one test runner per processor of the container, one fewer beyond four: 2 in a worktree, whose node
 # container has 2 processors and 2 GB (docker-compose.agents.yml). MUTATION_WORKERS=<n> runs n runners, and gives the
@@ -33,15 +35,21 @@ mutation: ## Mutate the lines the branch adds in src and in the event storming's
 
 # each report Stryker writes (stryker.config.json, stryker.event-storming.json), removed before its run: a run mutating
 # nothing reads no former one
-mutation-spa: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of Vitest; list the survivors
+mutation-spa: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of Vitest; list the survivors; SHARD=<i>/<n> the i-th of n shares of the files
 	@rm -f reports/mutation.json
-	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_CODE))); \
+	@ranges=$$($(call SHARD_RANGES,$(MUTATED_CODE))); \
 	if [ -n "$$ranges" ]; then $(STRYKER) --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
 
-mutation-event-storming: ## Mutate the lines the branch adds in the event storming's generator since BASE (origin/dev), killed by its tests; list the survivors
+mutation-event-storming: ## Mutate the lines the branch adds in the event storming's generator since BASE (origin/dev), killed by its tests; list the survivors; SHARD=<i>/<n> the i-th of n shares of the files
 	@rm -f reports/mutation-event-storming.json
-	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_GENERATOR))); \
+	@ranges=$$($(call SHARD_RANGES,$(MUTATED_GENERATOR))); \
 	if [ -n "$$ranges" ]; then $(STRYKER) stryker.event-storming.json --mutate "$$ranges"; else $(call NO_ADDED_LINE,event-storming); fi
+
+mutation-spa-shards: ## Print how many shards the CI mutates the SPA in, from the lines the branch adds since BASE (origin/dev)
+	@$(call SHARDS_OF,$(call ADDED_LINES,$(MUTATED_CODE)))
+
+mutation-event-storming-shards: ## Print how many shards the CI mutates the event storming's generator in, from the lines the branch adds since BASE (origin/dev)
+	@$(call SHARDS_OF,$(call ADDED_LINES,$(MUTATED_GENERATOR)))
 
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome
