@@ -1,3 +1,5 @@
+import { i18n } from '@/shared/i18n'
+
 const TAG = /\[[^\]]*\]/g
 const LETTER = /\p{L}/u
 
@@ -43,7 +45,7 @@ export function formatCalendarDay(day: string, now = new Date(), time?: string |
   const [year = 0, month = 1, dayOfMonth = 1] = day.split('-').map(Number)
   const shownDay = formatDay(new Date(year, month - 1, dayOfMonth), now)
 
-  return time ? `${shownDay} · ${formatClockTime(time)}` : shownDay
+  return time ? i18n.t('dates.moment', { day: shownDay, hour: formatClockTime(time) }) : shownDay
 }
 
 /** "2026-11-17T13:00:00+00:00" -> "14h00", on the browser's clock or on the clock of the time zone given */
@@ -67,14 +69,20 @@ const hourAndMinutes = (hours: number, minutes: number) => `${hours}h${String(mi
  * browser's clock, or the clock of the time zone given.
  */
 export function formatMoment(moment: string, now = new Date(), timeZone?: string): string {
-  return `${formatDay(new Date(moment), now, timeZone)} · ${formatHour(moment, timeZone)}`
+  return i18n.t('dates.moment', {
+    day: formatDay(new Date(moment), now, timeZone),
+    hour: formatHour(moment, timeZone),
+  })
 }
 
 /** "ven. 20 nov. · 16h15 à 16h45", and both days when it ends on another one: "… à sam. 21 nov. · 9h00" */
 export function formatRange(start: string, end: string, now = new Date()): string {
   const sameDay = startOfDay(new Date(start)) === startOfDay(new Date(end))
 
-  return `${formatMoment(start, now)} à ${sameDay ? formatHour(end) : formatMoment(end, now)}`
+  return i18n.t('dates.range', {
+    start: formatMoment(start, now),
+    end: sameDay ? formatHour(end) : formatMoment(end, now),
+  })
 }
 
 const LAST_DAY_SAID_FROM_NOW = 2
@@ -89,7 +97,7 @@ export function formatUpcoming(moment: string, now = new Date()): string {
   const absolute = formatMoment(moment, now)
 
   return days >= 0 && days <= LAST_DAY_SAID_FROM_NOW
-    ? `${absolute} (${relativeDayFormat.format(days, 'day')})`
+    ? i18n.t('dates.upcoming', { moment: absolute, relative: relativeDayFormat.format(days, 'day') })
     : absolute
 }
 
@@ -129,7 +137,11 @@ const dayOfMonthAndYearFormat = new Intl.DateTimeFormat('fr-FR', {
 
 /** "16 au 22 nov. 2026 · S47": a week from its first day to its last one, with its ISO number */
 export function formatWeekTitle(first: Date, last: Date): string {
-  return `${firstDayOfTheWeek(first, last)} au ${dayOfMonthAndYearFormat.format(last)} · S${isoWeekOf(first)}`
+  return i18n.t('dates.week', {
+    first: firstDayOfTheWeek(first, last),
+    last: dayOfMonthAndYearFormat.format(last),
+    number: isoWeekOf(first),
+  })
 }
 
 /** "16", "30 nov." when the week ends in another month, "28 déc. 2026" in another year: what the last day does not say */

@@ -89,6 +89,12 @@ export const fr = {
     mcp: 'MCP',
     createdByAnAI: 'Créé par une IA',
   },
+  dates: {
+    moment: '{{day}} · {{hour}}',
+    range: '{{start}} à {{end}}',
+    upcoming: '{{moment}} ({{relative}})',
+    week: '{{first}} au {{last}} · S{{number}}',
+  },
   errors: {
     title: 'Une erreur est survenue',
     network: 'Impossible de joindre le serveur. Vérifiez votre connexion.',
