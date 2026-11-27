@@ -59,7 +59,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 
 ## Logo
 
-The logo is a white vein that climbs towards a gold nugget, on a petrol tile (`#0E7C84`, nugget `#F5B32E`, the ground under the vein white at 18 % opacity). It has one version, which reads on paper and on ink: its colours are fixed and follow no theme. Only the word « Prospecter » beside it, text in the app's font, takes the theme's foreground. `BrandMark` (`app/layout/brand.tsx`) draws it. The same drawing is the front's `public/favicon.svg`, the tab icon, and `site.webmanifest` takes the tile's colour as its `theme_color`. It is also the API's doc icon (`App\Doc\ShowFavicon`). A logo change goes in all three. The PNG icons and `site.webmanifest` are generated from the SVG once, then committed:
+The logo is a white vein that climbs towards a gold nugget, on a petrol tile (`#0E7C84`, nugget `#F5B32E`, the ground under the vein white at 18 % opacity). It has one version, which reads on paper and on ink: its colors are fixed and follow no theme. Only the word « Prospecter » beside it, text in the app's font, takes the theme's foreground. `BrandMark` (`app/layout/brand.tsx`) draws it. The same drawing is the front's `public/favicon.svg`, the tab icon. It is also the API's doc icon (`App\Doc\ShowFavicon`). A logo change goes in all three. `site.webmanifest` takes the tile's color as its `theme_color`. The PNG icons are generated from the SVG once, then committed:
 
 ```sh
 docker compose run --rm --no-deps -w /var/www/src/apps/front/public node sh -c '
