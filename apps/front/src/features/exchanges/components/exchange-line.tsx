@@ -3,43 +3,25 @@ import type { TFunction } from 'i18next'
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  BriefcaseBusiness,
   Building2,
   CalendarClock,
-  CalendarDays,
   CalendarX2,
-  Handshake,
   type LucideIcon,
-  Mail,
-  MessageCircle,
-  MessageSquareText,
   Paperclip,
-  Phone,
   PhoneMissed,
   UserRound,
-  Video,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { CreatedByAnAIBadge } from '@/shared/ui/created-by-an-ai-badge'
+import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
 import { GmailLogo } from '@/shared/ui/gmail-logo'
-import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
+import { directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
 import { ToAttachBadge } from './to-attach-badge'
-
-export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
-  call: Phone,
-  sms: MessageSquareText,
-  email: Mail,
-  linkedIn: BriefcaseBusiness,
-  malt: Handshake,
-  meeting: CalendarDays,
-  videoCall: Video,
-  other: MessageCircle,
-}
 
 type Summarized = Pick<
   Exchange,
