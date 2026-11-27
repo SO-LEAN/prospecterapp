@@ -17,6 +17,14 @@ export const fr = {
     mainNavigation: 'Navigation principale',
     userMenu: '{{name}}, menu du compte',
     new: 'Nouveau',
+    counts: {
+      organizations_one: '{{count}} organisation prospectée',
+      organizations_other: '{{count}} organisations prospectées',
+      contacts_one: '{{count}} contact',
+      contacts_other: '{{count}} contacts',
+      campaigns_one: '{{count}} campagne en cours',
+      campaigns_other: '{{count}} campagnes en cours',
+    },
   },
   calendar: {
     title: 'Calendrier',

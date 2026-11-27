@@ -60,6 +60,18 @@ const acme: Organization = {
 /** Long enough for a member to open the menu before the answer comes. */
 const A_NETWORK_DELAY_MS = 200
 
+const anEmptyDashboard = {
+  organizationName: 'Babbage & Co',
+  markers: [],
+  stats: {
+    activeOrganizations: 0,
+    locatedOrganizations: 0,
+    contacts: 0,
+    exchanges: 0,
+    exchangesThisMonth: 0,
+  },
+}
+
 type Sent = { method: string; path: string; body: unknown }
 
 /**
@@ -90,6 +102,7 @@ function theApiAnswers(answers: Record<string, unknown> = {}, { slowly }: { slow
       },
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
+      '/api/dashboard': anEmptyDashboard,
       ...answers,
     }
     return Response.json(

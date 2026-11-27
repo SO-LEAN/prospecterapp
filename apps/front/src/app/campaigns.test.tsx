@@ -134,6 +134,18 @@ const refusedForMyRole = {
   reason: 'roleNotAllowed',
 }
 
+const anEmptyDashboard = {
+  organizationName: 'Babbage & Co',
+  markers: [],
+  stats: {
+    activeOrganizations: 0,
+    locatedOrganizations: 0,
+    contacts: 0,
+    exchanges: 0,
+    exchangesThisMonth: 0,
+  },
+}
+
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
 function theApiAnswers({
@@ -182,6 +194,7 @@ function theApiAnswers({
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
       '/api/tags': suggested,
+      '/api/dashboard': anEmptyDashboard,
       '/api/campaigns': request.method === 'POST' ? relance : campaigns,
       [`/api/campaigns/${CAMPAIGN}`]: relance,
       '/api/tagged-contacts': {
@@ -205,6 +218,26 @@ describe('the campaigns of the team', () => {
     await renderTheSpaAt('/')
     const navigation = await screen.findByRole('navigation', { name: 'Navigation principale' })
     expect(await within(navigation).findByRole('link', { name: 'Campagnes' })).toBeInTheDocument()
+  })
+
+  it('are counted beside their entry, those still running, once the app read their list', async () => {
+    theApiAnswers({ campaigns: { ...list, items: [relance, started, stopped, ended] } })
+    await renderTheSpaAt('/campaigns')
+
+    const navigation = await screen.findByRole('navigation', { name: 'Navigation principale' })
+    const entry = await within(navigation).findByRole('link', { name: /^Campagnes/ })
+    await waitFor(() => expect(entry).toHaveTextContent(/^Campagnes2/))
+    expect(entry).toHaveAccessibleName(/2 campagnes en cours$/)
+  })
+
+  it('are not counted before the app read their list', async () => {
+    theApiAnswers()
+    await renderTheSpaAt('/')
+
+    const navigation = await screen.findByRole('navigation', { name: 'Navigation principale' })
+    expect(await within(navigation).findByRole('link', { name: 'Campagnes' })).toHaveTextContent(
+      /^Campagnes$/,
+    )
   })
 
   it('are not offered without the link of my account', async () => {
