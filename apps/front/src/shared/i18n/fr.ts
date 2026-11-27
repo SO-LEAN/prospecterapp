@@ -616,6 +616,10 @@ export const fr = {
     changePicture: 'Changer la photo',
     changeLogo: 'Changer le logo',
   },
+  events: {
+    tile: '{{channel}}, {{direction}}',
+    directions: { inbound: 'entrant', outbound: 'sortant' },
+  },
   exchanges: {
     title: 'Échanges',
     bookings: { new: 'Nouvelle réservation : {{channel}} avec {{interlocutor}}, {{moment}}' },
