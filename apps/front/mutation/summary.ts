@@ -134,12 +134,13 @@ function scoreOf(detected: number, valid: number): number {
   return Math.round((10_000 * detected) / valid) / 100
 }
 
-export function summaryOf(title: string, mutation: Mutation): string {
+export function summaryOf(title: string, mutation: Mutation, warnings: string[] = []): string {
   return [
     headingOf(title),
     '',
     scoreLineOf(mutation),
     '',
+    ...warnings.flatMap((warning) => [warning, '']),
     `- Killed: ${mutation.killed}`,
     `- Survived: ${mutation.survived}`,
     `- Not covered: ${mutation.notCovered}`,
@@ -149,6 +150,24 @@ export function summaryOf(title: string, mutation: Mutation): string {
     ...listOf('Not covered', mutation.uncovered),
     '',
   ].join('\n')
+}
+
+/** The summary of a run in shards, each `undefined` when its tool wrote no report. */
+export function summaryOfShards(title: string, shards: (Mutation | undefined)[]): string {
+  const reported = shards.filter((shard) => shard !== undefined)
+  if (reported.length === 0) return summaryWithoutReport(title)
+  return summaryOf(
+    title,
+    mutationOfShards(reported),
+    missingReportsOf(shards.length - reported.length, shards.length),
+  )
+}
+
+function missingReportsOf(missing: number, shards: number): string[] {
+  if (missing === 0) return []
+  return [
+    `No report from ${missing} of the ${shards} shards: the tool stopped before it wrote it. The score and the counts are those of the other shards.`,
+  ]
 }
 
 export function summaryWithoutReport(title: string): string {

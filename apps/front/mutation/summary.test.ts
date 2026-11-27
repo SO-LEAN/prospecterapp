@@ -7,6 +7,7 @@ import {
   mutationOfStryker,
   type StrykerMutant,
   summaryOf,
+  summaryOfShards,
   summaryWithoutReport,
 } from './summary.ts'
 
@@ -195,6 +196,29 @@ describe('the summary of a mutation run in shards', () => {
         '',
       ].join('\n'),
     )
+  })
+
+  it('says how many shards wrote no report, and scores the others', () => {
+    const shards = [{ ...shardMutation, score: 75, killed: 3, survived: 1 }, undefined, undefined]
+
+    expect(summaryOfShards('the core', shards)).toMatch(
+      /^## Mutation of the core\n\nScore: 75 %\n\nNo report from 2 of the 3 shards: the tool stopped before it wrote it\. The score and the counts are those of the other shards\.\n\n- Killed: 3\n/,
+    )
+  })
+
+  it('warns of no missing report when every shard wrote one', () => {
+    const shards = [
+      { ...shardMutation, score: 100, killed: 1 },
+      { ...shardMutation, score: 100, killed: 2 },
+    ]
+
+    expect(summaryOfShards('the core', shards)).toMatch(
+      /^## Mutation of the core\n\nScore: 100 %\n\n- Killed: 3\n/,
+    )
+  })
+
+  it('says that the tool stopped before it wrote a report when no shard wrote one', () => {
+    expect(summaryOfShards('the core', [undefined, undefined])).toBe(summaryWithoutReport('the core'))
   })
 
   it("keeps the tool's own score when the run has one shard", () => {

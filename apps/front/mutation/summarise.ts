@@ -1,18 +1,16 @@
 /**
  * Prints the summary of a mutation run from its tool's JSON reports, one per shard, its paths from the directory it
- * runs in, the root of the repository. A report the tool did not write is passed over. This file only reads and prints;
- * what it prints is decided and tested in `summary.ts`.
+ * runs in, the root of the repository. A report the tool did not write counts as a shard without a report. This file
+ * only reads and prints; what it prints is decided and tested in `summary.ts`.
  * node apps/front/mutation/summarise.ts <infection|stryker> <title> <report.json>... (make mutation-summary).
  */
 import { existsSync, readFileSync } from 'node:fs'
 import {
   type InfectionReport,
   mutationOfInfection,
-  mutationOfShards,
   mutationOfStryker,
   type StrykerReport,
-  summaryOf,
-  summaryWithoutReport,
+  summaryOfShards,
 } from './summary.ts'
 
 const [tool, title, ...reportFiles] = process.argv.slice(2)
@@ -26,10 +24,8 @@ const mutationOf = (report: unknown) =>
     ? mutationOfInfection(report as InfectionReport, root)
     : mutationOfStryker(report as StrykerReport, root)
 
-const shards = reportFiles
-  .filter((file) => existsSync(file))
-  .map((file) => mutationOf(JSON.parse(readFileSync(file, 'utf8'))))
-
-process.stdout.write(
-  shards.length > 0 ? summaryOf(title, mutationOfShards(shards)) : summaryWithoutReport(title),
+const shards = reportFiles.map((file) =>
+  existsSync(file) ? mutationOf(JSON.parse(readFileSync(file, 'utf8'))) : undefined,
 )
+
+process.stdout.write(summaryOfShards(title, shards))
