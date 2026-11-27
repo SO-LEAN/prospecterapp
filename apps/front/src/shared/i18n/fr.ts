@@ -619,6 +619,7 @@ export const fr = {
   events: {
     tile: '{{channel}}, {{direction}}',
     directions: { inbound: 'entrant', outbound: 'sortant' },
+    statuses: { planned: 'À venir', done: 'Fait', missed: 'Manqué', cancelled: 'Annulé', late: 'En retard' },
   },
   exchanges: {
     title: 'Échanges',
