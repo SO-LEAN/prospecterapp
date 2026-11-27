@@ -167,7 +167,6 @@ use Prospecter\Core\Connectors\Application\MailImport\ReadMailboxHistory\ReadMai
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatch;
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatchHandler;
 use Prospecter\Core\Connectors\Application\MailImport\StopMailImport\StopMailImportHandler;
-use Prospecter\Core\Connectors\Application\MailImport\WhichMailCatchUpIntents\WhichMailCatchUpIntentsHandler;
 use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
@@ -175,8 +174,6 @@ use Prospecter\Core\Connectors\Application\Policy\ReadMailboxHistoryPolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
-use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\KeptMailCatchUpIntentsOfMany;
-use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntents;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\PersonalData\Application\Contact\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\Contact\CompareWithContact\CompareWithContact;
@@ -529,7 +526,6 @@ use Tests\Core\Double\BookingBookers;
 use Tests\Core\Double\CampaignsCampaignNames;
 use Tests\Core\Double\CampaignsCampaignRecipients;
 use Tests\Core\Double\ConnectorsConnectedCalendars;
-use Tests\Core\Double\ConnectorsMailCatchUps;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
@@ -1049,14 +1045,6 @@ final class Application
         return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn(), $this->now), $kept) ? $kept : null;
     }
 
-    public function whichMailCatchUpIntents(WhichMailCatchUpIntents $query): KeptMailCatchUpIntentsOfMany
-    {
-        $kept = new KeptMailCatchUpIntentsOfMany();
-        (new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))($query, $kept);
-
-        return $kept;
-    }
-
     /**
      * @return list<string>|null
      */
@@ -1312,7 +1300,7 @@ final class Application
     {
         $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline, new ConnectorsMailCatchUps(new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?OrganizationTimeline
