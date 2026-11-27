@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import type { ToDo, ToDoInput, ToDoList } from '../queries'
-import { ToDosCard } from './to-dos-section'
+import { type Recipients, ToDosCard } from './to-dos-section'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -48,14 +48,21 @@ const listOf = (toDos: ToDo[], mayNote = true): ToDoList => ({
 
 async function renderTheCard(
   list: ToDoList,
-  onNote: (body: ToDoInput) => Promise<unknown> = async () => undefined,
+  onNote: (body: ToDoInput, contactId: string | null) => Promise<unknown> = async () => undefined,
   withTheirContact = false,
   onTickedOff?: (toDo: ToDo) => void,
   queryClient = new QueryClient(),
+  recipients?: Recipients,
 ) {
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
-      <ToDosCard list={list} onNote={onNote} withTheirContact={withTheirContact} onTickedOff={onTickedOff} />
+      <ToDosCard
+        list={list}
+        onNote={onNote}
+        withTheirContact={withTheirContact}
+        onTickedOff={onTickedOff}
+        recipients={recipients}
+      />
       <Toaster />
     </QueryClientProvider>,
   )
@@ -66,6 +73,9 @@ const inDays = (days: number) => {
   day.setDate(day.getDate() + days)
   return day
 }
+
+const NICOLAS = '0190a1c0-0000-7000-8000-0000000000aa'
+const SAFRAN: Recipients = { organization: 'Safran SA', contacts: [{ id: NICOLAS, name: 'Nicolas Bonnet' }] }
 
 const dayOf = (date: Date) =>
   [date.getFullYear(), date.getMonth() + 1, date.getDate()]
@@ -140,11 +150,10 @@ describe('ToDosCard', () => {
     expect(text).toHaveFocus()
     await userEvent.keyboard('{Enter}')
 
-    expect(onNote).toHaveBeenCalledWith({
-      text: 'Relancer pour le devis',
-      dueOn: dayOf(inDays(0)),
-      dueAt: null,
-    })
+    expect(onNote).toHaveBeenCalledWith(
+      { text: 'Relancer pour le devis', dueOn: dayOf(inDays(0)), dueAt: null },
+      null,
+    )
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
@@ -184,11 +193,10 @@ describe('ToDosCard', () => {
     await userEvent.type(text(), 'Envoyer mon CV')
     await userEvent.type(hour(), '08:30')
     await userEvent.click(addAnother())
-    expect(onNote).toHaveBeenLastCalledWith({
-      text: 'Envoyer mon CV',
-      dueOn: dayOf(inDays(1)),
-      dueAt: '08:30',
-    })
+    expect(onNote).toHaveBeenLastCalledWith(
+      { text: 'Envoyer mon CV', dueOn: dayOf(inDays(1)), dueAt: '08:30' },
+      null,
+    )
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(text()).toHaveValue('')
     expect(hour()).toHaveValue('')
@@ -199,17 +207,81 @@ describe('ToDosCard', () => {
     await userEvent.click(addAnother())
     expect(onNote).toHaveBeenLastCalledWith(
       expect.objectContaining({ text: 'Relancer par e-mail', dueOn: dayOf(inDays(7)) }),
+      null,
     )
     expect(day()).toHaveValue(dayOf(inDays(1)))
 
     await userEvent.type(text(), 'Envoyer la plaquette{Enter}')
     expect(screen.queryByText('Ce champ est obligatoire.')).not.toBeInTheDocument()
-    expect(onNote).toHaveBeenLastCalledWith({
-      text: 'Envoyer la plaquette',
-      dueOn: dayOf(inDays(1)),
-      dueAt: null,
-    })
+    expect(onNote).toHaveBeenLastCalledWith(
+      { text: 'Envoyer la plaquette', dueOn: dayOf(inDays(1)), dueAt: null },
+      null,
+    )
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('offers to note it for the organization, first and by default, or for one of its contacts, noting it for the organization', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([]), onNote, true, undefined, undefined, SAFRAN)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog')
+    const recipients = within(dialog).getByRole('group', { name: 'Pour' })
+    expect(
+      within(recipients)
+        .getAllByRole('radio')
+        .map((radio) => radio.closest('label')?.textContent),
+    ).toEqual(['Safran SA', 'Nicolas Bonnet'])
+    expect(within(recipients).getByRole('radio', { name: 'Safran SA' })).toBeChecked()
+    await userEvent.type(
+      within(dialog).getByLabelText('Ce qu’il y a à faire'),
+      'Préparer la proposition{Enter}',
+    )
+
+    expect(onNote).toHaveBeenCalledOnce()
+    expect(onNote).toHaveBeenCalledWith(
+      { text: 'Préparer la proposition', dueOn: dayOf(inDays(1)), dueAt: null },
+      null,
+    )
+  })
+
+  it('notes it for the contact chosen, once', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([]), onNote, true, undefined, undefined, SAFRAN)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog')
+    await userEvent.click(within(dialog).getByRole('radio', { name: 'Nicolas Bonnet' }))
+    await userEvent.type(within(dialog).getByLabelText('Ce qu’il y a à faire'), 'Envoyer le CV')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ajouter' }))
+
+    expect(onNote).toHaveBeenCalledOnce()
+    expect(onNote).toHaveBeenCalledWith(
+      { text: 'Envoyer le CV', dueOn: dayOf(inDays(1)), dueAt: null },
+      NICOLAS,
+    )
+  })
+
+  it('adds one for the contact chosen and notes another, the next one for the organization again', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([]), onNote, true, undefined, undefined, SAFRAN)
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog')
+
+    await userEvent.click(within(dialog).getByRole('radio', { name: 'Nicolas Bonnet' }))
+    await userEvent.type(within(dialog).getByLabelText('Ce qu’il y a à faire'), 'Envoyer le CV')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ajouter et en noter une autre' }))
+
+    expect(onNote).toHaveBeenLastCalledWith(expect.objectContaining({ text: 'Envoyer le CV' }), NICOLAS)
+    expect(within(dialog).getByRole('radio', { name: 'Safran SA' })).toBeChecked()
+  })
+
+  it('offers no choice of whom it is for without recipients', async () => {
+    await renderTheCard(listOf([]))
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+    expect(within(await screen.findByRole('dialog')).queryByRole('radio')).not.toBeInTheDocument()
   })
 
   it('offers neither the adding nor the menu without their links', async () => {
