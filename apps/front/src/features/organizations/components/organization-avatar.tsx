@@ -1,4 +1,5 @@
 import { Building2 } from 'lucide-react'
+import { initials } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 
 type Props = { name: string | null | undefined; logoUrl?: string | null; className?: string }
@@ -14,7 +15,7 @@ export function OrganizationAvatar({ name, logoUrl, className }: Props) {
       {logoUrl ? (
         <img src={logoUrl} alt="" loading="lazy" className="size-full object-cover" />
       ) : name ? (
-        <span className="font-semibold text-sm">{name.slice(0, 2).toUpperCase()}</span>
+        <span className="font-semibold text-sm">{initials(name)}</span>
       ) : (
         <Building2 className="size-5" aria-hidden />
       )}
