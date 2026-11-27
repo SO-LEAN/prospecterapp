@@ -101,6 +101,7 @@ services:
     Prospecter\Core\Connectors\Application\Calendar\CalendarPusher: ~
     Prospecter\Core\Prospecting\Application\Agenda\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
+    Prospecter\Core\Campaigns\Domain\Service\Addressees: ~
     Prospecter\Core\Campaigns\Application\Tagging\FactRecorder: ~
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
@@ -252,7 +253,8 @@ services:
     Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository: '@App\Campaigns\Persistence\DynamoCampaignRepository'
     Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever: '@App\Campaigns\Persistence\DynamoCampaignSheetRetriever'
     Prospecter\Core\Campaigns\Domain\Port\Campaigners: '@App\Campaigns\AntiCorruption\AccountsCampaigners'
-    Prospecter\Core\Campaigns\Domain\Port\Addressees: '@App\Campaigns\AntiCorruption\PersonalDataAndProspectingAddressees'
+    Prospecter\Core\Campaigns\Domain\Port\AddresseeNames: '@App\Campaigns\AntiCorruption\PersonalDataAddresseeNames'
+    Prospecter\Core\Campaigns\Domain\Port\AddresseeOrganizations: '@App\Campaigns\AntiCorruption\ProspectingAddresseeOrganizations'
     Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges: '@App\Campaigns\AntiCorruption\ProspectingCampaignExchanges'
     # the moment a terminal fact is forgotten at counted from now, the real one
     App\Campaigns\Persistence\DynamoFactRepository:
