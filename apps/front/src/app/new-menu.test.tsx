@@ -59,7 +59,10 @@ const acme: Organization = {
 
 type Sent = { method: string; path: string; body: unknown }
 
-/** The API serves my account, the shell's reads and the answers given, by path and query, by path or by `POST <path>`; any other read finds nothing. */
+/**
+ * The API serves my account, the shell's reads and the given answers. An answer is keyed by its path and query, by its
+ * path alone, or by `POST <path>`. Any other read finds nothing.
+ */
 function theApiAnswers(answers: Record<string, unknown> = {}) {
   const sent: Sent[] = []
   theApi.mockImplementation(async (input) => {

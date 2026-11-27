@@ -231,7 +231,7 @@ describe('planning an exchange with someone chosen first', () => {
   })
 })
 
-describe('the dialog of an exchange with someone', () => {
+describe("an exchange's dialog with someone first chosen", () => {
   it('says that the member first chooses who the exchange is with', async () => {
     theApiAnswers()
     const dialog = await open('note')
