@@ -150,7 +150,7 @@ Each lane alone: [Calendar](../event-storming/connectors/calendar.svg), [Client]
   - An import that is off or to reconnect refuses the reimport (`MailImportNotActive`).
   - A token that the provider refuses makes the import **to reconnect** (`MailImportLost`). The command succeeds.
   - Only a member allowed to manage personal data reimports (`PersonalDataManagersOnly`, checked first). The API refuses the others too, as for the import (ADR 0081).
-  - The reimport is offered to such a member only while the import is active and the correspondent has an address (`ConsultMailCatchUpIntents`, `CatchUpGmail`). The other contexts' views ask the same about a set of contacts and organizations (`WhichMailCatchUpIntentsService`, ADR 0217).
+  - The reimport is offered to such a member only while the import is active and the correspondent has an address (`ConsultMailCatchUpIntents`, `CatchUpGmail`). The API composes it with the contact's card and with the organization's timeline (ADR 0217).
 - A member views only their own connections (`ConsultMyConnections`). Their external account's address is personal data kept outside PersonalData. It is theirs alone, and it is forgotten when they disconnect (ADR 0120).
 
 ## What it publishes
@@ -206,6 +206,6 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
     - `NoteMailboxNotification`;
     - `ReadMailboxHistory`, which its policy sends for `MailboxChanged` and `MailWatchRenewed` (the subscription `connectors-read-mailbox-history`);
     - `ImportMail`, which its policy sends for `MailboxMessageAdded` (`connectors-import-mail`);
-    - `CatchUpMailHistory`, `ConsultMailCatchUpIntents`, and the service it publishes, `WhichMailCatchUpIntents`;
+    - `CatchUpMailHistory` and `ConsultMailCatchUpIntents`;
   - at the application's root, `AccountClient`, which both `Connection` and `Client` read, the policies of `Policy/` and the ports of `Port/`.
 - In the API: the table and its items are in `docs/architecture/persistence.md`, and the endpoints in `docs/architecture/api.md`. Google and its double are in `docs/architecture/local-stack.md` and `infra.md`.

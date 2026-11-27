@@ -219,7 +219,7 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0214](0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md) | Every context has its wall, generated from the whole code and checked in the CI | architecture | Accepted | 2026-11-24 |
 | [0215](0215-the-event-storming-reads-the-console-the-daily-schedule-and-projections.md) | The event storming reads the console, the daily schedule and projections | architecture | Accepted | 2026-11-25 |
 | [0216](0216-the-event-storming-wall-reads-row-by-row-left-to-right.md) | The event storming wall reads row by row, left to right | architecture | Accepted | 2026-11-26 |
-| [0217](0217-a-view-is-a-query-of-its-context-and-a-links-resource-declares-its-offers.md) | A view is a query of its context, and a links resource declares its offers | architecture | Proposed | 2026-11-26 |
+| [0217](0217-a-view-is-a-query-of-its-context-and-a-links-resource-declares-its-offers.md) | A view is a query of its context, and a links resource declares its offers | architecture | Accepted | 2026-11-26 |
 | [0218](0218-the-generators-tests-build-no-fixture-while-loading-and-the-mutation-keeps-its-static-mutants.md) | The generator's tests build no fixture while loading, and the mutation keeps its static mutants | architecture | Accepted | 2026-11-26 |
 | [0219](0219-a-pull-request-mutates-its-added-lines-in-its-ci.md) | A pull request mutates its added lines in its CI, a job per part, beside the checks | architecture | Accepted | 2026-11-26 |
 | [0220](0220-pull-requests-go-through-the-merge-queue-where-the-journeys-run.md) | Pull requests to dev go through the merge queue, where the journeys run | architecture | Accepted | 2026-11-26 |
