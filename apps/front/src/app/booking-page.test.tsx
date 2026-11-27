@@ -73,7 +73,7 @@ async function iTypeThePhone(number: string) {
   const user = userEvent.setup()
   await renderTheSpaAt(`/booking/${CODE}`)
   await user.click(await screen.findByRole('radio', { name: 'Appel' }))
-  await user.click(screen.getByRole('button', { name: '09:00' }))
+  await user.click(screen.getByRole('button', { name: '9h00' }))
   const phone = screen.getByLabelText(/^Téléphone/)
   await user.type(phone, number)
   return phone
@@ -125,7 +125,7 @@ describe('the public page of a booking', () => {
       within(tuesday)
         .getAllByRole('button')
         .map((slot) => slot.textContent),
-    ).toEqual(['09:00', '09:15'])
+    ).toEqual(['9h00', '9h15'])
     expect(
       within(screen.getByRole('group', { name: 'mer. 25 nov.' })).getByText('Aucun créneau'),
     ).toBeInTheDocument()
@@ -143,7 +143,7 @@ describe('the public page of a booking', () => {
       within(tuesday)
         .getAllByRole('button')
         .map((slot) => slot.textContent),
-    ).toEqual(['08:00', '08:15'])
+    ).toEqual(['8h00', '8h15'])
     expect(screen.getByText('Heures de London, converties depuis l’heure de Paris')).toBeInTheDocument()
   })
 
@@ -154,9 +154,9 @@ describe('the public page of a booking', () => {
 
     expect(await screen.findByRole('radio', { name: 'Visio' })).toBeChecked()
     expect(screen.queryByRole('radio', { name: 'Appel' })).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: '09:15' }))
-    expect(screen.getByRole('button', { name: '09:15' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByText('Visio, mardi 24 novembre à 9h15, 15 min')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: '9h15' }))
+    expect(screen.getByRole('button', { name: '9h15' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('Visio, mar. 24 nov. · 9h15, 15 min')).toBeInTheDocument()
   })
 
   it('waits for a channel before a slot when its host offers several', async () => {
@@ -164,9 +164,9 @@ describe('the public page of a booking', () => {
 
     await renderTheSpaAt(`/booking/${CODE}`)
 
-    expect(await screen.findByRole('button', { name: '09:00' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: '9h00' })).toBeDisabled()
     await userEvent.click(screen.getByRole('radio', { name: 'Appel' }))
-    expect(screen.getByRole('button', { name: '09:00' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '9h00' })).toBeEnabled()
   })
 
   it('says no slot is available when it offers none, without saying why', async () => {
@@ -181,9 +181,9 @@ describe('the public page of a booking', () => {
     theApiAnswers(200, anOpenPage(['videoCall']))
 
     await renderTheSpaAt(`/booking/${CODE}`)
-    await userEvent.click(await screen.findByRole('button', { name: '09:00' }))
+    await userEvent.click(await screen.findByRole('button', { name: '9h00' }))
 
-    expect(screen.getByText('Visio, mardi 24 novembre à 9h00, 15 min')).toBeInTheDocument()
+    expect(screen.getByText('Visio, mar. 24 nov. · 9h00, 15 min')).toBeInTheDocument()
     expect(
       screen.getByText(
         /^Vos coordonnées servent à organiser ce rendez-vous\s: votre e-mail est confié à Google, dont l’agenda vous invite\. Elles sont effacées sous 30 jours si nous ne poursuivons pas\.$/,
@@ -199,7 +199,7 @@ describe('the public page of a booking', () => {
       email: 'ada@acme.fr',
     })
 
-    const user = await iFillTheFormFor('Visio', '09:00')
+    const user = await iFillTheFormFor('Visio', '9h00')
     await user.type(screen.getByLabelText(/^Objet/), 'Mission data en mars')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
@@ -224,7 +224,7 @@ describe('the public page of a booking', () => {
   it('says its host calls the booker of a call at the number they gave, in the international format', async () => {
     theApiBooks(201, { slot: '2026-11-24T09:15:00+01:00', channel: 'call', email: 'ada@acme.fr' })
 
-    const user = await iFillTheFormFor('Appel', '09:15')
+    const user = await iFillTheFormFor('Appel', '9h15')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(await screen.findByText('Camille vous appellera au +33 6 12 34 56 78.')).toBeInTheDocument()
@@ -233,7 +233,7 @@ describe('the public page of a booking', () => {
   it('says a number the page cannot read as the booker typed it', async () => {
     theApiBooks(201, { slot: '2026-11-24T09:15:00+01:00', channel: 'call', email: 'ada@acme.fr' })
 
-    const user = await iFillTheFormFor('Appel', '09:15')
+    const user = await iFillTheFormFor('Appel', '9h15')
     const phone = screen.getByLabelText(/^Téléphone/)
     await user.clear(phone)
     await user.type(phone, '+000000')
@@ -259,12 +259,12 @@ describe('the public page of a booking', () => {
       ],
     })
 
-    const user = await iFillTheFormFor('Appel', '09:15')
+    const user = await iFillTheFormFor('Appel', '9h15')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(
       await screen.findByText(
-        'Vous avez déjà un rendez-vous le mardi 24 novembre à 9h00. Pour un autre rendez-vous, écrivez ou téléphonez à Camille.',
+        'Vous avez déjà un rendez-vous le mar. 24 nov. · 9h00. Pour un autre rendez-vous, écrivez ou téléphonez à Camille.',
       ),
     ).toBeInTheDocument()
   })
@@ -280,7 +280,7 @@ describe('the public page of a booking', () => {
       ],
     })
 
-    const user = await iFillTheFormFor('Appel', '09:15')
+    const user = await iFillTheFormFor('Appel', '9h15')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(
@@ -298,7 +298,7 @@ describe('the public page of a booking', () => {
       violations: [{ propertyPath: 'formShownAt', title: 'This value is not a valid datetime.' }],
     })
 
-    const user = await iFillTheFormFor('Visio', '09:00')
+    const user = await iFillTheFormFor('Visio', '9h00')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(
@@ -316,7 +316,7 @@ describe('the public page of a booking', () => {
       violations: [{ propertyPath: '', title: 'This channel is not offered', reason: 'channelNotOffered' }],
     })
 
-    const user = await iFillTheFormFor('Visio', '09:00')
+    const user = await iFillTheFormFor('Visio', '9h00')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(await screen.findByText('Ce canal n’est pas proposé.')).toBeInTheDocument()
@@ -340,7 +340,7 @@ describe('the public page of a booking', () => {
     const user = userEvent.setup()
     await renderTheSpaAt(`/booking/${CODE}`)
     await user.click(await screen.findByRole('radio', { name: 'Appel' }))
-    await user.click(screen.getByRole('button', { name: '09:00' }))
+    await user.click(screen.getByRole('button', { name: '9h00' }))
     await user.type(screen.getByLabelText('Prénom'), 'Ada')
     await user.type(screen.getByLabelText('Nom'), 'Lovelace')
     await user.type(screen.getByLabelText('E-mail'), 'ada@acme.fr')

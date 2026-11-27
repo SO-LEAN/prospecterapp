@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatCalendarDay } from '@/shared/lib/format'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Field } from '@/shared/ui/form/field'
@@ -8,15 +9,6 @@ import { Input } from '@/shared/ui/input'
 import { type BookingPage, useAddInactivePeriod, useRemoveInactivePeriod } from '../mutations'
 
 type Props = { page: BookingPage }
-
-/** A YYYY-MM-DD day, kept as written and never converted to an instant (ADR 0134). */
-const dayFormat = new Intl.DateTimeFormat('fr-FR', {
-  timeZone: 'UTC',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-})
-const shown = (day: string) => dayFormat.format(new Date(`${day}T00:00:00Z`))
 
 /** My inactive periods that have not ended, each one removable alone, and the form that adds one. */
 export function InactivePeriodsCard({ page }: Props) {
@@ -35,7 +27,10 @@ export function InactivePeriodsCard({ page }: Props) {
         ) : (
           <ul className="space-y-2">
             {page.inactivePeriods.map((period) => {
-              const days = { firstDay: shown(period.firstDay), lastDay: shown(period.lastDay) }
+              const days = {
+                firstDay: formatCalendarDay(period.firstDay),
+                lastDay: formatCalendarDay(period.lastDay),
+              }
               return (
                 <li key={period.id} className="flex items-center justify-between gap-2">
                   <span>{t('booking.periods.period', days)}</span>

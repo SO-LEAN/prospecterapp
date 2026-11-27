@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { formatMoment } from '@/shared/lib/format'
 import { addDays, startOfDay } from '../calendar/dates'
 import { type CalendarExchange, calendarQuery } from '../calendar/queries'
 
@@ -10,19 +11,6 @@ export const READ_AGAIN_MS = 5 * 60_000
 
 /** The read period reaches beyond the 14 days, from tomorrow, in which a public link offers slots. */
 const DAYS_A_LINK_OFFERS = 16
-
-const weekdayAndHour = new Intl.DateTimeFormat('fr-FR', {
-  weekday: 'long',
-  hour: 'numeric',
-  minute: '2-digit',
-})
-
-/** "2026-11-24T08:00:00+00:00" -> "mardi 9h00" in Paris, on the browser's clock. */
-function dayAndHourOf(moment: string): string {
-  const parts = weekdayAndHour.formatToParts(new Date(moment))
-  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((each) => each.type === type)?.value
-  return `${part('weekday')} ${Number(part('hour'))}h${part('minute')}`
-}
 
 const bookedOf = (items: CalendarExchange[]) =>
   items.filter(({ exchange }) => exchange.bookedByLink && exchange.status === 'planned')
@@ -58,7 +46,7 @@ export function NewBookings() {
         t('exchanges.bookings.new', {
           channel: t(`exchanges.channels.${exchange.channel}`),
           interlocutor: interlocutor.name ?? '',
-          moment: dayAndHourOf(exchange.occurredAt),
+          moment: formatMoment(exchange.occurredAt),
         }),
       )
     }
