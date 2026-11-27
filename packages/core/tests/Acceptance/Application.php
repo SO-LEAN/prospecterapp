@@ -591,7 +591,7 @@ use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAddresseeNames;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondentAddresses;
-use Tests\Core\Double\PersonalDataAndProspectingCorrespondents;
+use Tests\Core\Double\PersonalDataContactCorrespondents;
 use Tests\Core\Double\PersonalDataContactEmails;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
@@ -605,6 +605,7 @@ use Tests\Core\Double\ProspectingCampaignExchanges;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingHostAgendas;
+use Tests\Core\Double\ProspectingOrganizationCorrespondents;
 use Tests\Core\Double\ProspectingOrganizationIdentifications;
 use Tests\Core\Double\ProspectingOrganizations;
 use Tests\Core\Double\ProspectingOrganizationsAndTheirContacts;
@@ -1525,7 +1526,7 @@ final class Application
             new CollectTheFounderProfileHandler($this->persons),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
-            new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
+            new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataContactCorrespondents($this->whichContactsHaveTheseEmailsService), new ProspectingOrganizationCorrespondents($this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new PushExchangeHandler($this->calendarPusher),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
