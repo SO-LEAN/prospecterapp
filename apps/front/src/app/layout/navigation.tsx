@@ -20,6 +20,7 @@ import { cn } from '@/shared/lib/utils'
 import { usePreferences } from '@/shared/stores/preferences'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { BrandMark } from './brand'
+import { CampaignsCount, ContactsCount, OrganizationsCount } from './navigation-counts'
 
 type Item = {
   to: '/' | '/organizations' | '/contacts' | '/calendar' | '/campaigns' | '/account'
@@ -40,10 +41,10 @@ type Item = {
 
 const items: Item[] = [
   { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true, count: ToProcessCount },
-  { to: '/organizations', label: 'nav.organizations', icon: Building2 },
-  { to: '/contacts', label: 'nav.contacts', icon: UsersRound },
+  { to: '/organizations', label: 'nav.organizations', icon: Building2, count: OrganizationsCount },
+  { to: '/contacts', label: 'nav.contacts', icon: UsersRound, count: ContactsCount },
   { to: '/calendar', label: 'nav.calendar', icon: CalendarDays },
-  { to: '/campaigns', label: 'nav.campaigns', icon: Megaphone, link: 'campaigns' },
+  { to: '/campaigns', label: 'nav.campaigns', icon: Megaphone, link: 'campaigns', count: CampaignsCount },
   { to: '/account', label: 'nav.account', icon: UserRound },
 ]
 
@@ -58,14 +59,17 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-6 p-3">
-      <Link
-        to="/"
-        onClick={onNavigate}
-        className="flex items-center gap-3 rounded-lg px-1.5 py-1 font-semibold tracking-tight"
-      >
-        <BrandMark />
-        {!collapsed && <span className="text-[15px]">{t('app.name')}</span>}
-      </Link>
+      <div className="flex items-center gap-3 px-1.5 py-1">
+        <Link to="/" onClick={onNavigate} className="flex items-center gap-3 font-semibold tracking-tight">
+          <BrandMark />
+          {!collapsed && <span className="text-[15px]">{t('app.name')}</span>}
+        </Link>
+        {!collapsed && account.data && (
+          <span className="truncate text-sidebar-muted-foreground text-xs">
+            {account.data.organization.legalIdentity.corporateName}
+          </span>
+        )}
+      </div>
 
       <nav aria-label={t('nav.mainNavigation')} className="flex flex-1 flex-col gap-1">
         {reachable.map(({ to, label, icon: Icon, exact, count: Count }) => {
