@@ -34,11 +34,14 @@ const Toaster = ({ toastOptions, ...props }: ToasterProps) => {
   )
 }
 
-/** Escape closes the toasts, as it closes the dialogs and the menus. Closing one undoes nothing. */
+/**
+ * Escape closes the toasts, as it closes the dialogs and the menus. Closing one undoes nothing. An Escape that a dialog
+ * or a menu already used to close itself leaves the toasts, so a running « Annuler » survives it.
+ */
 function useEscapeClosingTheToasts() {
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') toast.dismiss()
+      if (event.key === 'Escape' && !event.defaultPrevented) toast.dismiss()
     }
     document.addEventListener('keydown', closeOnEscape)
     return () => document.removeEventListener('keydown', closeOnEscape)
