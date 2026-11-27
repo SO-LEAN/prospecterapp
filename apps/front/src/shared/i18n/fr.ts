@@ -699,7 +699,7 @@ export const fr = {
       later: 'Plus tard',
     },
     chooseDuration: 'Une durée de 5 minutes à 8 heures.',
-    overlap: 'Vous avez déjà {{exchange}} avec {{name}} de {{from}} à {{to}}.',
+    overlap: 'Vous avez déjà {{exchange}} avec {{name}} le {{range}}.',
     anExchange: {
       call: 'un appel',
       sms: 'un SMS',
