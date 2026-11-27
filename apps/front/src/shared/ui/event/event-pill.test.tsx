@@ -81,7 +81,7 @@ describe('EventPill', () => {
   it('edges a late exchange in red, and says it is late', () => {
     renderThePill('call', 'planned', true)
 
-    expect(thePill()).toHaveClass('bg-event-call', 'border-l-4', 'border-destructive')
+    expect(thePill()).toHaveClass('bg-event-call', 'border-l-4', 'border-l-destructive')
     expect(
       screen.getByRole('img', { name: 'En retard' }).querySelector('.lucide-triangle-alert'),
     ).toBeInTheDocument()

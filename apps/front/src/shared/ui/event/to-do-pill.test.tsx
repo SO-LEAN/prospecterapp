@@ -35,7 +35,7 @@ describe('ToDoPill', () => {
       </ToDoPill>,
     )
 
-    expect(thePill()).toHaveClass('border-l-4', 'border-destructive')
+    expect(thePill()).toHaveClass('border-l-4', 'border-l-destructive', 'border-event-todo')
     expect(screen.getByRole('img', { name: 'En retard' })).toBeInTheDocument()
   })
 })

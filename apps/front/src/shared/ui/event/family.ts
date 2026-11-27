@@ -15,7 +15,7 @@ export const FAMILY_OF_CHANNEL: Record<Channel, ExchangeFamily> = {
 }
 
 /** The red edge of what is late, an exchange or a to-do. */
-export const LATE_EDGE = 'border-l-4 border-destructive'
+export const LATE_EDGE = 'border-l-4 border-l-destructive'
 
 /** Each family's tint, on the text. */
 export const TEXT_TINTS: Record<ExchangeFamily, string> = {

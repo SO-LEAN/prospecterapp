@@ -144,6 +144,6 @@ describe('ExchangeMarkers', () => {
   it('edges a late exchange in red, and says it is late', () => {
     render(<ExchangeMarkers exchange={NOTHING_TO_MARK} late />)
 
-    expect(screen.getByText('En retard')).toHaveClass('border-l-4', 'border-destructive')
+    expect(screen.getByText('En retard')).toHaveClass('border-l-4', 'border-l-destructive')
   })
 })
