@@ -2,6 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RouterProvider } from '@tanstack/react-router'
 import { useThemeClass } from '@/shared/stores/preferences'
+import { IconsProvider } from '@/shared/ui/icons-provider'
 import { Toaster } from '@/shared/ui/sonner'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 import { queryClient } from './query-client'
@@ -16,10 +17,12 @@ function InnerApp() {
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={300}>
-        <InnerApp />
-        <Toaster richColors closeButton position="bottom-right" />
-      </TooltipProvider>
+      <IconsProvider>
+        <TooltipProvider delayDuration={300}>
+          <InnerApp />
+          <Toaster richColors closeButton position="bottom-right" />
+        </TooltipProvider>
+      </IconsProvider>
       <ReactQueryDevtools buttonPosition="bottom-right" />
     </QueryClientProvider>
   )
