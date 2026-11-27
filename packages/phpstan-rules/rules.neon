@@ -3,6 +3,7 @@ rules:
     - Prospecter\PHPStan\DependenciesAreInjectedRule
     - Prospecter\PHPStan\TestsReadNoRealClockRule
     - Prospecter\PHPStan\CommandsAndQueriesAreBuiltByNameRule
+    - Prospecter\PHPStan\QueriesOfOneContextRule
 
 services:
     -
