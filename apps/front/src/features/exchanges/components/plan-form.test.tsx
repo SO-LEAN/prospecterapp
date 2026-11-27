@@ -323,6 +323,19 @@ describe('PlanForm', () => {
     expect(checkedDurations()).toEqual(['120'])
   })
 
+  it('clears the refusal of the duration once a quick duration is chosen', async () => {
+    const { user } = renderForm()
+
+    await user.clear(duration())
+    await user.click(save())
+    await waitFor(() => expect(duration()).toHaveAccessibleDescription('Une durée de 5 minutes à 8 heures.'))
+    await user.click(screen.getByRole('button', { name: '1 h' }))
+
+    await waitFor(() =>
+      expect(duration()).not.toHaveAccessibleDescription('Une durée de 5 minutes à 8 heures.'),
+    )
+  })
+
   it('marks the quick duration chosen, none when another one is typed', async () => {
     const { user } = renderForm()
     const anHour = screen.getByRole('button', { name: '1 h' })
@@ -330,7 +343,9 @@ describe('PlanForm', () => {
     expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('aria-pressed', 'true')
     await user.click(anHour)
     expect(anHour).toHaveAttribute('aria-pressed', 'true')
+    expect(anHour).toHaveAttribute('data-variant', 'secondary')
     expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('data-variant', 'outline')
 
     await user.clear(duration())
     await user.type(duration(), '45')
