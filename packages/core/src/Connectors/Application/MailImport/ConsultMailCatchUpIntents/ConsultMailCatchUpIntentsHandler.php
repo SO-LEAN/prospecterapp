@@ -10,7 +10,8 @@ use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
+use Prospecter\Core\Connectors\Domain\Port\ContactAddresses;
+use Prospecter\Core\Connectors\Domain\Port\OrganizationAddresses;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Service\Members;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
@@ -28,7 +29,8 @@ final readonly class ConsultMailCatchUpIntentsHandler implements QueryHandler
     public function __construct(
         private ConnectionRepository $connections,
         private Members $members,
-        private CorrespondentAddresses $addresses,
+        private ContactAddresses $contactAddresses,
+        private OrganizationAddresses $organizationAddresses,
     ) {
     }
 
@@ -44,8 +46,8 @@ final readonly class ConsultMailCatchUpIntentsHandler implements QueryHandler
     {
         try {
             $address = null === $query->organizationId
-                ? $this->addresses->ofContact($reader->id, new ContactId((string) $query->contactId))
-                : $this->addresses->ofOrganization($reader->accountId, new OrganizationId($query->organizationId));
+                ? $this->contactAddresses->of($reader->id, new ContactId((string) $query->contactId))
+                : $this->organizationAddresses->of($reader->accountId, new OrganizationId($query->organizationId));
         } catch (UnknownContact|UnknownOrganization) {
             return false;
         }

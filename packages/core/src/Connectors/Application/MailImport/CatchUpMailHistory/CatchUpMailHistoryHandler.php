@@ -9,7 +9,8 @@ use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
+use Prospecter\Core\Connectors\Domain\Port\ContactAddresses;
+use Prospecter\Core\Connectors\Domain\Port\OrganizationAddresses;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
@@ -34,7 +35,8 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
         private ProviderClientRepository $clients,
         private ProviderMailbox $mailbox,
         private Members $members,
-        private CorrespondentAddresses $addresses,
+        private ContactAddresses $contactAddresses,
+        private OrganizationAddresses $organizationAddresses,
         private Events $events,
     ) {
     }
@@ -57,8 +59,8 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
     private function addressOf(CatchUpMailHistory $command, Member $me): Email
     {
         $address = null === $command->organizationId
-            ? $this->addresses->ofContact($me->id, new ContactId((string) $command->contactId))
-            : $this->addresses->ofOrganization($me->accountId, new OrganizationId($command->organizationId));
+            ? $this->contactAddresses->of($me->id, new ContactId((string) $command->contactId))
+            : $this->organizationAddresses->of($me->accountId, new OrganizationId($command->organizationId));
 
         return $address ?? throw NoAddressToReimport::ofTheCorrespondent();
     }
