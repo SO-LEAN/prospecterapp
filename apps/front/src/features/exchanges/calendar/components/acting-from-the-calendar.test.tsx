@@ -566,7 +566,7 @@ describe('a free slot', () => {
   it.each([
     ['Ada Lovelace', `/api/contacts/${ADA}`, (exchange: object) => exchange],
     ['ACME', `/api/organizations/${ACME}`, (exchange: object) => ({ personId: null, exchange })],
-  ])('plans there with %s, sending the moment and the duration of the slot', async (name, path, bodyOf) => {
+  ])("plans there with %s, sending the slot's moment and duration", async (name, path, bodyOf) => {
     const planning = {
       items: [],
       _links: {
