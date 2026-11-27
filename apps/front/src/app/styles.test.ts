@@ -38,6 +38,7 @@ describe('the « Le Filon » light theme', () => {
     ['--ring', '#0B6E75'],
     ['--destructive', '#D5311F'],
     ['--chart-5', '#50647A'],
+    ['--sidebar', '#0B1E28'],
   ])('gives %s the value of the audit, %s', (token, hex) => {
     expectTheColor(LIGHT_THEME, token, hex)
   })
@@ -94,7 +95,9 @@ describe('the « Le Filon » light theme', () => {
     ['--muted-foreground', '--background'],
     ['--muted-foreground', '--card'],
     ['--muted-foreground', '--muted'],
-    ['--muted-foreground', '--sidebar'],
+    ['--sidebar-foreground', '--sidebar'],
+    ['--sidebar-muted-foreground', '--sidebar'],
+    ['--sidebar-accent-foreground', '--sidebar-accent'],
     ['--link', '--background'],
     ['--link', '--card'],
     ['--primary-foreground', '--primary'],
@@ -117,6 +120,7 @@ describe('the « Le Filon » light theme', () => {
     '--day-holiday-soft',
     '--day-vacation',
     '--day-vacation-soft',
+    '--sidebar-muted-foreground',
   ])('gives Tailwind %s as a color', (token) => {
     expect(TAILWIND_THEME.get(`--color-${token.slice(2)}`)).toBe(`var(${token})`)
   })
