@@ -148,6 +148,16 @@ describe('the shell of a signed-in member', () => {
     expect(await screen.findByRole('tooltip', { name: 'Contacts' })).toBeInTheDocument()
   })
 
+  it('explains no entry by a tooltip while the sidebar is unfolded: their names show', async () => {
+    await renderTheSpaAt('/')
+    await screen.findByRole('heading', { name: 'Bonjour Ada' })
+
+    await userEvent.hover(theEntry('Contacts'))
+
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  })
+
   it('keeps only my avatar at the foot of the folded sidebar, my name left to its menu', async () => {
     usePreferences.setState({ sidebarCollapsed: true })
     await renderTheSpaAt('/')
