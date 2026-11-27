@@ -24,7 +24,7 @@ final readonly class OrganizationContactsComposition
 {
     public function __construct(
         private QueryHandler $listOrganizationContacts,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
     ) {

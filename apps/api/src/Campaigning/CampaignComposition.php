@@ -8,7 +8,7 @@ use App\Campaigning\Resource\CampaignLinksResource;
 use App\Campaigning\Resource\CampaignListResource;
 use App\Campaigning\Resource\CampaignProgressResource;
 use App\Campaigning\Resource\CampaignResource;
-use App\Contacts\PersonsOfAView;
+use App\Contacts\PersonsOfAViewComposition;
 use App\Exchanges\Resource\AuthorResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
@@ -22,7 +22,7 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Composes the team's campaigns (ADR 0217). Campaigns keeps them, counts their targets and links them. Accounts and
- * PersonalData name their authors (`PersonsOfAView`), joined by the authors' member ids. A command returns nothing, so
+ * PersonalData name their authors (`PersonsOfAViewComposition`), joined by the authors' member ids. A command returns nothing, so
  * a controller reads the campaign again after it to answer with the fresh resource.
  */
 final readonly class CampaignComposition
@@ -32,7 +32,7 @@ final readonly class CampaignComposition
     public function __construct(
         private QueryHandler $consultCampaign,
         private QueryHandler $listCampaigns,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intentLinks,
         private ClockInterface $clock,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges;
 
-use App\Contacts\PersonsOfAView;
+use App\Contacts\PersonsOfAViewComposition;
 use App\Exchanges\Resource\NotingResource;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 
@@ -19,7 +19,7 @@ final readonly class NotedOnceAnswers
     private const string ERASED_BEFORE = 'exchangeErasedBefore';
     private const string NOTED_MEANWHILE = 'exchangeNotedMeanwhile';
 
-    public function __construct(private ExchangeComposition $exchangeComposition, private PersonsOfAView $personsOfAView)
+    public function __construct(private ExchangeComposition $exchangeComposition, private PersonsOfAViewComposition $personsOfAView)
     {
     }
 

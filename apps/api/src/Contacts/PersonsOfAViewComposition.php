@@ -18,7 +18,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
  * members who hold or wrote what it shows. Accounts gives each member's person. PersonalData reads them all, as the
  * reader may read them, in one call. The parts are joined by the persons' ids.
  */
-final readonly class PersonsOfAView
+final readonly class PersonsOfAViewComposition
 {
     public function __construct(private ConsultMembersService $consultMembersService, private QueryHandler $consultPersons)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exchanges;
 
-use App\Contacts\PersonsOfAView;
+use App\Contacts\PersonsOfAViewComposition;
 use App\Contacts\PersonsShown;
 use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
@@ -31,7 +31,7 @@ final readonly class ExchangeComposition
 {
     public function __construct(
         private QueryHandler $consultExchange,
-        private PersonsOfAView $personsOfAView,
+        private PersonsOfAViewComposition $personsOfAView,
         private Links $links,
         private IntentLinks $intents,
         private ClockInterface $clock,
