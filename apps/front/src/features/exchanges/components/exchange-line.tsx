@@ -152,7 +152,7 @@ export function ExchangeSummary({
         )}
         <p className="text-muted-foreground text-xs">
           {planned ? (
-            <time dateTime={exchange.occurredAt} title={formatMoment(exchange.occurredAt)}>
+            <time dateTime={exchange.occurredAt}>
               {t('exchanges.lasting', {
                 moment: formatUpcoming(exchange.occurredAt),
                 duration: formatDuration(exchange.durationInMinutes ?? 0, t),

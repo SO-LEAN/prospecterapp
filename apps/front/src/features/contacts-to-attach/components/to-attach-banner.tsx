@@ -1,6 +1,7 @@
 import { Link2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatDay } from '@/shared/lib/format'
 import { Button } from '@/shared/ui/button'
 import type { ToAttach } from '../queries'
 import { AttachDialog } from './attach-dialog'
@@ -16,7 +17,7 @@ type Props = {
 export function ToAttachBanner({ contactId, toAttach, attaching }: Props) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const date = new Date(toAttach.erasableFrom).toLocaleDateString('fr-FR')
+  const date = formatDay(new Date(toAttach.erasableFrom))
 
   return (
     <div

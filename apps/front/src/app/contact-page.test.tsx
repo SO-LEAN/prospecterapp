@@ -98,7 +98,9 @@ describe('the card of a contact', () => {
 
     await renderTheSpaAt(`/contacts/${ADA}`)
 
-    expect(await screen.findByText('Prochain échange : Visio demain 9h00')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Prochain échange : Visio mar. 17 nov. · 9h00 (demain)'),
+    ).toBeInTheDocument()
   })
 
   it('offers to catch up Gmail on the exchanges of the contact when they link it', async () => {

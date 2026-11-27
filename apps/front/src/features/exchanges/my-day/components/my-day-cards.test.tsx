@@ -152,13 +152,15 @@ afterEach(() => {
 })
 
 describe('my day on the dashboard', () => {
-  it('shows today’s exchanges with their hour, channel, contact and organization, and the time left', async () => {
+  it('shows today’s exchanges with their date and hour, channel, contact and organization, and the time left', async () => {
     await showMyDay(
       aDayOf([planned('videoCall', new Date(2026, 10, 13, 10, 25), { link: 'https://meet.test/ada' })]),
     )
 
     const today = within(theCard('Aujourd’hui'))
-    expect(today.getByRole('button', { name: /10h25\s*Visio\s*Ada Lovelace\s*ACME/ })).toBeInTheDocument()
+    expect(
+      today.getByRole('button', { name: /ven\. 13 nov\. · 10h25\s*Visio\s*Ada Lovelace\s*ACME/ }),
+    ).toBeInTheDocument()
     expect(today.getByText(/^dans 25\smin$/)).toBeInTheDocument()
     expect(today.getByRole('link', { name: 'Rejoindre' })).toHaveAttribute('href', 'https://meet.test/ada')
   })
@@ -221,7 +223,7 @@ describe('my day on the dashboard', () => {
     expect(within(dialog).getByText(`Résumé du contact ${ADA}`)).toBeInTheDocument()
   })
 
-  it('shows the next exchanges, tomorrow then by their day, and leads to the calendar', async () => {
+  it('shows the next exchanges by their date, tomorrow said beside it, and leads to the calendar', async () => {
     await showMyDay(
       aDayOf(
         [],
@@ -231,8 +233,8 @@ describe('my day on the dashboard', () => {
 
     const upcoming = within(theCard('À venir'))
     expect(upcoming.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-      expect.stringContaining('demain 9h00'),
-      expect.stringContaining('lundi 14h00'),
+      expect.stringContaining('sam. 14 nov. · 9h00 (demain)'),
+      expect.stringContaining('lun. 16 nov. · 14h00'),
     ])
     expect(upcoming.getByRole('link', { name: 'Voir le calendrier' })).toHaveAttribute('href', '/calendar')
   })
