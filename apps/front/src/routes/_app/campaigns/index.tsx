@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { CampaignList } from '@/features/campaigns/components/campaign-list'
 import { campaignsQuery } from '@/features/campaigns/queries'
 import { CAMPAIGN_FILTERS, shownBy } from '@/features/campaigns/status-filter'
+import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/feedback/empty-state'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -21,7 +22,7 @@ const searchSchema = z.object({
 /** My team's campaigns, read as a whole (ADR 0144) and shown by status, the running ones by default. The page offers to prepare one. */
 export const Route = createFileRoute('/_app/campaigns/')({
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context }) => context.queryClient.ensureQueryData(campaignsQuery()),
+  loader: ({ context }) => ensureSharedQueryData(context.queryClient, campaignsQuery()),
   pendingComponent: () => <PageSkeleton rows={4} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: Campaigns,
