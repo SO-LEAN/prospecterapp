@@ -144,7 +144,8 @@ export function sentenceAbout(wall: Wall, step: Step): string {
   for (const hearer of of('policy').filter((note) => note.foreign && note.sticky !== null)) {
     parts.push(`${escaped(sentenceOf(hearer.sticky?.context ?? ''))} hears it: ${chipOf(wall, hearer)}.`)
   }
-  for (const hotspot of of('hotspot')) parts.push(chipOf(wall, hotspot, `?! ${hotspot.label}`))
+  for (const hotspot of onceEach(of('hotspot'), (note) => note.label))
+    parts.push(chipOf(wall, hotspot, `?! ${hotspot.label}`))
   return parts.join(' ')
 }
 
@@ -188,15 +189,7 @@ function sentenceOfTheUseCase(
     (offer) =>
       `${chipOf(wall, offer.view)}${offer.certain ? '' : ` (only ${escaped(offer.when ?? 'in some states')})`}`,
   )
-  const changes = step.notes
-    .filter((note) => note.kind === 'aggregate')
-    .map(
-      (aggregate) =>
-        `${chipOf(wall, aggregate)} records ${list(
-          wall.edges.filter((edge) => edge.from === aggregate).map((edge) => edge.to),
-          ' and ',
-        )}.`,
-    )
+  const changes = changesIn(wall, step)
   const who =
     actors.length > 0
       ? `${list(actors)}${views.length > 0 ? `, from ${views.join(' or ')},` : ''} ${main.kind === 'command' ? 'asks to' : 'looks at'} `
@@ -205,4 +198,31 @@ function sentenceOfTheUseCase(
         : ''
   const asks = ports.length > 0 ? `, which asks ${list(ports, ', ')}` : ''
   return `${who}${chipOf(wall, main)}${asks}.${changes.length > 0 ? ` ${changes.join(' ')}` : ''}`
+}
+
+/** What each aggregate of a step becomes: the events it records, or the methods that change it without one. */
+function changesIn(wall: Wall, step: Step): string[] {
+  const aggregates = step.notes.filter((note) => note.kind === 'aggregate')
+  return onceEach(aggregates, (aggregate) => aggregate.sticky).map((first) => {
+    const copies = aggregates.filter((aggregate) => aggregate.sticky === first.sticky)
+    const recorded = wall.edges
+      .filter((edge) => copies.includes(edge.from) && edge.to.kind === 'event')
+      .map((edge) => edge.to)
+    const events = onceEach(recorded, (event) => event.sticky)
+    const aggregate = chipOf(wall, first)
+    if (events.length > 0)
+      return `${aggregate} records ${inWords(events.map((event) => chipOf(wall, event)))}.`
+    const methods = inWords(copies.map((copy) => escaped(`${copy.via ?? ''}()`)))
+    return `${aggregate} changes through ${methods}, and records no event.`
+  })
+}
+
+/** The first of the notes that share a key, in their order. */
+function onceEach(notes: Note[], keyOf: (note: Note) => unknown): Note[] {
+  return notes.filter((note, index) => notes.findIndex((other) => keyOf(other) === keyOf(note)) === index)
+}
+
+/** "a", "a and b", "a, b and c". */
+function inWords(items: string[]): string {
+  return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`
 }
