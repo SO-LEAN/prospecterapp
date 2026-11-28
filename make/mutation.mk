@@ -12,10 +12,10 @@ NO_ADDED_LINE = echo "No line added in $(1) since $(BASE): no mutant to test"
 
 # SHARD=<i>/<n> mutates the i-th of n shares of the files whose lines the branch adds, so that the CI mutates a part in
 # n jobs (ADR 0222). The files are dealt by the lines the branch adds to them, the biggest first, each to the share that
-# holds the fewest lines so far. Without SHARD, one share holds them all
-SHARD ?= 1/1
-SHARE = $(word 1,$(subst /, ,$(SHARD)))
-SHARES = $(word 2,$(subst /, ,$(SHARD)))
+# holds the fewest lines so far. Without SHARD, one share holds them all. SHARD keeps no default value: the API's tests
+# read it too, and give ParaTest a shard only when it has one
+SHARE = $(or $(word 1,$(subst /, ,$(SHARD))),1)
+SHARES = $(or $(word 2,$(subst /, ,$(SHARD))),1)
 # "<lines> <file>" for each file of a diff (git diff -U0 on the standard input) that gains lines, the biggest first
 LINES_BY_FILE = awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
 	/^@@/ { split(substr($$3, 2), new, ","); lines[file] += new[2] == "" ? 1 : new[2] } \
