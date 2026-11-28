@@ -54,6 +54,16 @@ final class WordingTest extends TestCase
         self::assertSame('Daily schedule', Wording::ofActor('schedule'));
     }
 
+    public function testTheRightToManagePersonalDataIsThePersonalDataManager(): void
+    {
+        self::assertSame('Personal data manager', Wording::ofActor('ROLE_PERSONAL_DATA'));
+    }
+
+    public function testWhoPushesGmailNotificationsIsGoogle(): void
+    {
+        self::assertSame('Google', Wording::ofActor('ROLE_GMAIL_PUSHER'));
+    }
+
     public function testAnotherRoleIsTheActorItNames(): void
     {
         self::assertSame('Account admin', Wording::ofActor('ROLE_ACCOUNT_ADMIN'));
