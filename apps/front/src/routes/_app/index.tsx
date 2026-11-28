@@ -18,7 +18,7 @@ import { exchangesToProcessQuery } from '@/features/exchanges/to-process/queries
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
 import { organizationsQuery } from '@/features/organizations/queries'
-import { ToDoToProcessLine } from '@/features/to-dos/components/to-do-to-process-line'
+import { ToDoLine } from '@/features/to-dos/components/to-do-line'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -75,7 +75,7 @@ function Dashboard() {
         <ExchangesToProcessCard
           contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
           toDoLine={({ toDo, daysOverdue }, onTickedOff) => (
-            <ToDoToProcessLine toDo={toDo} daysOverdue={daysOverdue} onTickedOff={onTickedOff} />
+            <ToDoLine toDo={toDo} daysOverdue={daysOverdue} onTickedOff={onTickedOff} />
           )}
           contactsToAttach={(contacts) => <ContactsToAttachSection contacts={contacts} />}
         />
