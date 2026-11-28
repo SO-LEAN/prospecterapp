@@ -1,5 +1,5 @@
 import { escaped } from './html.ts'
-import { type Kind, type Note, type Step, sentenceOf, type Wall } from './wall.ts'
+import { type Edge, type Kind, type Note, type Step, sentenceOf, type Wall } from './wall.ts'
 
 /**
  * What lights with a post-it: its story from end to end, upstream and downstream. The walk stops at an actor and at a
@@ -150,9 +150,17 @@ export function sentenceAbout(wall: Wall, step: Step): string {
 }
 
 function reactionSentence(wall: Wall, step: Step, policy: Note): string {
-  const heard = wall.edges.filter((edge) => edge.to === policy && edge.drawn)
-  const sent = wall.edges.filter((edge) => edge.from === policy && edge.to.kind !== 'actor')
-  const hears = heard
+  const does = wall.edges
+    .filter((edge) => edge.from === policy && edge.to.kind !== 'actor')
+    .map((edge) => `${sendingOf(edge)} ${chipOf(wall, edge.to)}`)
+    .join(' and ')
+  return `Whenever ${heardBy(wall, step, policy)}, ${chipOf(wall, policy)} ${does}.`
+}
+
+/** The events a policy hears, each with the context or the lane it comes from when it is not its step's. */
+function heardBy(wall: Wall, step: Step, policy: Note): string {
+  const hears = wall.edges
+    .filter((edge) => edge.to === policy && edge.drawn)
     .map(
       (edge) =>
         chipOf(wall, edge.from) +
@@ -163,13 +171,22 @@ function reactionSentence(wall: Wall, step: Step, policy: Note): string {
             : ''),
     )
     .join(' or ')
-  const does = sent
-    .map(
-      (edge) =>
-        `${edge.certain ? (edge.to.kind === 'event' ? 'publishes' : 'sends') : `may send (only ${escaped(edge.when ?? 'in some states')})`} ${chipOf(wall, edge.to)}`,
-    )
-    .join(' and ')
-  return `Whenever ${hears || 'something happens'}, ${chipOf(wall, policy)} ${does}.`
+  return hears || 'something happens'
+}
+
+/** How a policy sends what it leads to: always, or only in some states. */
+function sendingOf(edge: Edge): string {
+  if (!edge.certain) return `may send (only ${escaped(edge.when ?? 'in some states')})`
+  return edge.to.kind === 'event' ? 'publishes' : 'sends'
+}
+
+/** What starts a command that no actor sends: the policy of another step that sends it, or nothing said. */
+function causeOf(wall: Wall, step: Step, main: Note): string {
+  const sent = wall.edges.find(
+    (edge) => edge.to === main && edge.from.kind === 'policy' && edge.from.step !== step,
+  )
+  if (sent === undefined) return 'Then '
+  return `Whenever ${heardBy(wall, sent.from.step, sent.from)}, ${chipOf(wall, sent.from)} ${sendingOf(sent)} `
 }
 
 function sentenceOfTheUseCase(
@@ -194,7 +211,7 @@ function sentenceOfTheUseCase(
     actors.length > 0
       ? `${list(actors)}${views.length > 0 ? `, from ${views.join(' or ')},` : ''} ${main.kind === 'command' ? 'asks to' : 'looks at'} `
       : main.kind === 'command'
-        ? 'Then '
+        ? causeOf(wall, step, main)
         : ''
   const asks = ports.length > 0 ? `, which asks ${list(ports, ', ')}` : ''
   return `${who}${chipOf(wall, main)}${asks}.${changes.length > 0 ? ` ${changes.join(' ')}` : ''}`
