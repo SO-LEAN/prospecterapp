@@ -58,6 +58,13 @@ describe('publicHolidayOn', () => {
     expect(publicHolidayOn(day(written), 'national')).toBe('easterMonday')
   })
 
+  it.each([['1981-04-20'], ['2049-04-19'], ['2076-04-20'], ['2100-03-29'], ['2200-04-07']])(
+    'computes Easter Monday in a year whose Easter needs every step of the algorithm: %s',
+    (written) => {
+      expect(publicHolidayOn(day(written), 'national')).toBe('easterMonday')
+    },
+  )
+
   it.each(ASCENSION_DAYS)('computes Ascension Day: %s', (written) => {
     expect(publicHolidayOn(day(written), 'national')).toBe('ascension')
   })
