@@ -3,12 +3,11 @@ import { placeOf } from '@/shared/lib/address'
 import { attachTheFiles, useAttachFiles, useNoteExchange, usePlanExchange } from '../mutations'
 import type { Slot } from '../planning'
 import { meetingPlaceQuery, type PlannedExchangeInput, timelineQuery, upcomingQuery } from '../queries'
-import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { CatchUpGmail } from './catch-up-gmail'
+import { ExchangeActions } from './exchange-actions'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
-import { JoinTheVideoCall } from './join-the-video-call'
 import { PlanForm } from './plan-form'
 import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, TimelineCard } from './timeline-card'
 
@@ -65,9 +64,13 @@ export function ExchangesSection({ contactId, contactName, mayCatchUpGmail = fal
       upcomingItems={upcoming.data?.pages.flatMap((slice) => slice.items)}
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(exchange) => exchange.id}
-      renderItem={(exchange) => <ExchangeLine exchange={exchange} campaignAside />}
-      actionOf={(exchange) => <JoinTheVideoCall exchange={exchange} />}
-      asideOf={(exchange) => <CampaignOfTheLine exchange={exchange} />}
+      renderItem={(exchange, open) => (
+        <ExchangeLine
+          exchange={exchange}
+          onOpen={() => open()}
+          actions={<ExchangeActions exchange={exchange} onOpen={open} />}
+        />
+      )}
       catchUp={mayCatchUpGmail && <CatchUpGmail contactId={contactId} />}
       planExchange={
         mayPlan && (

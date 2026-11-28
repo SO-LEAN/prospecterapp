@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
-import { ExchangeDetailSheet } from './exchange-detail'
+import { ExchangeDetailSheet, type StartWith } from './exchange-detail'
 
 type Props<Item> = {
   timeline: UseInfiniteQueryResult
@@ -23,11 +23,8 @@ type Props<Item> = {
   items: Item[]
   /** The id of an item's exchange, the one that its detail opens. */
   keyOf: (item: Item) => string
-  renderItem: (item: Item) => ReactNode
-  /** What an upcoming exchange offers at once beside it, outside the button that opens its detail: joining a video call. */
-  actionOf?: (item: Item) => ReactNode
-  /** What a past or upcoming exchange shows beside it, outside the button that opens its detail: its campaign. */
-  asideOf?: (item: Item) => ReactNode
+  /** The item's line, given the function that opens its detail, possibly on its report or its move. */
+  renderItem: (item: Item, open: (startWith?: StartWith) => void) => ReactNode
   /** A new exchange's quick entry, when the timeline offers it. */
   noteExchange?: ReactNode
   /** The planning of an upcoming exchange, when the timeline offers it. */
@@ -50,8 +47,6 @@ export function TimelineCard<Item>({
   items,
   keyOf,
   renderItem,
-  actionOf,
-  asideOf,
   noteExchange,
   planExchange,
   filter,
@@ -66,7 +61,7 @@ export function TimelineCard<Item>({
     }
   }
   const end = useWhenVisible<HTMLDivElement>(loadWhatFollows)
-  const [opened, setOpened] = useState<string | null>(null)
+  const [opened, setOpened] = useState<Opened | null>(null)
 
   return (
     <Card className={className}>
@@ -90,8 +85,6 @@ export function TimelineCard<Item>({
               items={upcomingItems}
               keyOf={keyOf}
               renderItem={renderItem}
-              actionOf={actionOf}
-              asideOf={asideOf}
               onOpen={setOpened}
             />
             {upcoming?.hasNextPage && (
@@ -117,7 +110,6 @@ export function TimelineCard<Item>({
             items={items}
             keyOf={keyOf}
             renderItem={renderItem}
-            asideOf={asideOf}
             onOpen={setOpened}
           />
         </section>
@@ -129,39 +121,30 @@ export function TimelineCard<Item>({
             </Button>
           </div>
         )}
-        <ExchangeDetailSheet exchangeId={opened} onClose={() => setOpened(null)} />
+        <ExchangeDetailSheet
+          exchangeId={opened?.exchangeId ?? null}
+          startWith={opened?.startWith}
+          onClose={() => setOpened(null)}
+        />
       </CardContent>
     </Card>
   )
 }
 
-type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem' | 'actionOf' | 'asideOf'> & {
+/** The exchange whose detail is open, and what it opened on. */
+type Opened = { exchangeId: string; startWith?: StartWith }
+
+type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem'> & {
   label: string
-  onOpen: (exchangeId: string) => void
+  onOpen: (opened: Opened) => void
 }
 
-function Exchanges<Item>({
-  label,
-  items,
-  keyOf,
-  renderItem,
-  actionOf,
-  asideOf,
-  onOpen,
-}: ExchangesProps<Item>) {
+function Exchanges<Item>({ label, items, keyOf, renderItem, onOpen }: ExchangesProps<Item>) {
   return (
     <ol className="divide-y" aria-label={label}>
       {items.map((item) => (
-        <li key={keyOf(item)} className="flex items-center gap-2 py-1 first:pt-0 last:pb-0">
-          <button
-            type="button"
-            className="-mx-2 min-w-0 flex-1 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            onClick={() => onOpen(keyOf(item))}
-          >
-            {renderItem(item)}
-          </button>
-          {asideOf?.(item)}
-          {actionOf?.(item)}
+        <li key={keyOf(item)} className="-mx-2 py-1 first:pt-0 last:pb-0">
+          {renderItem(item, (startWith) => onOpen({ exchangeId: keyOf(item), startWith }))}
         </li>
       ))}
     </ol>

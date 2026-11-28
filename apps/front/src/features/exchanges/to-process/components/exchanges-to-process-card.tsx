@@ -2,14 +2,12 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { formatMoment } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
-import { ToAttachMarker } from '@/shared/ui/event/markers'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import type { StartWith } from '../../components/exchange-detail'
 import { ExchangeGestures } from '../../components/exchange-gestures'
+import { ExchangeLine } from '../../components/exchange-line'
 import {
   type ContactsToAttach,
   countOf,
@@ -150,40 +148,26 @@ type LineProps = {
   onLeave: () => () => void
 }
 
-/** When the exchange was, its channel, who it was with and their organization, and the gestures it offers at hand. */
+/** The exchange's line, with the gestures it offers at hand. It leaves while its gesture can be taken back. */
 function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
-  const { t } = useTranslation()
   const { exchange, interlocutor, organization } = item
-  const ChannelIcon = CHANNEL_ICONS[exchange.channel]
 
   return (
     <li
       aria-hidden={leaving || undefined}
       inert={leaving}
       className={cn(
-        'space-y-2 rounded-lg border p-3',
+        'rounded-lg border',
         leaving && 'fade-out-0 slide-out-to-right-4 animate-out fill-mode-forwards duration-300',
       )}
     >
-      <button
-        type="button"
-        onClick={() => onOpen()}
-        className="block w-full min-w-0 rounded-md text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-      >
-        <span className="flex items-center gap-2 text-sm">
-          <span className="font-medium tabular-nums">{formatMoment(exchange.occurredAt)}</span>
-          <ChannelIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-          <span>{t(`exchanges.channels.${exchange.channel}`)}</span>
-        </span>
-        <span className="flex min-w-0 items-center gap-1.5">
-          <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
-          <ToAttachMarker exchange={exchange} />
-        </span>
-        {organization && (
-          <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>
-        )}
-      </button>
-      <ExchangeGestures exchange={exchange} onOpen={onOpen} onLeave={onLeave} />
+      <ExchangeLine
+        exchange={exchange}
+        interlocutor={interlocutor}
+        organization={organization?.name}
+        onOpen={() => onOpen()}
+        actions={<ExchangeGestures exchange={exchange} onOpen={onOpen} onLeave={onLeave} />}
+      />
     </li>
   )
 }
