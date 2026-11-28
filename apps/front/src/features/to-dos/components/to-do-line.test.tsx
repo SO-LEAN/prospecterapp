@@ -5,7 +5,7 @@ import { Toaster, toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { ToDo } from '../queries'
-import { ToDoToProcessLine } from './to-do-to-process-line'
+import { ToDoLine } from './to-do-line'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -39,7 +39,17 @@ const aToDo = (toDo: Partial<ToDo> = {}): ToDo => ({
 async function showTheLine(toDo: ToDo, daysOverdue = 0) {
   await renderInARouter(
     <QueryClientProvider client={new QueryClient()}>
-      <ToDoToProcessLine toDo={toDo} daysOverdue={daysOverdue} />
+      <ToDoLine toDo={toDo} daysOverdue={daysOverdue} />
+      <Toaster />
+    </QueryClientProvider>,
+  )
+}
+
+/** The line as a card shows it: it knows nothing of since when the to-do waits. */
+async function showTheLineOfACard(toDo: ToDo) {
+  await renderInARouter(
+    <QueryClientProvider client={new QueryClient()}>
+      <ToDoLine toDo={toDo} />
       <Toaster />
     </QueryClientProvider>,
   )
@@ -186,5 +196,81 @@ describe('a to-do in « À traiter »', () => {
 
     expect(screen.getByRole('checkbox', { name: /^Cocher/ })).toBeEnabled()
     expect(screen.queryByRole('button', { name: 'Reporter' })).not.toBeInTheDocument()
+  })
+})
+
+describe('a to-do’s line in a card', () => {
+  it('shows a to-do already done ticked and struck through, without folding it away', async () => {
+    await showTheLine(done(aToDo()))
+
+    expect(screen.getByRole('checkbox', { name: /^Décocher/ })).toBeChecked()
+    expect(screen.getByText('Envoyer le CV à Nicolas Bonnet')).toHaveClass('line-through')
+    expect(theFold()).toHaveClass('grid-rows-[1fr]')
+    expect(theFold()).not.toHaveClass('grid-rows-[0fr]')
+  })
+
+  it('sets a to-do past its day apart by a stripe, without saying since when it waits', async () => {
+    await showTheLineOfACard(aToDo({ dueOn: '2026-11-09', dueAt: null }))
+
+    expect(theLine()).toHaveTextContent(
+      /^Envoyer le CV à Nicolas Bonnetlun\. 9 nov\. · Nicolas BonnetReporter$/,
+    )
+    expect(theLine()).toHaveAttribute('data-late')
+  })
+
+  it('ticks the to-do off by an amber box, beside the to-dos’ amber tile', async () => {
+    await showTheLineOfACard(aToDo())
+
+    expect(screen.getByRole('checkbox', { name: /^Cocher/ })).toHaveClass('accent-event-todo')
+    expect(theLine().querySelector('[data-tile]')).toHaveClass('bg-event-todo-soft', 'text-event-todo')
+  })
+
+  it('erases the to-do from its menu, by that request alone', async () => {
+    theApi.mockResolvedValue(new Response(null, { status: 204 }))
+    await showTheLineOfACard(
+      aToDo({ _links: { ...aToDo()._links, erase: link(`/api/to-dos/${ID}`, 'DELETE') } }),
+    )
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /^Actions sur «\sEnvoyer le CV à Nicolas Bonnet\s»$/ }),
+    )
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Supprimer' }))
+
+    await waitFor(() => expect(sent()).toEqual([['DELETE', `/api/to-dos/${ID}`]]))
+  })
+
+  it('offers no menu when the to-do does not carry the link that erases it', async () => {
+    await showTheLineOfACard(aToDo())
+
+    expect(screen.queryByRole('button', { name: /^Actions sur/ })).not.toBeInTheDocument()
+  })
+
+  it('names who holds the to-do when its list asks for it', async () => {
+    await renderInARouter(
+      <QueryClientProvider client={new QueryClient()}>
+        <ToDoLine toDo={aToDo({ dueOn: '2026-11-20' })} withItsHolder />
+      </QueryClientProvider>,
+    )
+
+    expect(theLine()).toHaveTextContent('ven. 20 nov. · 11h00 · Nicolas Bonnet · par Michel Maier')
+  })
+
+  it('does not name the contact again on the contact’s own card', async () => {
+    await renderInARouter(
+      <QueryClientProvider client={new QueryClient()}>
+        <ToDoLine toDo={aToDo({ dueOn: '2026-11-20' })} withoutItsContact />
+      </QueryClientProvider>,
+    )
+
+    expect(theLine()).toHaveTextContent(/^Envoyer le CV à Nicolas Bonnetven\. 20 nov\. · 11h00Reporter$/)
+  })
+
+  it('does not set apart a to-do to come', async () => {
+    await showTheLineOfACard(aToDo({ dueOn: '2026-11-20' }))
+
+    expect(theLine()).toHaveTextContent(
+      /^Envoyer le CV à Nicolas Bonnetven\. 20 nov\. · 11h00 · Nicolas BonnetReporter$/,
+    )
+    expect(theLine()).not.toHaveAttribute('data-late')
   })
 })

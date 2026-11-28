@@ -110,12 +110,12 @@ describe('ToDosCard', () => {
     expect(screen.getByRole('checkbox', { name: 'Décocher « Préparer la démo »' })).toBeChecked()
   })
 
-  it('shows in red a to-do past its day', async () => {
+  it('sets a to-do past its day apart by a stripe', async () => {
     await renderTheCard(listOf([aToDo({ dueOn: '2020-01-02' })]))
 
-    const overdue = screen.getByText(/^En retard/)
+    const overdue = screen.getByRole('listitem').querySelector('[data-to-do]')
     expect(overdue).toHaveTextContent(/2\sjanv\.\s2020/)
-    expect(overdue).toHaveClass('text-destructive')
+    expect(overdue).toHaveAttribute('data-late')
   })
 
   it('names the contact of a to-do on the card of an organization', async () => {
@@ -332,7 +332,7 @@ describe('ToDosCard', () => {
     ])
   })
 
-  it('ticks a to-do off on a card without a toast, the to-do staying among those done', async () => {
+  it('ticks a to-do off on a card as everywhere, its toast offering to take the tick back', async () => {
     const toDo = aToDo({})
     const onTickedOff = vi.fn()
     theApi.mockResolvedValue(
@@ -343,15 +343,15 @@ describe('ToDosCard', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: /^Cocher/ }))
 
     await waitFor(() => expect(onTickedOff).toHaveBeenCalledWith(toDo))
-    expect(screen.queryByText('Action faite')).not.toBeInTheDocument()
+    const told = (await screen.findByText('Action faite')).closest('[data-sonner-toast]') as HTMLElement
+    expect(within(told).getByRole('button', { name: 'Annuler' })).toBeInTheDocument()
   })
 
-  it('revises a to-do from its menu, from what it was', async () => {
+  it('revises a to-do from « Reporter », from what it was', async () => {
     theApi.mockResolvedValue(Response.json(aToDo({ text: 'Envoyer mon CV à jour' })))
     await renderTheCard(listOf([aToDo({})]))
 
-    await userEvent.click(screen.getByRole('button', { name: 'Actions sur « Envoyer mon CV »' }))
-    await userEvent.click(await screen.findByRole('menuitem', { name: 'Modifier' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Reporter' }))
     const revision = await screen.findByRole('dialog')
     const text = within(revision).getByLabelText('Ce qu’il y a à faire')
     expect(text).toHaveValue('Envoyer mon CV')
@@ -363,13 +363,6 @@ describe('ToDosCard', () => {
     const request = theApi.mock.calls[0]?.[0] as Request
     expect([request.method, new URL(request.url).pathname]).toEqual(['PATCH', `/api/to-dos/${ID}`])
     expect(await request.json()).toMatchObject({ text: 'Envoyer mon CV à jour', dueOn: '2099-11-14' })
-  })
-
-  it('offers no Reporter on a card, where its menu revises the to-do', async () => {
-    await renderTheCard(listOf([aToDo({})]))
-
-    expect(screen.getByRole('button', { name: /^Actions sur/ })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Reporter' })).not.toBeInTheDocument()
   })
 
   it('erases a to-do from its menu', async () => {

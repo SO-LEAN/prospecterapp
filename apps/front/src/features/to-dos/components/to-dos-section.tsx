@@ -1,20 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { memberName } from '@/shared/lib/member-name'
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
-import { formatDue, isOverdue, split } from '../due'
-import { useEraseToDo, useNoteOrganizationToDo, useNoteToDo } from '../mutations'
+import { split } from '../due'
+import { useNoteOrganizationToDo, useNoteToDo } from '../mutations'
 import {
   contactToDosQuery,
   organizationToDosQuery,
@@ -22,9 +14,8 @@ import {
   type ToDoInput,
   type ToDoList,
 } from '../queries'
-import { useToggle } from '../use-toggle'
-import { ReviseToDoDialog } from './revise-to-do-dialog'
 import { type Recipients, ToDoForm } from './to-do-form'
+import { ToDoLine } from './to-do-line'
 
 /** Called once a to-do is ticked off. The page may then propose to log the exchange it led to. */
 export type OnTickedOff = (toDo: ToDo) => void
@@ -136,7 +127,6 @@ export function ToDosCard({
 }: CardProps) {
   const { t } = useTranslation()
   const { toDo, done } = split(list.toDos)
-  const now = new Date()
   const [adding, setAdding] = useState(false)
   const mayAdd = Boolean(list._links.noteToDo)
   const nothingToDo = toDo.length === 0
@@ -162,7 +152,6 @@ export function ToDosCard({
         <ToDoLines
           label={t('toDos.title')}
           toDos={toDo}
-          now={now}
           withTheirContact={withTheirContact}
           onTickedOff={onTickedOff}
         />
@@ -174,7 +163,6 @@ export function ToDosCard({
             <ToDoLines
               label={t('toDos.done')}
               toDos={done}
-              now={now}
               withTheirContact={withTheirContact}
               onTickedOff={onTickedOff}
             />
@@ -191,72 +179,24 @@ export function ToDosCard({
 type LinesProps = {
   label: string
   toDos: ToDo[]
-  now: Date
   withTheirContact: boolean
   onTickedOff?: OnTickedOff
 }
 
-function ToDoLines({ label, toDos, ...props }: LinesProps) {
+/** Each to-do by the line every list shows. The card names who holds it, and its contact on an organization's card. */
+function ToDoLines({ label, toDos, withTheirContact, onTickedOff }: LinesProps) {
   return (
-    <ul className="divide-y" aria-label={label}>
+    <ul className="space-y-2" aria-label={label}>
       {toDos.map((toDo) => (
-        <li key={toDo.id} className="py-1.5">
-          <ToDoLine toDo={toDo} {...props} />
+        <li key={toDo.id}>
+          <ToDoLine
+            toDo={toDo}
+            withItsHolder
+            withoutItsContact={!withTheirContact}
+            onTickedOff={() => onTickedOff?.(toDo)}
+          />
         </li>
       ))}
     </ul>
-  )
-}
-
-type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
-
-/** One click ticks it off or unticks it. Its menu revises or erases it. Its links decide which gestures it allows. */
-function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
-  const { t } = useTranslation()
-  const toggle = useToggle(toDo, { onTickedOff })
-  const erase = useEraseToDo()
-  const [revising, setRevising] = useState(false)
-  const done = Boolean(toDo.doneAt)
-  const overdue = isOverdue(toDo, now)
-  const contactName =
-    toDo.contact && [toDo.contact.name.firstName, toDo.contact.name.lastName].filter(Boolean).join(' ')
-  const params = { params: { path: { id: toDo.id } } }
-
-  return (
-    <div className="flex items-start gap-3">
-      <input type="checkbox" className="mt-1 size-4 shrink-0 accent-primary" {...toggle} />
-      <div className="min-w-0 flex-1">
-        <p className={cn('break-words', done && 'text-muted-foreground line-through')}>{toDo.text}</p>
-        <p className="flex flex-wrap gap-x-1 text-muted-foreground text-xs">
-          <span className={cn(overdue && 'font-medium text-destructive')}>
-            {overdue ? t('toDos.overdue', { due: formatDue(toDo) }) : formatDue(toDo)}
-          </span>
-          {withTheirContact && contactName && <span>{t('toDos.forContact', { name: contactName })}</span>}
-          <span>{t('toDos.heldBy', { name: memberName(toDo.heldBy) })}</span>
-        </p>
-      </div>
-      {(toDo._links.revise || toDo._links.erase) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={t('toDos.menu', { text: toDo.text })}>
-              <EllipsisVertical aria-hidden />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {toDo._links.revise && (
-              <DropdownMenuItem onSelect={() => setRevising(true)}>
-                <Pencil aria-hidden /> {t('common.edit')}
-              </DropdownMenuItem>
-            )}
-            {toDo._links.erase && (
-              <DropdownMenuItem variant="destructive" onSelect={() => erase.mutate(params)}>
-                <Trash2 aria-hidden /> {t('common.remove')}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-      {toDo._links.revise && <ReviseToDoDialog toDo={toDo} open={revising} onOpenChange={setRevising} />}
-    </div>
   )
 }

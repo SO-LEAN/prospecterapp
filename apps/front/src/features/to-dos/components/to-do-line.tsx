@@ -1,0 +1,146 @@
+import { CircleCheck, EllipsisVertical, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { memberName } from '@/shared/lib/member-name'
+import { cn } from '@/shared/lib/utils'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
+import { formatDue, isOverdue } from '../due'
+import { useEraseToDo } from '../mutations'
+import type { ToDo } from '../queries'
+import { useToggle } from '../use-toggle'
+import { ReviseToDoDialog } from './revise-to-do-dialog'
+
+type Props = {
+  toDo: ToDo
+  /**
+   * How many days ago it was due, zero for a to-do due today, as « À traiter » reads it. A card does not know it: the
+   * line then finds whether it is late, on the browser's clock.
+   */
+  daysOverdue?: number
+  /** Called once the to-do is ticked off. */
+  onTickedOff?: () => void
+  /** Names the member who holds it, on a card the whole account reads. */
+  withItsHolder?: boolean
+  /** Leaves out its contact, on the contact's own card. */
+  withoutItsContact?: boolean
+}
+
+const nameOf = ({ name }: NonNullable<ToDo['contact']>) =>
+  [name.firstName, name.lastName].filter(Boolean).join(' ')
+
+/**
+ * One to-do, the same in every list: its box, the to-do's tile, its text, when it is due and for whom, then since when
+ * it waits in « À traiter ». A late one has a stripe. Once the to-do is ticked off, its text is struck through and the
+ * line folds away. Under reduced motion, the line only fades out. Its toast offers to take the tick back. « Reporter »
+ * opens its revision, where a shortcut sets its new day. Its links decide which gestures it offers.
+ */
+export function ToDoLine({
+  toDo,
+  daysOverdue,
+  onTickedOff,
+  withItsHolder = false,
+  withoutItsContact = false,
+}: Props) {
+  const { t } = useTranslation()
+  const toggle = useToggle(toDo, { onTickedOff, undoable: true })
+  const [postponing, setPostponing] = useState(false)
+  const ticked = toggle.checked
+  const late = daysOverdue === undefined ? isOverdue(toDo, new Date()) : daysOverdue > 0
+  const forWhom = !withoutItsContact && toDo.contact && nameOf(toDo.contact)
+  const heldBy = withItsHolder && t('toDos.heldBy', { name: memberName(toDo.heldBy) })
+  const dueAndForWhom = [formatDue(toDo), forWhom, heldBy].filter(Boolean).join(' · ')
+
+  return (
+    <div
+      data-fold
+      className={cn(
+        'grid grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-[260ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-opacity',
+        ticked && !toDo.doneAt && 'grid-rows-[0fr] opacity-0 motion-reduce:grid-rows-[1fr]',
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        <div
+          data-to-do
+          data-late={late ? '' : undefined}
+          className={cn(
+            'flex items-center gap-3 rounded-lg border p-3',
+            late && 'border-l-4 border-l-warning',
+          )}
+        >
+          <input type="checkbox" className="size-4 shrink-0 accent-event-todo" {...toggle} />
+          <span
+            data-tile
+            className="grid size-6.5 shrink-0 place-items-center rounded-md bg-event-todo-soft text-event-todo"
+          >
+            <CircleCheck aria-hidden className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p
+              className={cn(
+                'break-words font-medium text-sm',
+                ticked && 'text-muted-foreground line-through',
+              )}
+            >
+              {toDo.text}
+            </p>
+            <p className="text-muted-foreground text-xs">{dueAndForWhom}</p>
+          </div>
+          {daysOverdue !== undefined && <SinceWhenItWaits daysOverdue={daysOverdue} />}
+          {toDo._links.revise && (
+            <Button variant="outline" size="sm" onClick={() => setPostponing(true)}>
+              {t('toDos.postpone')}
+            </Button>
+          )}
+          {toDo._links.erase && <EraseMenu toDo={toDo} />}
+        </div>
+      </div>
+      {toDo._links.revise && <ReviseToDoDialog toDo={toDo} open={postponing} onOpenChange={setPostponing} />}
+    </div>
+  )
+}
+
+/** The menu that erases the to-do. */
+function EraseMenu({ toDo }: { toDo: ToDo }) {
+  const { t } = useTranslation()
+  const erase = useEraseToDo()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label={t('toDos.menu', { text: toDo.text })}>
+          <EllipsisVertical aria-hidden />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          variant="destructive"
+          onSelect={() => erase.mutate({ params: { path: { id: toDo.id } } })}
+        >
+          <Trash2 aria-hidden /> {t('common.remove')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** « Pour aujourd’hui », or « En retard de 3 jours ». */
+function SinceWhenItWaits({ daysOverdue }: { daysOverdue: number }) {
+  const { t } = useTranslation()
+
+  return daysOverdue > 0 ? (
+    <Badge variant="outline" className="border-destructive/30 bg-destructive/10 text-destructive">
+      {t('toProcess.overdue', { count: daysOverdue })}
+    </Badge>
+  ) : (
+    <Badge variant="outline" className="border-warning/40 bg-warning/15 text-foreground">
+      {t('toProcess.forToday')}
+    </Badge>
+  )
+}
