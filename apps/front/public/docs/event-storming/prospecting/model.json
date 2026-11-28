@@ -3575,3493 +3575,3992 @@
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultContactToAttach\\ConsultContactToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ProposeMeetingPlace\\ProposeMeetingPlace",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchEstablishments\\SearchEstablishments",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimelineIntents\\ConsultTimelineIntents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\CompleteOrganization\\CompleteOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultContactToAttach\\ConsultContactToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ProposeMeetingPlace\\ProposeMeetingPlace",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\SendingNoted\\SendingNoted",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\CompareWithOrganization\\CompareWithOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchEstablishments\\SearchEstablishments",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimelineIntents\\ConsultTimelineIntents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\LocateAgain\\LocateAgain",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:schedule",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactLeftUnattached",
             "via": "eraseLeftUnattached",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachAttached",
             "via": "attachTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachHandedOver",
             "via": "handOverTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachMet",
             "via": "metBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachMetAgain",
             "via": "meetAgainAt",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentImported",
             "via": "importAttachment",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentRemoved",
             "via": "removeAttachment",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCancelled",
             "via": "cancel",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCancelled",
             "via": "forgetItsContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeContactForgotten",
             "via": "forgetItsContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCorrected",
             "via": "correct",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeErased",
             "via": "erase",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeErased",
             "via": "eraseWithItsOrganization",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeJoinedCampaign",
             "via": "joinCampaign",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeKeptFor",
             "via": "keepFor",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeLeftWithoutOrganization",
             "via": "stopKeepingFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMarkedDone",
             "via": "markDone",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMarkedMissed",
             "via": "markMissed",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMoved",
             "via": "moveTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeNoLongerKeptFor",
             "via": "stopKeepingFor",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeNoted",
             "via": "noted",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangePlanned",
             "via": "bookedByAContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangePlanned",
             "via": "planned",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeRedacted",
             "via": "declareConform",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeTextCorrected",
             "via": "correctText",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeVenueCorrected",
             "via": "correctVenue",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\FileAttached",
             "via": "attach",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\VideoCallLinkReceived",
             "via": "receiveLink",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachedToHolding",
             "via": "attachToHolding",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactAdded",
             "via": "addContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactDetailsChanged",
             "via": "changeContactDetails",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactRemoved",
             "via": "removeContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactsLeftWithoutOrganization",
             "via": "removeContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactsLeftWithoutOrganization",
             "via": "stopBeingProspected",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DetachedFromHolding",
             "via": "detachFromHolding",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspected",
             "via": "reconsiderDuplicates",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspected",
             "via": "suspectDuplicateOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionDismissed",
             "via": "dismissSuspicionOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionDismissed",
             "via": "knowItIsNoDuplicateOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "liftSuspicionOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "reconsiderDuplicates",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "stopBeingProspected",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LegalIdentityRevised",
             "via": "reviseLegalIdentity",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LocatedAgain",
             "via": "locateAgain",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LogoChanged",
             "via": "changeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LogoRemoved",
             "via": "removeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ObservationsWritten",
             "via": "writeObservations",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\OrganizationCompleted",
             "via": "completeWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStarted",
             "via": "prospectedBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStopped",
             "via": "stopBeingProspected",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\Relocated",
             "via": "relocateTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoErased",
             "via": "erase",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoKeptFor",
             "via": "keepFor",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoLeftWithoutOrganization",
             "via": "stopKeepingFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoNoLongerKeptFor",
             "via": "stopKeepingFor",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoNoted",
             "via": "noted",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoRevised",
             "via": "revise",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoTickedOff",
             "via": "tickOff",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "to": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoUnticked",
             "via": "untick",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "attach",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "removeAttachment",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "addContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\KnownContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachCollectedContact\\AttachCollectedContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "addContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachContactToAttach\\AttachContactToAttach",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "via": "attachTo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\DetachForgottenContact\\DetachForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "removeContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "via": "eraseLeftUnattached",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\PushBackErasureOfContactToAttach\\PushBackErasureOfContactToAttach",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "via": "meetAgainAt",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "removeContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "dismissSuspicionOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "knowItIsNoDuplicateOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "liftSuspicionOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "suspectDuplicateOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "correctText",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "declareConform",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "correctVenue",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "correct",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "declareConform",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangeLeftWithoutOrganization\\EraseExchangeLeftWithoutOrganization",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "eraseWithItsOrganization",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "erase",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangesOfContactLeftUnattached\\EraseExchangesOfContactLeftUnattached",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepCreatedVideoCallLink\\KeepCreatedVideoCallLink",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "receiveLink",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfAttachedContact\\KeepExchangesOfAttachedContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "keepFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "forgetItsContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "markDone",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "markMissed",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "moveTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "joinCampaign",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "noted",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignRecipients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "noted",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteImportedEmail\\NoteImportedEmail",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "importAttachment",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteImportedEmail\\NoteImportedEmail",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "noted",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteImportedEmail\\NoteImportedEmail",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "noted",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "via": "handOverTo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "via": "metBy",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "bookedByAContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\BookedAppointments",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "planned",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "planned",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\StopKeepingExchanges\\StopKeepingExchanges",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
             "via": "stopKeepingFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "attachToHolding",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "changeContactDetails",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "changeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\CompleteOrganization\\CompleteOrganization",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "completeWith",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "detachFromHolding",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\LocateAgain\\LocateAgain",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "locateAgain",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "reconsiderDuplicates",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "relocateTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "removeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "reconsiderDuplicates",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "reviseLegalIdentity",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "attachToHolding",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "changeContactDetails",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "prospectedBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "reconsiderDuplicates",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "relocateTo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "writeObservations",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "detachFromHolding",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "stopBeingProspected",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
             "via": "writeObservations",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDoLeftWithoutOrganization\\EraseToDoLeftWithoutOrganization",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "erase",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "erase",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDosOfForgottenContact\\EraseToDosOfForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\KeepToDosOfAttachedContact\\KeepToDosOfAttachedContact",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "keepFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "noted",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "noted",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "revise",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\StopKeepingToDos\\StopKeepingToDos",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "stopKeepingFor",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "tickOff",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "to": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
             "via": "untick",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentImported",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepImportedAttachmentPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentRemoved",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedAttachmentPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactAdded",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachContactToAttachPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactAdded",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfAttachedContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactAdded",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepToDosOfAttachedContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactLeftUnattached",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactLeftUnattached\\PublishContactLeftUnattachedHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactLeftUnattached",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangesOfContactLeftUnattachedPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactsLeftWithoutOrganization",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactsLeftWithoutOrganization\\PublishContactsLeftWithoutOrganizationHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspected",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionDismissed",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DismissSuspicionInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionLifted",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\LiftSuspicionInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCorrected",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeErased",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardAttachmentsOfErasedExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeEvent",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishExchangeFacts\\PublishExchangeFactsHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeLeftWithoutOrganization",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangeLeftWithoutOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMoved",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeNoted",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangePlanned",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LogoRemoved",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedLogoPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\OrganizationEvent",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishOrganizationFacts\\PublishOrganizationFactsHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStopped",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingExchangesPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStopped",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingToDosPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoLeftWithoutOrganization",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDoLeftWithoutOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactLeftUnattached\\PublishContactLeftUnattachedHandler",
             "to": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactsLeftWithoutOrganization\\PublishContactsLeftWithoutOrganizationHandler",
             "to": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishExchangeFacts\\PublishExchangeFactsHandler",
             "to": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishOrganizationFacts\\PublishOrganizationFactsHandler",
             "to": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachCollectedContact\\AttachCollectedContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachContactToAttachPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachContactToAttach\\AttachContactToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\DetachForgottenContact\\DetachForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardAttachmentsOfErasedExchangePolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DiscardAttachmentsOfErasedExchange\\DiscardAttachmentsOfErasedExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedAttachmentPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DiscardRemovedAttachment\\DiscardRemovedAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedLogoPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DiscardRemovedLogo\\DiscardRemovedLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DismissSuspicionInReturnPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangeLeftWithoutOrganizationPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangeLeftWithoutOrganization\\EraseExchangeLeftWithoutOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangesOfContactLeftUnattachedPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangesOfContactLeftUnattached\\EraseExchangesOfContactLeftUnattached",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDoLeftWithoutOrganizationPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDoLeftWithoutOrganization\\EraseToDoLeftWithoutOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDosOfForgottenContact\\EraseToDosOfForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ForgetFingerprintsOfForgottenContact\\ForgetFingerprintsOfForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepCreatedVideoCallLink\\KeepCreatedVideoCallLink",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfAttachedContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfAttachedContact\\KeepExchangesOfAttachedContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepImportedAttachmentPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\KeepImportedAttachment\\KeepImportedAttachment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepToDosOfAttachedContactPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\KeepToDosOfAttachedContact\\KeepToDosOfAttachedContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\LiftSuspicionInReturnPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteImportedEmail\\NoteImportedEmail",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\PushBackErasureOfContactToAttach\\PushBackErasureOfContactToAttach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingExchangesPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\StopKeepingExchanges\\StopKeepingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingToDosPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\StopKeepingToDos\\StopKeepingToDos",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\KnownContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
             "via": "removeFromOrganization",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\KnownContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
             "via": "attachFile",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "via": "removeAttachment",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "via": "correctText",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
             "via": "redact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
             "via": "correctVenue",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
             "via": "correctExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
             "via": "eraseExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "moveBack",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ProposeMeetingPlace\\ProposeMeetingPlace",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\SendingNoted\\SendingNoted",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignRecipients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\SendingNoted\\SendingNoted",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
             "via": "addContact",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": "dismiss",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
             "via": "attachToHolding",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
             "via": "changeContactDetails",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
             "via": "changeLogo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
             "via": "detachFromHolding",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
             "via": "relocate",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
             "via": "removeLogo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
             "via": "reviseLegalIdentity",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
             "via": "stopProspecting",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
             "via": "writeObservations",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchEstablishments\\SearchEstablishments",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\EstablishmentDirectory",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": "dismiss",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimelineIntents\\ConsultTimelineIntents",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
             "via": "markDone",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
             "via": "markMissed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
             "via": "move",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
             "via": "noteExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
             "via": "planExchange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
             "via": "erase",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
             "via": "noteToDo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
             "via": "tickOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
             "via": "untick",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }

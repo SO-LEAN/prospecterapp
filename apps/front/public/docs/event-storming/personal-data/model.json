@@ -1487,966 +1487,1104 @@
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
             "via": "identifyAsBookerOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
             "via": "collectAsContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
             "via": "collectToAttach",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCompleted",
             "via": "completeWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
             "via": "forget",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
             "via": "reconsiderDuplicates",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
             "via": "suspectDuplicateOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
             "via": "dismissSuspicionOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
             "via": "knowItIsNoDuplicateOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "forget",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "liftSuspicionOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
             "via": "reconsiderDuplicates",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\JobTitleChanged",
             "via": "changeJobTitle",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonContactDetailsChanged",
             "via": "changeContactDetails",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonPictureChanged",
             "via": "changePicture",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonRenamed",
             "via": "rename",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\TitleChanged",
             "via": "changeCivility",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "collectAsContact",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "reconsiderDuplicates",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\ProspectedOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "completeWith",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "forget",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "forget",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "forget",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "dismissSuspicionOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "knowItIsNoDuplicateOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "liftSuspicionOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "suspectDuplicateOf",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "collectToAttach",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "identifyAsBookerOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Bookers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "changeCivility",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "changeJobTitle",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "changeContactDetails",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "changePicture",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "reconsiderDuplicates",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
             "via": "rename",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonEvent",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
             "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
             "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
             "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
             "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheFounderProfile\\CollectTheFounderProfile",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheMemberProfile\\CollectTheMemberProfile",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
             "via": "collect",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
             "via": "forget",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": "dismiss",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
             "via": "changeTitle",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
             "via": "changeJobTitle",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "via": "changeContactDetails",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
             "via": "changeMyContactDetails",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
             "via": "changeMyPicture",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "via": "changeMyName",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
             "via": "rename",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\NameContacts\\NameContacts",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichEmailsHaveTheseContacts\\WhichEmailsHaveTheseContacts",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }

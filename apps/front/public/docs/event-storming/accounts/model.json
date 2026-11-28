@@ -563,280 +563,320 @@
             "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ListAccounts\\ListAccounts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountIdentityRevised",
             "via": "reviseLegalIdentity",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountLogoChanged",
             "via": "changeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
             "via": "openBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountRelocated",
             "via": "relocateTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
             "via": "registerBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
             "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\RemindersChanged",
             "via": "changeReminders",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "via": "changeLogo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "via": "openBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "via": "relocateTo",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "via": "reviseLegalIdentity",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
             "via": "registerBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
             "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
             "via": "changeReminders",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
             "to": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
             "to": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
             "to": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
             "to": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
             "to": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
             "via": "changeMyOrganizationLogo",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
             "via": "relocateMyOrganization",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
             "via": "reviseMyOrganizationIdentity",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
             "via": "changeMyReminders",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }
