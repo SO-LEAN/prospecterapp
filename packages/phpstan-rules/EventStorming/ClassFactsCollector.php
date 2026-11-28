@@ -35,7 +35,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, list<string>>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>, grants: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, list<string>>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>, grants: list<string>, parents: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -98,6 +98,7 @@ final readonly class ClassFactsCollector implements Collector
             'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
             'changes' => self::changesOf($class, $node->getOriginalNode()),
             'grants' => self::isAUser($class) ? self::rolesNamedBy($node->getOriginalNode(), $scope) : [],
+            'parents' => $class->getParentClassesNames(),
         ];
     }
 
