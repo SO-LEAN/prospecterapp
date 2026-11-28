@@ -236,7 +236,8 @@ function changesIn(wall: Wall, step: Step): string[] {
 
 /**
  * The events an aggregate always records, the arms of a choice that record one event or another, and the events it
- * may record: "records a and b or c, and may record d". A choice of which only one arm records is a condition.
+ * may record: "records a and b or c, and may record d". When only one arm of a choice records events, they read as
+ * conditional.
  */
 function whatItRecords(wall: Wall, edges: Edge[]): string {
   const choices = Map.groupBy(
