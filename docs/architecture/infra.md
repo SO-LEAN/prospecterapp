@@ -90,7 +90,7 @@ The plan role trusts the account's GitHub OIDC provider for `repo:<owner>/<repos
   - `ssm:PutParameter`, `ssm:GetParameter` and `ssm:DeleteParameter` under `/prospecter/<instance>/api/accounts/`, with `kms:Encrypt`, `kms:Decrypt` and `kms:GenerateDataKey` through SSM, so that the api keeps the accounts' secrets ([ADR 0125](../adr/0125-each-account-configures-its-own-google-client.md)).
 
   Without them, the api answers its client 503 `secretsUnavailable`.
-- The SPA is a release under `releases/<version>/` in its bucket ([ADR 0066](../adr/0066-the-spa-on-aws-in-releases.md)). `make package-front` builds it once, and `make release-front INSTANCE=<instance>` puts it in the bucket before the apply that serves it. After that apply, `make release-front INSTANCE=<instance> CLEAN=1` removes the old releases 30 days after they were replaced. Its configuration (the api's address) is the `config.js` its CloudFront Function returns.
+- The SPA is a release under `releases/<version>/` in its bucket ([ADR 0066](../adr/0066-the-spa-on-aws-in-releases.md)). `make package-front` builds it once, and `make release-front INSTANCE=<instance>` puts it in the bucket before the apply that serves it. Its files are cached for a year, except its `index.html` and the documents under `docs/`, which the browser revalidates (`no-cache`). After that apply, `make release-front INSTANCE=<instance> CLEAN=1` removes the old releases 30 days after they were replaced. Its configuration (the api's address) is the `config.js` its CloudFront Function returns.
 
 ## An instance's domains
 
