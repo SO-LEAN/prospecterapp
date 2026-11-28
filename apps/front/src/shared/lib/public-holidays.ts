@@ -1,3 +1,5 @@
+import { isoDayOf } from './iso-day'
+
 /** France's public holidays. Alsace-Moselle adds Good Friday and Saint Stephen's Day to the national ones. */
 export type HolidayCalendar = 'national' | 'alsaceMoselle'
 
@@ -56,6 +58,8 @@ const MOVABLE_FEASTS_OF: Record<HolidayCalendar, Record<number, PublicHoliday>> 
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000
 
+const YEAR_AND_HYPHEN = 'yyyy-'.length
+
 /** The public holiday on a day, in the calendar of the account's region, or none. */
 export function publicHolidayOn(day: Date, calendar: HolidayCalendar): PublicHoliday | null {
   return (
@@ -64,9 +68,7 @@ export function publicHolidayOn(day: Date, calendar: HolidayCalendar): PublicHol
 }
 
 /** "12-25": a day's month and date, the key of the public holidays on a fixed date. */
-const monthAndDateOf = (day: Date) => `${twoDigits(day.getMonth() + 1)}-${twoDigits(day.getDate())}`
-
-const twoDigits = (value: number) => String(value).padStart(2, '0')
+const monthAndDateOf = (day: Date) => isoDayOf(day).slice(YEAR_AND_HYPHEN)
 
 function daysAfterEaster(day: Date): number {
   return (utcMidnightOf(day) - easterSundayOf(day.getFullYear())) / DAY_IN_MILLISECONDS
