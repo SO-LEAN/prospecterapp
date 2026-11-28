@@ -61,6 +61,20 @@ Fonctionnalité: La timeline d'une organisation
       | noter un échange      |
       | planifier un échange  |
 
+  Scénario: Depuis la timeline de l'organisation, son titulaire marque fait ou manqué l'échange dont l'heure est venue
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 19/10/2026 à 9h00
+    Et nous sommes le 19/10/2026 à 10h00
+    Alors dans la timeline de "ACME", je peux sur cet échange :
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | marquer fait                |
+      | marquer manqué              |
+      | déplacer                    |
+      | annuler                     |
+
   Scénario: Sans le droit aux données personnelles, la timeline de l'organisation nomme ses contacts
     Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00
     Et j'ai noté un appel reçu de "ACME" elle-même le 15/10/2026 à 16h00
