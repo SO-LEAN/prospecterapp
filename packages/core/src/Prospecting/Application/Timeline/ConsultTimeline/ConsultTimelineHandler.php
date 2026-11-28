@@ -33,6 +33,6 @@ final readonly class ConsultTimelineHandler implements QueryHandler
         $timeline = $this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max);
         $offered = array_map(static fn (TimelineIntent $intent): string => $intent->name, $this->contactOrganizations->timelineIntentsOf($contact, $prospector));
 
-        $output->present($this->campaignsOfTimeline->named($timeline->offering($offered), $prospector->accountId));
+        $output->present($this->campaignsOfTimeline->named($timeline->offering($offered)->offeringOnEachExchange($prospector->id, $query->asOf), $prospector->accountId));
     }
 }
