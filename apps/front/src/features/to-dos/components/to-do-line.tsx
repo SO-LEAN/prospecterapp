@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
+import { LateMarker } from '@/shared/ui/event/markers'
 import { formatDue, isOverdue } from '../due'
 import { useEraseToDo } from '../mutations'
 import type { ToDo } from '../queries'
@@ -37,7 +38,7 @@ const nameOf = ({ name }: NonNullable<ToDo['contact']>) =>
 
 /**
  * One to-do, the same in every list: its box, the to-do's tile, its text, when it is due and for whom, then since when
- * it waits in « À traiter ». A late one has a stripe. Once the to-do is ticked off, its text is struck through and the
+ * it waits in « À traiter ». A late one has a stripe, and says « En retard » on a card. Once the to-do is ticked off, its text is struck through and the
  * line folds away. Under reduced motion, the line only fades out. Its toast offers to take the tick back. « Reporter »
  * opens its revision, where a shortcut sets its new day. Its links decide which gestures it offers.
  */
@@ -92,7 +93,11 @@ export function ToDoLine({
             </p>
             <p className="text-muted-foreground text-xs">{dueAndForWhom}</p>
           </div>
-          {daysOverdue !== undefined && <SinceWhenItWaits daysOverdue={daysOverdue} />}
+          {daysOverdue === undefined ? (
+            late && <LateMarker />
+          ) : (
+            <SinceWhenItWaits daysOverdue={daysOverdue} />
+          )}
           {toDo._links.revise && (
             <Button variant="outline" size="sm" onClick={() => setPostponing(true)}>
               {t('toDos.postpone')}

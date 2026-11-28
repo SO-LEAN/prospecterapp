@@ -209,11 +209,11 @@ describe('a to-do’s line in a card', () => {
     expect(theFold()).not.toHaveClass('grid-rows-[0fr]')
   })
 
-  it('sets a to-do past its day apart by a stripe, without saying since when it waits', async () => {
+  it('says « En retard » on a to-do past its day, without saying since when it waits', async () => {
     await showTheLineOfACard(aToDo({ dueOn: '2026-11-09', dueAt: null }))
 
     expect(theLine()).toHaveTextContent(
-      /^Envoyer le CV à Nicolas Bonnetlun\. 9 nov\. · Nicolas BonnetReporter$/,
+      /^Envoyer le CV à Nicolas Bonnetlun\. 9 nov\. · Nicolas BonnetEn retardReporter$/,
     )
     expect(theLine()).toHaveAttribute('data-late')
   })

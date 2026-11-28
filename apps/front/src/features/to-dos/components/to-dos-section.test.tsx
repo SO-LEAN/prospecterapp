@@ -110,11 +110,11 @@ describe('ToDosCard', () => {
     expect(screen.getByRole('checkbox', { name: 'Décocher « Préparer la démo »' })).toBeChecked()
   })
 
-  it('sets a to-do past its day apart by a stripe', async () => {
+  it('says « En retard » on a to-do past its day', async () => {
     await renderTheCard(listOf([aToDo({ dueOn: '2020-01-02' })]))
 
     const overdue = screen.getByRole('listitem').querySelector('[data-to-do]')
-    expect(overdue).toHaveTextContent(/2\sjanv\.\s2020/)
+    expect(overdue).toHaveTextContent(/2\sjanv\.\s2020.*En retard/)
     expect(overdue).toHaveAttribute('data-late')
   })
 
