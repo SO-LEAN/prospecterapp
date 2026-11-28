@@ -206,10 +206,6 @@ export function ExchangeSummary({
   const ChannelIcon = CHANNEL_ICONS[exchange.channel]
   const planned = exchange.status === 'planned'
   const cancelled = exchange.status === 'cancelled'
-  const direction =
-    exchange.status === 'done'
-      ? t(`exchanges.directions.${directionWordsOf(exchange.channel)}.${exchange.direction}`)
-      : t(`exchanges.statuses.${exchange.status}`)
   const StatusIcon = iconOf(exchange)
 
   return (
@@ -226,7 +222,7 @@ export function ExchangeSummary({
             cancelled && 'text-muted-foreground line-through',
           )}
         >
-          {t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })}
+          {titleOf(exchange, t)}
           <StatusIcon
             aria-hidden
             className={
@@ -285,8 +281,7 @@ function InterlocutorName({
   const { t } = useTranslation()
   const Icon = INTERLOCUTOR_ICONS[interlocutor.kind]
   const removed = interlocutor.presence === 'removed'
-  const name =
-    (interlocutor.presence === 'forgotten' ? null : interlocutor.name) ?? t('exchanges.unknownPerson')
+  const name = nameOf(interlocutor, t)
   const className = cn('truncate', removed && 'text-muted-foreground line-through')
 
   return (
