@@ -37,12 +37,12 @@ final class EventStormingFormatterTest extends TestCase
         self::assertSame([1, '', ["The code could not be read for the event storming:\nA file could not be parsed"]], [$exit, $output->raw, $output->lines]);
     }
 
-    public function testViewsOfAContextThatTheirQueriesCannotNameApartFailTheGenerationThatNamesThem(): void
+    public function testViewsOfAContextStillSharingALabelFailTheGenerationThatNamesTheirQueries(): void
     {
         $output = new WrittenOutput();
         $exit = self::formatter()->formatErrors(self::analysisOfViews(['ConsultTimeline' => 'Agenda', 'ConsultPlanning' => 'Agenda', 'ConsultHistory' => 'Timeline']), $output);
 
-        self::assertSame([1, '', ["These queries of one context name their views alike:\nTill: ConsultHistory, ConsultTimeline"]], [$exit, $output->raw, $output->lines]);
+        self::assertSame([1, '', ["These queries give their views the same label:\nTill: ConsultHistory, ConsultTimeline"]], [$exit, $output->raw, $output->lines]);
     }
 
     private static function formatter(): EventStormingFormatter
