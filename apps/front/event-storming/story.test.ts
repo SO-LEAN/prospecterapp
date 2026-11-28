@@ -96,7 +96,36 @@ describe('the story of a post-it', () => {
       'Anyone with the link asks to Book slot, which asks Connected calendars, Host agendas, Hosts. Booking page records Slot booked. ?! Offered where?',
     )
   })
+
+  it('names once an aggregate that its command changes through several methods without an event', () => {
+    const told = pushExchangeTold()
+
+    expect(told).toContain(
+      'Calendar entry changes through awaits(), pushed() and refused(), and records no event.',
+    )
+    expect(told.split('Calendar entry').length - 1).toBe(1)
+  })
+
+  it('names once an aggregate that its command changes through several methods, and each event it records once', () => {
+    expect(pushExchangeTold()).toContain(
+      'Connection records Connection lost, Calendar recreated and Video call link created.',
+    )
+  })
+
+  it('names each hotspot of a step once', () => {
+    expect(pushExchangeTold().split('?! No event recorded').length - 1).toBe(1)
+  })
 })
+
+/** The sentence of Connectors' Push exchange, whose command changes two aggregates through three methods each. */
+function pushExchangeTold(): string {
+  const connectors = wallOf(
+    JSON.parse(readFileSync('public/docs/event-storming/connectors/model.json', 'utf8')) as Model,
+  )
+  const push = connectors.notes.find((note) => note.kind === 'command' && note.label === 'Push exchange')
+  if (push === undefined) throw new Error('No post-it Push exchange on the wall of Connectors')
+  return cardIn(sentenceAbout(connectors, push.step)).textContent ?? ''
+}
 
 function cardIn(html: string): HTMLElement {
   const card = document.createElement('div')
