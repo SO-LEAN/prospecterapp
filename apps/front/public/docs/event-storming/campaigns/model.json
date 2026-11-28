@@ -1200,7 +1200,7 @@
             "id": "readModel:Prospecter\\Core\\Campaigns\\Contract\\Service\\WhichRecipientsArePending\\WhichRecipientsArePending",
             "slug": "readModel:WhichRecipientsArePending",
             "type": "readModel",
-            "label": "Pending recipients response",
+            "label": "Pending recipients",
             "feature": "Le langage publié des contextes",
             "name": "WhichRecipientsArePending",
             "class": "Prospecter\\Core\\Campaigns\\Contract\\Service\\WhichRecipientsArePending\\WhichRecipientsArePending",
