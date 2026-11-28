@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Architecture;
 
+use App\Connectors\Google\GmailPusher;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Typed;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -15,7 +16,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * The MCP server never lags behind the application (ADR 0163): every endpoint a member calls, a route whose controller
- * declares `#[IsGranted]`, has its tool, the tool naming it by `#[Adapts]`, but those kept on the screen.
+ * declares `#[IsGranted]` for someone other than Google's Gmail pusher, has its tool, the tool naming it by
+ * `#[Adapts]`, but those kept on the screen.
  */
 class EveryEndpointHasItsToolTest extends KernelTestCase
 {
@@ -130,7 +132,9 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $name = explode('::', $controller)[0];
         $class = class_exists($name) ? new \ReflectionClass($name) : throw new \LogicException(sprintf('No controller class %s', $name));
 
-        return [] !== $class->getAttributes(IsGranted::class) || [] !== $class->getMethod('__invoke')->getAttributes(IsGranted::class);
+        $granted = [...$class->getAttributes(IsGranted::class), ...$class->getMethod('__invoke')->getAttributes(IsGranted::class)];
+
+        return [] !== $granted && !array_all($granted, static fn (\ReflectionAttribute $attribute): bool => GmailPusher::ROLE === ($attribute->getArguments()[0] ?? null));
     }
 
     /**
