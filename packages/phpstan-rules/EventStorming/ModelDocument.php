@@ -7,7 +7,8 @@ namespace Prospecter\PHPStan\EventStorming;
 /**
  * The JSON document of every context's model, written from the facts the analysis read in the whole code. An analysis
  * that read no facts, or could not read the code, gives no document. Neither does a use case no feature names: its
- * post-it would have no French title. Nor do two views of a context that their queries cannot name apart.
+ * post-it would have no French title. It gives none either when two views of a context still share a label after
+ * taking their queries' names.
  */
 final readonly class ModelDocument
 {

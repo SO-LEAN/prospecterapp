@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * Gives each view of a context its own label. Views whose labels are the same are each named after their query
- * instead, wherever they stand, and a post-it of another wall that leads to one of them names it so. Views that still
- * share a label fail the generation.
+ * Gives each view of a context its own label. When several views of a context share a label, each one takes its
+ * query's name instead, on every wall. A post-it on another wall that leads to one of them uses that name too. Views
+ * that still share a label fail the generation.
  */
 final readonly class ReadModelLabels
 {
@@ -24,7 +24,15 @@ final readonly class ReadModelLabels
         $labels = self::queryLabelsOfShared($readModels);
         self::refuseShared(array_map(static fn (Sticky $readModel): Sticky => self::relabeled($readModel, $labels), $readModels));
 
-        return array_map(static fn (Model $model): Model => $model->withStickies(array_map(static fn (Sticky $sticky): Sticky => self::relabeled($sticky, $labels), $model->stickies)), $models);
+        return array_map(static fn (Model $model): Model => self::relabeledModel($model, $labels), $models);
+    }
+
+    /**
+     * @param array<string, string> $labels
+     */
+    private static function relabeledModel(Model $model, array $labels): Model
+    {
+        return $model->withStickies(array_map(static fn (Sticky $sticky): Sticky => self::relabeled($sticky, $labels), $model->stickies));
     }
 
     /**
