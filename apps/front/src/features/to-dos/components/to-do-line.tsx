@@ -37,10 +37,11 @@ const nameOf = ({ name }: NonNullable<ToDo['contact']>) =>
   [name.firstName, name.lastName].filter(Boolean).join(' ')
 
 /**
- * One to-do, the same in every list: its box, the to-do's tile, its text, when it is due and for whom, then since when
- * it waits in « À traiter ». A late one has a stripe, and says « En retard » on a card. Once the to-do is ticked off, its text is struck through and the
- * line folds away. Under reduced motion, the line only fades out. Its toast offers to take the tick back. « Reporter »
- * opens its revision, where a shortcut sets its new day. Its links decide which gestures it offers.
+ * One to-do, the same in every list: its box, the to-do's tile, its text, when it is due and for whom, then how long it
+ * has waited in « À traiter ». A late one has a stripe, and says « En retard » on a card. Once the to-do is ticked off,
+ * its text is struck through and the line folds away. Under reduced motion, the line only fades out. Its toast offers
+ * to take the tick back. « Reporter » opens its revision, where a shortcut sets its new day. Its links decide which
+ * gestures it offers.
  */
 export function ToDoLine({
   toDo,
