@@ -29,7 +29,7 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $timeline = $this->campaignsOfTimeline->named($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId);
+        $timeline = $this->campaignsOfTimeline->named($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max)->offeringOnEachExchange($prospector->id, $query->asOf), $prospector->accountId);
 
         $output->present(new OrganizationTimeline($timeline, $organization));
     }
