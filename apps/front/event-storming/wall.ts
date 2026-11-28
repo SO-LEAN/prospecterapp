@@ -826,7 +826,7 @@ class WallUnderConstruction {
 
   /**
    * The actors that send or read a use case, except the member's AI, which is a badge: the people first, then the
-   * platform operator, then the daily schedule.
+   * platform operator, then the daily schedule, then Google.
    */
   private actorsOf(useCase: Sticky): Sticky[] {
     const actors = this.into(useCase.id, 'actor')
