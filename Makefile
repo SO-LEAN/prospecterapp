@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env image-load agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-merge mutation-shards mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming event-storming-lint event-storming-tested-walls check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env image-load agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-merge mutation-shards mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -141,7 +141,7 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
 	@$(MAKE) build vendor front-install
 	@$(if $(filter contract,$(CHECKS)),$(MAKE) check-contract)
-# the walls written again before the tests of the front, which read their models
+# the walls written again, then the generator's tests, which read their models, before the other checks
 	@$(if $(filter event-storming,$(CHECKS)),$(MAKE) check-event-storming)
 # the MiniStack of the tests, shared by those of the API and the storage: started once, before they would both create it
 	@$(if $(filter api storage,$(CHECKS)),$(MAKE) ministack-test)
@@ -152,9 +152,15 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 check-secrets: secrets-branch commit-subjects adr-references adr-index-check ## Check the commits of the branch for secrets and their subjects, the references to the records, their index
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
-check-event-storming: event-storming ## Fail when a committed wall, its page or its SVGs differ from the code, naming the files to write again
+# the generator's lint beside the walls written again, then its tests, which read the walls' models. It runs neither
+# the SPA's tests nor its build, since the SPA neither imports nor reads the generator or its walls
+check-event-storming: event-storming-lint event-storming-tested-walls ## Lint and test the event storming's generator, and fail when a committed wall, its page or its SVGs differ from the code, naming the files to write again
+event-storming-lint:
+	@$(MAKE) -C apps/front lint-event-storming
+event-storming-tested-walls: event-storming
 	@changed=$$(git status --porcelain -- $(EVENT_STORMING_FILES)); \
 	if [ -n "$$changed" ]; then echo "The walls do not follow the code: run make event-storming, then commit these files:"; echo "$$changed"; exit 1; fi
+	@$(MAKE) -C apps/front test PROJECTS=event-storming
 
 # The journeys of the machine run one checkout at a time (ADR 0121): beside those of another, they outlast their waits.
 # The lock is in the git directory every checkout shares; a run waiting for it says so
@@ -217,12 +223,13 @@ check-api-tests-%:
 check-storage: ## Lint and test the storage
 	@$(MAKE) -C apps/storage lint test
 
-# the build after the tests: Vitest and the build both generate the tree of the routes
-check-front: front-lint front-tested-build ## Lint, test and build the front
+# the build after the tests: Vitest and the build both generate the tree of the routes. The event storming's generator
+# has its own tests, in check-event-storming
+check-front: front-lint front-tested-build ## Lint, test and build the front, without the event storming generator's tests
 front-lint:
 	@$(MAKE) -C apps/front lint
 front-tested-build:
-	@$(MAKE) -C apps/front test
+	@$(MAKE) -C apps/front test PROJECTS="spa tools"
 	@$(MAKE) -C apps/front build
 
 CHANGED_RANGE_FILES = git diff --name-only '$(RANGE)'
