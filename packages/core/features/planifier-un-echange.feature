@@ -167,3 +167,14 @@ Fonctionnalité: Planifier un échange
       | supprimer l'échange         |
       | joindre un fichier          |
       | retirer une pièce jointe    |
+
+  Scénario: Depuis les échanges à venir de l'organisation, son titulaire déplace ou annule l'échange
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Alors dans les échanges à venir de "ACME", je peux sur cet échange :
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | déplacer                    |
+      | annuler                     |
