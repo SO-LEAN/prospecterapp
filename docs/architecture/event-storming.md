@@ -14,7 +14,7 @@ The code already follows the grammar of the event storming. Each post-it is read
 | Policy | lilac | each `Policy` and each `EventHandler`; another context's policy that subscribes to a published event (`apps/api/config/subscriptions.json`) |
 | Read model | green | the query of each `QueryHandler`, named after what its output port presents; a projection's command leads to the views of its module (ADR 0215) |
 | External system | pink | a port of `X/Domain/Port` a handler or a service of the context takes, answered by the contexts its adapters in the API read, and by the published services (`Y/Contract/Service`) these adapters take |
-| Actor | yellow | the role a controller requires (`#[IsGranted]`, written or given by a class constant, only what starts with `ROLE_`), anyone when it requires none, the member's AI through a tool of the MCP server, the platform operator through a command of the console (`#[AsCommand]`), the daily schedule through a daily task (`ScheduledTask`) (ADR 0215), and the role of the user an authenticator of the security creates (`AuthenticatorInterface`, ADR 0225). A post-it before each command it sends and each view it reads; the member's AI alone is a badge (ADR 0216) |
+| Actor | yellow | the role a controller requires (`#[IsGranted]`, written or given by a class constant, only what starts with `ROLE_`), anyone when it requires none, the member's AI through a tool of the MCP server, the platform operator through a command of the console (`#[AsCommand]`), the daily schedule through a daily task (`ScheduledTask`) (ADR 0215), and the role of the user that a security authenticator creates (`AuthenticatorInterface`, ADR 0225). A post-it before each command it sends and each view it reads; the member's AI alone is a badge (ADR 0216) |
 | Hotspot | magenta | a gap the wall shows: a command that changes no aggregate and keeps no facts, an aggregate changed without an event ("No event recorded"), a command nothing sends ("Nobody sends this"), a view nothing reads ("Nobody calls this"), a command a person sends that no view of the wall offers ("Offered where?") |
 
 ### The words
@@ -25,7 +25,7 @@ The code already follows the grammar of the event storming. Each post-it is read
 
 ### The rights an aggregate checks
 
-A right that the aggregate checks itself (ADR 0193) is a refusal of access: a class that extends the shared kernel's `NotAllowed`. A command names each refusal of access that the intentions it reaches may raise through the domain's classes. Each refusal is named after its class ("Administrators only"). The command's card lists them under "Refusals of access" (ADR 0225). A guard that picks its refusal by the intention gives each intention that calls it every refusal it may raise.
+A right that the aggregate checks itself (ADR 0193) is an access refusal: a class that extends the shared kernel's `NotAllowed`. A command names each access refusal that the intentions it reaches may raise through the domain's classes. Each refusal is named after its class ("Administrators only"). The command's card lists them under "Refusals of access" (ADR 0225). A guard that picks its refusal by the intention gives each intention that calls it every refusal it may raise.
 
 ### What a view offers
 
@@ -68,7 +68,7 @@ The root of the page's breadcrumb, "Event storming", leads back to the overview.
 `make event-storming` writes every context's model and page in `apps/front/public/docs/event-storming/<context>/`, its SVGs in `docs/event-storming/<context>/`, and the overview in `apps/front/public/docs/event-storming/index.html`. `CONTEXT=Booking` writes only that context's wall. Commit them all.
 
 1. The document of the models, read by PHPStan run from the API, whose vendor knows the core and the delivery (`make -C apps/api event-storming-model`). One analysis reads the whole core and the whole delivery (ADR 0214): the callers of a published service sit in the other contexts, and many controllers sit outside their context's folder of the API (`Contacts`, `Exchanges`, `Dashboard`). `packages/phpstan-rules/EventStorming/event-storming.neon` runs no rule of a level, only collectors:
-   - `ClassFactsCollector`: what each class extends, implements, handles, returns, depends on, the roles and the routes its attributes declare, the roles a user of the security holds by its constants, whether it is a command of the console, its output port and what it presents, the constructor's parameters that may be null with their description, the routes each parameter declares it offers, the classes its public properties hold, and the public methods it declares that return nothing and write a property of the object (its changes);
+   - `ClassFactsCollector`: what each class extends, implements, handles, returns, depends on, the roles and the routes its attributes declare, the roles that a security user's constants name, whether it is a command of the console, its output port and what it presents, the constructor's parameters that may be null with their description, the routes each parameter declares it offers, the classes its public properties hold, and the public methods it declares that return nothing and write a property of the object (its changes);
    - `CallsCollector`: each method call on the type it is called on, and each creation;
    - `ConditionalLinesCollector`: the lines of each method that run only under a condition.
 
@@ -96,4 +96,4 @@ The generator's PHPUnit tests sit beside its code, in `packages/phpstan-rules/te
 
 ## What is left to the full tool
 
-The model holds neither the narrative order of a lane's steps nor the refusals, except the refusals of access.
+The model holds neither the narrative order of a lane's steps nor the refusals, other than the access refusals.

@@ -34,7 +34,7 @@ final readonly class ClassFacts
      * @param array<string, list<string>> $offers             the routes each parameter of its constructor declares it
      *                                                        offers, by name, for a links resource
      * @param list<string>                $holds              the classes its public properties hold, those of their lists included
-     * @param list<string>                $grants             the roles its constants name, for a user of the security
+     * @param list<string>                $grants             the roles that its constants name, for a security user
      * @param list<string>                $parents            the classes it extends
      */
     public function __construct(

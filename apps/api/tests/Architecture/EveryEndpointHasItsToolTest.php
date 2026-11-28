@@ -15,9 +15,9 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The MCP server never lags behind the application (ADR 0163): every endpoint a member calls, a route whose controller
- * declares `#[IsGranted]` for someone other than Google's Gmail pusher, has its tool, the tool naming it by
- * `#[Adapts]`, but those kept on the screen.
+ * The MCP server never lags behind the application (ADR 0163). Every endpoint that a member calls has its tool, which
+ * names it by `#[Adapts]`. A member's endpoint is a route whose controller declares `#[IsGranted]` for someone other
+ * than Google's Gmail pusher. The endpoints kept on the screen are the exceptions.
  */
 class EveryEndpointHasItsToolTest extends KernelTestCase
 {
