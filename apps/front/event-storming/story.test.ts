@@ -101,6 +101,20 @@ describe('the story of a post-it', () => {
     expect(termOf(card, 'Refusals of access')).toBe('Administrators only')
   })
 
+  it('names each right apart in the card of a command whose aggregates check several', () => {
+    const personalData = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/personal-data/model.json', 'utf8')) as Model,
+    )
+    const complete = personalData.notes.find(
+      (note) => note.slug === 'command:CompleteContact' && note.kind === 'command' && !note.badge,
+    )
+    const card = cardIn(complete === undefined ? '' : cardOf(personalData, complete))
+
+    expect(termOf(card, 'Refusals of access')).toBe(
+      'Personal data managers only, The person or a personal data manager only',
+    )
+  })
+
   it('names no right in the card of a command whose aggregates check none', () => {
     const card = cardIn(cardOf(wall, noteOf('command:BookSlot', 'command')))
 
