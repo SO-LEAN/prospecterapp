@@ -12,8 +12,8 @@ use PHPStan\Command\Output;
 
 /**
  * Writes every context's model (ModelDocument) from what the analysis gives (event-storming.neon), or says why it
- * writes none: the code could not be read, or a use case has no feature. The errors of the other rules an extension
- * brings are lint's business, and are left out.
+ * writes none: the code could not be read, a use case has no feature, or two views of a context share a label. The
+ * errors of the other rules an extension brings are lint's business, and are left out.
  */
 final readonly class EventStormingFormatter implements ErrorFormatter
 {
@@ -29,7 +29,7 @@ final readonly class EventStormingFormatter implements ErrorFormatter
             $output->writeRaw($this->document->of($facts?->getMetadata(), $failures));
 
             return 0;
-        } catch (UnreadableCode|UntitledUseCases $refused) {
+        } catch (UnreadableCode|UntitledUseCases|SharedReadModelLabels $refused) {
             $output->writeLineFormatted($refused->getMessage());
 
             return 1;
