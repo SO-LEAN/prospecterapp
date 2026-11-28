@@ -26,6 +26,11 @@ final readonly class Elsewhere implements \JsonSerializable
         return $places;
     }
 
+    public function withLabel(string $label): self
+    {
+        return clone ($this, ['label' => $label]);
+    }
+
     /**
      * @return array{context: string|null, slug: string|null, label: string}
      */

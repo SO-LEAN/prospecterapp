@@ -42,6 +42,19 @@ final readonly class Sticky implements \JsonSerializable
         return \in_array($this->type, [StickyType::Command, StickyType::ReadModel], true);
     }
 
+    public function withLabel(string $label): self
+    {
+        return clone ($this, ['label' => $label]);
+    }
+
+    /**
+     * @param list<Elsewhere> $answers
+     */
+    public function withAnswers(array $answers): self
+    {
+        return clone ($this, ['answers' => $answers]);
+    }
+
     /**
      * @return array<string, string|list<string>|list<Elsewhere>|null>
      */
