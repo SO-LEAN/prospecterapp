@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * What the analysis reads of one class: what it implements, what its __invoke takes and returns, what its
- * constructor depends on, the roles and the routes its attributes declare, what its output port presents, the
- * parameters of its constructor that may be null, whether it is a command of the console, and the methods that change
- * it.
+ * constructor depends on, the roles and the routes its attributes declare, the roles a user holds, what its output
+ * port presents, the parameters of its constructor that may be null, whether it is a command of the console, and the
+ * methods that change it.
  */
 final readonly class ClassFacts
 {
@@ -34,6 +34,7 @@ final readonly class ClassFacts
      * @param array<string, list<string>> $offers             the routes each parameter of its constructor declares it
      *                                                        offers, by name, for a links resource
      * @param list<string>                $holds              the classes its public properties hold, those of their lists included
+     * @param list<string>                $grants             the roles its constants name, for a user of the security
      */
     public function __construct(
         public string $name,
@@ -51,6 +52,7 @@ final readonly class ClassFacts
         public array $changes = [],
         public array $offers = [],
         public array $holds = [],
+        public array $grants = [],
     ) {
     }
 
