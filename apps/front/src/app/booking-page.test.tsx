@@ -115,6 +115,15 @@ describe('the public page of a booking', () => {
     expect(screen.getByText('Rendez-vous de 15 minutes')).toBeInTheDocument()
   })
 
+  it('shows the petrol tile of the brand, followed by its name', async () => {
+    theApiAnswers(200, anOpenPage())
+
+    await renderTheSpaAt(`/booking/${CODE}`)
+
+    const brand = await screen.findByText('Prospecter')
+    expect(brand.previousElementSibling?.querySelector('rect')).toHaveAttribute('fill', '#0E7C84')
+  })
+
   it('shows the free slots of each day on the clock of Paris, a day without slot greyed', async () => {
     theApiAnswers(200, anOpenPage())
 

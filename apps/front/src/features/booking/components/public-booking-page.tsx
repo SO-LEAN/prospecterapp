@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { BrandMark } from '@/app/layout/brand'
 import { CardPage } from '@/app/layout/card-page'
 import type { components } from '@/shared/api/schema'
 import { formatCalendarDay, formatHour, formatMoment, initials } from '@/shared/lib/format'
@@ -96,6 +97,7 @@ function OpenPage({ code, onSlotTaken, host, channels, hostTimeZone, days }: Ope
   return (
     <main className="min-h-dvh bg-background px-4 py-8 sm:px-6">
       <div className="mx-auto grid w-full max-w-5xl gap-8">
+        <Brand />
         <HostHeader host={host} />
         <fieldset className="grid gap-2">
           <legend className="mb-2 font-medium text-sm">{t('booking.public.channel')}</legend>
@@ -178,6 +180,17 @@ function Booked({ host, channel, email, phone }: BookedProps) {
           : t('booking.public.booked.videoCall')}
       </p>
     </CardPage>
+  )
+}
+
+function Brand() {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex items-center gap-2">
+      <BrandMark />
+      <span className="font-semibold text-[15px] tracking-tight">{t('app.name')}</span>
+    </div>
   )
 }
 
