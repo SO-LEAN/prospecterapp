@@ -45,19 +45,26 @@ final readonly class EventStormingFactsRule implements Rule
     }
 
     /**
-     * @return list<array{caller: string, callerMethod: string, target: string, targetMethod: string, conditional: bool}>
+     * @return list<array{caller: string, callerMethod: string, target: string, targetMethod: string, conditional: bool, arm: array{choice: string, index: int}|null}>
      */
     private static function callsIn(CollectedDataNode $node): array
     {
-        $spans = self::conditionalSpansIn($node);
+        $conditionalLines = self::conditionalLinesIn($node);
         $calls = [];
         foreach ($node->get(CallsCollector::class) as $callsOfAFile) {
             foreach (array_merge(...$callsOfAFile) as $call) {
-                $conditional = array_any(
-                    $spans[$call['caller'].'::'.$call['callerMethod']] ?? [],
-                    static fn (array $span): bool => $call['line'] >= $span[0] && $call['line'] <= $span[1],
-                );
-                $calls[] = ['caller' => $call['caller'], 'callerMethod' => $call['callerMethod'], 'target' => $call['target'], 'targetMethod' => $call['targetMethod'], 'conditional' => $conditional];
+                $method = $call['caller'].'::'.$call['callerMethod'];
+                $within = static fn (array $span): bool => $call['line'] >= $span[0] && $call['line'] <= $span[1];
+                $underALoneCondition = array_any($conditionalLines[$method]['spans'] ?? [], $within);
+                $arms = array_values(array_filter($conditionalLines[$method]['arms'] ?? [], $within));
+                $calls[] = [
+                    'caller' => $call['caller'],
+                    'callerMethod' => $call['callerMethod'],
+                    'target' => $call['target'],
+                    'targetMethod' => $call['targetMethod'],
+                    'conditional' => $underALoneCondition || [] !== $arms,
+                    'arm' => !$underALoneCondition && 1 === \count($arms) ? ['choice' => $method.'#'.$arms[0][2], 'index' => $arms[0][3]] : null,
+                ];
             }
         }
 
@@ -65,17 +72,18 @@ final readonly class EventStormingFactsRule implements Rule
     }
 
     /**
-     * @return array<string, list<array{int, int}>> the spans of lines of each method that run under a condition
+     * @return array<string, array{spans: list<array{int, int}>, arms: list<array{int, int, int, int}>}> the lines of each
+     *                                                                                                   method that run under a condition
      */
-    private static function conditionalSpansIn(CollectedDataNode $node): array
+    private static function conditionalLinesIn(CollectedDataNode $node): array
     {
-        $spans = [];
+        $lines = [];
         foreach ($node->get(ConditionalLinesCollector::class) as $methodsOfAFile) {
             foreach ($methodsOfAFile as $method) {
-                $spans[$method['class'].'::'.$method['method']] = $method['spans'];
+                $lines[$method['class'].'::'.$method['method']] = ['spans' => $method['spans'], 'arms' => $method['arms']];
             }
         }
 
-        return $spans;
+        return $lines;
     }
 }
