@@ -19,6 +19,14 @@ final readonly class Model implements \JsonSerializable
     }
 
     /**
+     * @param list<Sticky> $stickies
+     */
+    public function withStickies(array $stickies): self
+    {
+        return clone ($this, ['stickies' => $stickies]);
+    }
+
+    /**
      * @return array{context: string, modules: list<string>, stickies: list<Sticky>, links: list<Link>}
      */
     public function jsonSerialize(): array
