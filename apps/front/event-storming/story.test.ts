@@ -112,6 +112,25 @@ describe('the story of a post-it', () => {
     )
   })
 
+  it('names what a command that a policy sends among others reacts to', () => {
+    const campaigns = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/campaigns/model.json', 'utf8')) as Model,
+    )
+    const record = campaigns.notes.find(
+      (note) => note.kind === 'command' && note.label === 'Record contact facts',
+    )
+
+    expect(record === undefined ? '' : cardIn(sentenceAbout(campaigns, record.step)).textContent).toBe(
+      'Whenever Contact facts changed (Personal data) or Organization facts changed (Prospecting), Record facts may send (only in some states) Record contact facts.',
+    )
+  })
+
+  it('tells once the reaction of a policy that stands in the step of its command', () => {
+    expect(pushExchangeTold()).toMatch(
+      /^Whenever Exchange facts changed \(Prospecting\), Push exchange sends Push exchange\. Then Push exchange, which asks /,
+    )
+  })
+
   it('names each hotspot of a step once', () => {
     expect(pushExchangeTold().split('?! No event recorded').length - 1).toBe(1)
   })
