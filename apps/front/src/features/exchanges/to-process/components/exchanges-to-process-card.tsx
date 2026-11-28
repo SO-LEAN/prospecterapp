@@ -1,17 +1,15 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Ban, CalendarClock, CircleCheck, PhoneMissed } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { formatMoment } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
 import { ToAttachMarker } from '@/shared/ui/event/markers'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import type { StartWith } from '../../components/exchange-detail'
-import { useCancelExchange, useMarkExchangeMissed, useUndoable } from '../../mutations'
+import { ExchangeGestures } from '../../components/exchange-gestures'
 import {
   type ContactsToAttach,
   countOf,
@@ -185,77 +183,7 @@ function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>
         )}
       </button>
-      <div className="flex flex-wrap gap-2 empty:hidden">
-        {exchange._links.markDone && (
-          <Button size="sm" onClick={() => onOpen('report')}>
-            <CircleCheck aria-hidden /> {t('exchanges.handling.done')}
-          </Button>
-        )}
-        {exchange._links.markMissed && <MarkMissed exchangeId={exchange.id} onLeave={onLeave} />}
-        {exchange._links.cancel && <Cancel exchangeId={exchange.id} onLeave={onLeave} />}
-        {exchange._links.move && (
-          <Button variant="outline" size="sm" onClick={() => onOpen('move')}>
-            <CalendarClock aria-hidden /> {t('exchanges.handling.move')}
-          </Button>
-        )}
-      </div>
+      <ExchangeGestures exchange={exchange} onOpen={onOpen} onLeave={onLeave} />
     </li>
-  )
-}
-
-type GestureProps = { exchangeId: string; onLeave: LineProps['onLeave'] }
-
-/** Marks the exchange missed once its toast no longer lets the member take it back. The line goes away meanwhile, and comes back on a refusal. */
-function MarkMissed({ exchangeId, onLeave }: GestureProps) {
-  const { t } = useTranslation()
-  const markMissed = useMarkExchangeMissed()
-  const undoable = useUndoable()
-
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => {
-        const back = onLeave()
-        undoable(
-          t('exchanges.handling.markedMissed'),
-          () => markMissed.mutate({ params: { path: { id: exchangeId } } }, { onError: back }),
-          back,
-        )
-      }}
-    >
-      <PhoneMissed aria-hidden /> {t('exchanges.handling.missed')}
-    </Button>
-  )
-}
-
-/**
- * Cancels the exchange, without saying who called it off, once its toast no longer lets the member take it back. The
- * line goes away meanwhile, and comes back on a refusal.
- */
-function Cancel({ exchangeId, onLeave }: GestureProps) {
-  const { t } = useTranslation()
-  const cancel = useCancelExchange()
-  const undoable = useUndoable()
-
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => {
-        const back = onLeave()
-        undoable(
-          t('exchanges.handling.cancelled'),
-          () =>
-            cancel.mutate(
-              { params: { path: { id: exchangeId } }, body: { canceller: null } },
-              { onError: back },
-            ),
-          back,
-        )
-      }}
-    >
-      <Ban aria-hidden /> {t('toProcess.cancelled')}
-    </Button>
   )
 }
