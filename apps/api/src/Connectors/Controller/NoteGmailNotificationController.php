@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Controller;
 
+use App\Connectors\Google\GmailPusher;
 use App\Connectors\Input\PubSubPushInput;
 use App\Shared\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -14,8 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
+#[IsGranted(GmailPusher::ROLE)]
 final readonly class NoteGmailNotificationController
 {
     private const string GOOGLE = 'google';
