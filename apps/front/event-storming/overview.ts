@@ -108,7 +108,7 @@ function contextOf(model: Model): string {
   return `<li><a class="wall" href="${folderOf(model.context)}/">${escaped(sentenceOf(model.context))}</a><span class="counts">${counts.filter((text) => text !== '').join(' · ')}</span></li>`
 }
 
-/** The events of the other contexts that the policies of this one hear. */
+/** The other contexts' events that this context's policies hear. */
 function heardIn(model: Model): number {
   const own = (id: string): boolean =>
     model.stickies.some((sticky) => sticky.id === id && sticky.context === model.context)
