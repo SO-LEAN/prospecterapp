@@ -67,7 +67,15 @@ final readonly class Timeline
     {
         return clone ($this, ['exchangeIntents' => array_combine(
             array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $this->exchanges),
-            array_map(static fn (ExchangeInTimeline $exchange): array => array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given($exchange->situationFor($reader, $at))), $this->exchanges),
+            array_map(static fn (ExchangeInTimeline $exchange): array => self::intentNamesOf($exchange, $reader, $at), $this->exchanges),
         )]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function intentNamesOf(ExchangeInTimeline $exchange, MemberId $reader, \DateTimeImmutable $at): array
+    {
+        return array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given($exchange->situationFor($reader, $at)));
     }
 }
