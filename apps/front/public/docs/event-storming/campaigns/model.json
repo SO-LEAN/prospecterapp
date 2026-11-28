@@ -1225,1302 +1225,1500 @@
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\EraseCampaign\\EraseCampaign",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignDiscarded",
             "via": "discard",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignFrozen",
             "via": "freeze",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignPrepared",
             "via": "prepare",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRecipientsChanged",
             "via": "addRecipient",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRecipientsChanged",
             "via": "addRecipientsCarrying",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRecipientsChanged",
             "via": "removeRecipient",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRevised",
             "via": "revise",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignStarted",
             "via": "start",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignStopped",
             "via": "stop",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\DailyCapSet",
             "via": "setDailyCap",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\RecipientDismissed",
             "via": "dismiss",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\ContactTagsChanged",
             "via": "tagWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": {
+                "choice": "Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging::tagsChanged#0",
+                "index": 1
+            }
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\ContactTagsChanged",
             "via": "takeOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": {
+                "choice": "Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging::tagsChanged#0",
+                "index": 1
+            }
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\OrganizationTagsChanged",
             "via": "tagWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": {
+                "choice": "Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging::tagsChanged#0",
+                "index": 0
+            }
         },
         {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\OrganizationTagsChanged",
             "via": "takeOff",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": {
+                "choice": "Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging::tagsChanged#0",
+                "index": 0
+            }
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "discard",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\EraseCampaign\\EraseCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggedAccounts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "freeze",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "prepare",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "revise",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "setDailyCap",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "start",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "stop",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "addRecipient",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "addRecipientsCarrying",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "dismiss",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "forget",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchange",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "process",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "removeRecipient",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "forgetExchangeGoneWithItsOrganization",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "reopenAfterErasureOf",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "via": "tagWith",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\ContactsReach",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\OrganizationsAndTheirContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggedAccounts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "via": "takeOff",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ForgetTagsOfForgottenContact\\ForgetTagsOfForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ForgetTagsOfUnprospectedOrganization\\ForgetTagsOfUnprospectedOrganization",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchange",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "via": "discard",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "via": "freeze",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "via": "setDailyCap",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "via": "start",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "via": "stop",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "via": "addRecipient",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "via": "addRecipientsByTags",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
             "via": "discard",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
             "via": "freeze",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "via": "prepare",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
             "via": "revise",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
             "via": "setDailyCap",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
             "via": "start",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
             "via": "stop",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
             "via": "addRecipient",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
             "via": "addRecipientsByTags",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": "dismiss",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "via": "remove",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": "dismiss",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\CampaignExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "via": "tag",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "via": "takeOff",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
             "via": "tag",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "via": "takeOff",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableOrganizations",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }

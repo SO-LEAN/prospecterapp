@@ -283,119 +283,136 @@
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\ProspectingFacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
             "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
             "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }

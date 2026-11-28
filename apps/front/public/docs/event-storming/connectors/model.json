@@ -1267,1435 +1267,1640 @@
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_ADMIN",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_ADMIN",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_ADMIN",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_ADMIN",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_GMAIL_PUSHER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_GMAIL_PUSHER",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMailboxPusher\\ConsultMailboxPusher",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PERSONAL_DATA",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "actor:schedule",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
             "via": "establish",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
             "via": "renew",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
             "via": "check",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
             "via": "withdraw",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Disconnected",
             "via": "disconnect",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
             "via": "catchUpMailWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
             "via": "readMailboxHistory",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
             "via": "renewMailWatch",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStarted",
             "via": "importMail",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
             "via": "readMailboxHistory",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
             "via": "renew",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
             "via": "stopMailImport",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
             "via": "renewMailWatch",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
             "via": "noteMailboxChange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
             "via": "catchUpMailWith",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
             "via": "readMailboxHistory",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
             "via": "configure",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
             "via": "notifyMailboxesThrough",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
             "via": "replaceBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
             "via": "stopMailboxNotificationsBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientRemoved",
             "via": "removeBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "awaits",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "pushed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "refused",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "withdraw",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "awaits",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "pushed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "refused",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "awaits",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "pushed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "refused",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "withdraw",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "awaits",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "pushed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "refused",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "cancel",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "withdraw",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "awaits",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "pushed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
             "via": "refused",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "via": "configure",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "via": "replaceBy",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "via": "notifyMailboxesThrough",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "via": "removeBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
             "via": "stopMailboxNotificationsBy",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "check",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "establish",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "importMail",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "renew",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "disconnect",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "stopMailImport",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "catchUpMailWith",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
             "to": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
             "via": null,
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactCorrespondents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationCorrespondents",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "noteMailboxChange",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "readMailboxHistory",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "renewMailWatch",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "stopMailImport",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
             "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
             "to": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "via": "retry",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
             "via": "configure",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
             "via": "configureGmailNotifications",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
             "via": "remove",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
             "via": "removeGmailNotifications",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "via": "retryFailed",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
             "via": "connectGoogle",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
             "via": "reconnect",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "via": "check",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "via": "disconnect",
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
             "via": "importGmail",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
             "via": "stopGmailImport",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "via": "reimportGmail",
             "certain": false,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
             "via": null,
             "certain": true,
-            "when": null
+            "when": null,
+            "arm": null
         }
     ]
 }

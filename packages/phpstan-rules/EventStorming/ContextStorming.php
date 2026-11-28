@@ -149,7 +149,7 @@ final readonly class ContextStorming
      *
      * @return list<Reached>
      */
-    private function reachedFrom(string $class, string $method, string $context, Layer $layer, bool $certain = true, array $visited = [], ?\Closure $sought = null): array
+    private function reachedFrom(string $class, string $method, string $context, Layer $layer, bool $certain = true, array $visited = [], ?\Closure $sought = null, ?Arm $arm = null): array
     {
         $sought ??= $layer->reaches(...);
         $visited[$class.'::'.$method] = true;
@@ -159,11 +159,16 @@ final readonly class ContextStorming
                 continue;
             }
             $certainOnTheWay = $certain && !$call->conditional;
+            $armOnTheWay = match (true) {
+                !$call->conditional => $arm,
+                $certain => $call->arm,
+                default => null,
+            };
             $target = new ClassName($call->target);
             if ($sought($target, $call)) {
-                $reached[] = new Reached($call->target, $call->targetMethod, $certainOnTheWay);
+                $reached[] = new Reached($call->target, $call->targetMethod, $certainOnTheWay, $armOnTheWay);
             } elseif ($target->isOf($context) && $layer->goesThrough($target)) {
-                $reached = [...$reached, ...$this->reachedFrom($call->target, $call->targetMethod, $context, $layer, $certainOnTheWay, $visited, $sought)];
+                $reached = [...$reached, ...$this->reachedFrom($call->target, $call->targetMethod, $context, $layer, $certainOnTheWay, $visited, $sought, $armOnTheWay)];
             }
         }
 
@@ -174,7 +179,7 @@ final readonly class ContextStorming
     {
         $sticky = $this->stickyOf(StickyType::Event, $event->class, $context);
         $board->stick($sticky);
-        $board->link(new Link($cause->id, $sticky->id, $via, $event->certain));
+        $board->link(new Link($cause->id, $sticky->id, $via, $event->certain, arm: $event->arm));
     }
 
     /**
