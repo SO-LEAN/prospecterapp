@@ -104,7 +104,7 @@ describe('the overview of a made-up wall', () => {
     expect(rows('services')).toEqual(['Alpha | Ants | Beta | A', 'Alpha | Zebras | Beta | Z'])
   })
 
-  it('counts the post-its of the wall and the events its policies hear, in the singular when there is one', () => {
+  it("counts the wall's post-its and the events its policies hear, in the singular when there is one", () => {
     expect(made.querySelector('#contexts .counts')?.textContent).toBe(
       '1 lane · 1 command · 1 read model · 2 events · 2 events heard · 1 policy',
     )

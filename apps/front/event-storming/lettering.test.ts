@@ -46,7 +46,7 @@ describe('the lettering of a post-it', () => {
     expect(whenever?.lines.join(' ')).toBe('whenever exchange facts changed')
   })
 
-  it('names under a port the contexts that answer it, in words', () => {
+  it('names in words the contexts that answer a port', () => {
     const answered = lettersOf(noteOf('externalSystem:HostPresentations', 'externalSystem')).find(
       (letters) => letters.role === 'answered',
     )
