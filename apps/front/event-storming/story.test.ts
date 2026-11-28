@@ -138,9 +138,43 @@ describe('the story of a post-it', () => {
     expect(told.split('Calendar entry').length - 1).toBe(1)
   })
 
-  it('names once an aggregate that its command changes through several methods, and each event it records once', () => {
+  it('names once an aggregate that its command changes through several methods, and each event it may record once', () => {
     expect(pushExchangeTold()).toContain(
-      'Connection records Connection lost, Calendar recreated and Video call link created.',
+      'Connection may record Connection lost, Calendar recreated and Video call link created.',
+    )
+  })
+
+  it('joins by "or" the events that the arms of one choice record', () => {
+    expect(toldOf('campaigns', 'Put tags')).toContain(
+      'Tagging records Contact tags changed or Organization tags changed.',
+    )
+  })
+
+  it('says "may record" for the event of a choice whose other arms record none', () => {
+    const campaigns = modelIn('campaigns')
+    const links = campaigns.links.filter((link) => !link.to.endsWith('OrganizationTagsChanged'))
+
+    expect(toldIn({ ...campaigns, links }, 'Put tags')).toContain('Tagging may record Contact tags changed.')
+  })
+
+  it('joins by "and" the events that one arm of a choice records', () => {
+    const campaigns = modelIn('campaigns')
+    const contact = campaigns.links.find(
+      (link) => link.via === 'tagWith' && link.to.endsWith('ContactTagsChanged'),
+    )
+    const started = campaigns.stickies.find((sticky) => sticky.name === 'CampaignStarted')
+    if (contact === undefined || started === undefined)
+      throw new Error('No tags changed on the wall of Campaigns')
+    const links = [...campaigns.links, { ...contact, to: started.id }]
+
+    expect(toldIn({ ...campaigns, links }, 'Put tags')).toContain(
+      'Tagging records Contact tags changed and Campaign started or Organization tags changed.',
+    )
+  })
+
+  it('tells apart the events an aggregate always records from those it may record', () => {
+    expect(toldOf('personal-data', 'Forget contact')).toContain(
+      'Person records Contact forgotten, and may record Duplicate suspicion lifted.',
     )
   })
 
@@ -176,6 +210,23 @@ function pushExchangeTold(): string {
   const push = connectors.notes.find((note) => note.kind === 'command' && note.label === 'Push exchange')
   if (push === undefined) throw new Error('No post-it Push exchange on the wall of Connectors')
   return cardIn(sentenceAbout(connectors, push.step)).textContent ?? ''
+}
+
+/** The model of the context in its folder, as the generator last read it from the code. */
+function modelIn(folder: string): Model {
+  return JSON.parse(readFileSync(`public/docs/event-storming/${folder}/model.json`, 'utf8')) as Model
+}
+
+/** The sentence of a command's step, on the wall of the context in its folder. */
+function toldOf(folder: string, command: string): string {
+  return toldIn(modelIn(folder), command)
+}
+
+function toldIn(model: Model, command: string): string {
+  const other = wallOf(model)
+  const note = other.notes.find((candidate) => candidate.kind === 'command' && candidate.label === command)
+  if (note === undefined) throw new Error(`No post-it ${command} on the wall of ${model.context}`)
+  return cardIn(sentenceAbout(other, note.step)).textContent ?? ''
 }
 
 function cardIn(html: string): HTMLElement {

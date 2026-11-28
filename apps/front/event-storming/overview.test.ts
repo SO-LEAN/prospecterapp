@@ -51,7 +51,7 @@ function sticky(
 }
 
 function link(from: string, to: string): Link {
-  return { from, to, via: null, certain: true, when: null }
+  return { from, to, via: null, certain: true, when: null, arm: null }
 }
 
 /** Alpha's wall, which holds each kind of post-it the overview must leave out beside those it lists. */

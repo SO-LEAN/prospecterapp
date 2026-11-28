@@ -94,7 +94,10 @@ describe('the lettering of a post-it', () => {
       'policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy'
     const far = wallOf({
       ...BOOKING,
-      links: [...BOOKING.links, { from: opened, to: forget, via: null, certain: true, when: null }],
+      links: [
+        ...BOOKING.links,
+        { from: opened, to: forget, via: null, certain: true, when: null, arm: null },
+      ],
     })
 
     expect(arrowsBackOf(far, 'roomy')).toEqual([])

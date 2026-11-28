@@ -1,5 +1,13 @@
 import { lean } from './marker.ts'
-import { type Elsewhere, folderOf, type Link, type Model, type Sticky, type StickyType } from './model.ts'
+import {
+  type Arm,
+  type Elsewhere,
+  folderOf,
+  type Link,
+  type Model,
+  type Sticky,
+  type StickyType,
+} from './model.ts'
 
 /** The post-its of the wall: the seven of the model, and the hotspot that says something is missing. */
 export type Kind = StickyType | 'hotspot'
@@ -60,6 +68,8 @@ export interface Edge {
   certain: boolean
   drawn: boolean
   when: string | null
+  /** The arm of an exclusive choice that records the event it leads to. */
+  arm: Arm | null
 }
 
 /** The marker line from an actor or a view that branches to the commands it leads to. */
@@ -354,10 +364,17 @@ class WallUnderConstruction {
     return note
   }
 
-  private link(from: Note, to: Note, certain: boolean, drawn: boolean, when: string | null = null): void {
+  private link(
+    from: Note,
+    to: Note,
+    certain: boolean,
+    drawn: boolean,
+    when: string | null = null,
+    arm: Arm | null = null,
+  ): void {
     const known =
       from.sticky !== null && to.sticky !== null ? this.whenOf(from.sticky.id, to.sticky.id) : null
-    this.edges.push({ from, to, certain, drawn, when: certain ? null : (when ?? known) })
+    this.edges.push({ from, to, certain, drawn, when: certain ? null : (when ?? known), arm })
   }
 
   private whenOf(from: string, to: string): string | null {
@@ -598,7 +615,7 @@ class WallUnderConstruction {
           { x: node.x + CLUSTER.recorded.x, y: CLUSTER.event.y + rows * CLUSTER.event.pitch },
           { z: 3 },
         )
-        this.link(aggregate, event, recorded.certain, false)
+        this.link(aggregate, event, recorded.certain, false, null, recorded.arm)
         right = Math.max(right, this.hearersOf(step, event))
         rows++
       }
