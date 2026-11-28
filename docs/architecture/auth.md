@@ -56,7 +56,7 @@ SPA (prospecter.localhost)                                   API (api.prospecter
   - `email`: the service account that the account's topic names (`ConsultMailboxPusher`), verified;
   - expiry, on the controllers' clock.
 
-  Anything else, including an account without a topic, gets a 401, which Pub/Sub retries until its retention ends. The pusher holds `ROLE_GMAIL_PUSHER` and is not a member.
+  Anything else, including an account without a topic, gets a 401, which Pub/Sub retries until its retention ends. The pusher holds `ROLE_GMAIL_PUSHER` and is not a member. The firewall's `access_control` and the controller's `#[IsGranted(GmailPusher::ROLE)]` both require it.
 - `GET /api/me/sign-in`, `PATCH /api/me/sign-in/login-email` (422 when another member already signs in with that email) and `PATCH /api/me/sign-in/password` (204) manage my sign-in credentials (`SignIn\Credentials`, through Cognito admin calls). The API checks that a login email is free before writing it (`ListUsers`). On AWS, Cognito also refuses a second holder of an alias as a safety net (`AliasExistsException`). MiniStack does not, so locally the API's check is what protects it.
 - A token stays valid until it expires, even after the member signs out: that is the price of not calling Cognito on every request.
 - `#[IsGranted]` checks the roles (403 problem+json from `Security\ApiAccessDeniedHandler`, with the `reason` `roleNotAllowed`). The voters check whether this member may reach a Prospecting resource, and the aggregate checks whether its state allows the intent (ADR 0081, 0088). The core knows no password.
