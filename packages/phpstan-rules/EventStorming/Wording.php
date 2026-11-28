@@ -22,6 +22,8 @@ final readonly class Wording
     /** Who stands behind an entrance of the delivery (ContextStorming::actorsEntering()). */
     private const array ACTORS = [
         'ROLE_USER' => 'Member',
+        'ROLE_PERSONAL_DATA' => 'Personal data manager',
+        'ROLE_GMAIL_PUSHER' => 'Google',
         'public' => 'Anyone with the link',
         'mcp' => 'Member\'s AI',
         'operator' => 'Platform operator',
