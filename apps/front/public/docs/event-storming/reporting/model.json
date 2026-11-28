@@ -264,7 +264,7 @@
             "id": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "slug": "readModel:ConsultFigures",
             "type": "readModel",
-            "label": "Figures response",
+            "label": "Figures",
             "feature": "Consulter les chiffres",
             "name": "ConsultFigures",
             "class": "Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
