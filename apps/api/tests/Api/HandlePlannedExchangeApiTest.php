@@ -62,7 +62,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     }
 
     /**
-     * The lines of the contact's and the organization's upcoming exchanges offer what its detail offers.
+     * An exchange's line among a contact's or an organization's upcoming exchanges offers what its detail offers.
      */
     public function testBeforeItsTimeItsHolderMovesOrCancelsItFromItsLines(): void
     {
@@ -76,7 +76,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     }
 
     /**
-     * The lines of the contact's and the organization's timelines offer what its detail offers.
+     * An exchange's line in a contact's or an organization's timeline offers what its detail offers.
      */
     public function testOnceItsTimeHasComeItsHolderHandlesItFromItsLines(): void
     {
@@ -284,7 +284,23 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     }
 
     /**
-     * No colleague is offered a gesture on its lines, in the contact's or the organization's timeline.
+     * Before the exchange's time, a colleague is offered no gesture on its line among a contact's or an
+     * organization's upcoming exchanges.
+     */
+    #[DataProvider('colleagues')]
+    public function testAColleagueIsOfferedNoGestureOnItsUpcomingLines(string $reference, Role ...$roles): void
+    {
+        $colleague = $this->aMemberOfTheFixtures($reference, ...$roles);
+        $this->theTokensAreCheckedNow();
+        $this->login($colleague);
+
+        $this->assertSame([], self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges'), 'items', 0)));
+        $this->assertSame([], self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/organizations/'.$this->organization.'/upcoming-exchanges'), 'items', 0, 'exchange')));
+    }
+
+    /**
+     * Once the exchange's time has come, a colleague is offered no gesture on its line in a contact's or an
+     * organization's timeline.
      */
     #[DataProvider('colleagues')]
     public function testAColleagueIsOfferedNoGestureOnItsLines(string $reference, Role ...$roles): void
