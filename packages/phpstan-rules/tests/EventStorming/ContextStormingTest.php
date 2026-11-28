@@ -218,6 +218,19 @@ final class ContextStormingTest extends TestCase
         self::assertSame(['Hosts only'], self::stickyOf($model, 'command:'.self::OPEN_BOOKING)['rights'] ?? null);
     }
 
+    public function testACommandNamesOnceARightTwoOfItsIntentionsCheck(): void
+    {
+        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING), new ClassFacts(self::HOSTS_ONLY, parents: [self::NOT_ALLOWED])], [
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'open'),
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::APPOINTMENT, 'open'),
+            new Call(self::BOOKING_PAGE, 'open', self::HOSTS_ONLY, 'because', conditional: true),
+            new Call(self::APPOINTMENT, 'open', self::HOSTS_ONLY, 'because', conditional: true),
+            new Call(self::BOOKING_PAGE, 'open', self::BOOKING_OPENED, Call::CREATION),
+        ]));
+
+        self::assertSame(['Hosts only'], self::stickyOf($model, 'command:'.self::OPEN_BOOKING)['rights'] ?? null);
+    }
+
     public function testARefusalOfAnotherRuleThanAccessIsNoRight(): void
     {
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING), new ClassFacts(self::ALREADY_OPEN, parents: [self::BUSINESS_RULE_VIOLATION])], [

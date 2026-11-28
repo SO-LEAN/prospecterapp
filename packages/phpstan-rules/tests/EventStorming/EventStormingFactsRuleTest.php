@@ -7,6 +7,7 @@ namespace Tests\PHPStan\EventStorming;
 use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
 use App\Shop\Controller\CheckOutController;
+use App\Shop\Controller\ShareCartController;
 use App\Shop\Resource\CartLineLinksResource;
 use App\Shop\Resource\CartLineResource;
 use App\Shop\Resource\CartLinksResource;
@@ -147,14 +148,19 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
     }
 
-    public function testAClassTellsTheRoleAClassConstantGivesItsAttributeAndNoAttributeOfAVoter(): void
+    public function testAClassTellsTheRoleAClassConstantGivesItsAttribute(): void
     {
         self::assertSame(['ROLE_BUYER'], $this->classFactsOf(CheckOutController::class)['roles'] ?? null);
     }
 
+    public function testTheAttributeAVoterGrantsIsNoRole(): void
+    {
+        self::assertSame([], $this->classFactsOf(ShareCartController::class)['roles'] ?? null);
+    }
+
     public function testAUserOfTheSecurityTellsTheRolesItsConstantsName(): void
     {
-        self::assertSame(['ROLE_BUYER'], $this->classFactsOf(Buyer::class)['grants'] ?? null);
+        self::assertSame(['ROLE_BUYER', 'ROLE_SHOP_ADMINISTRATOR'], $this->classFactsOf(Buyer::class)['grants'] ?? null);
     }
 
     public function testAClassThatIsNoUserGrantsNoRole(): void
