@@ -79,7 +79,7 @@ export function cardOf(wall: Wall, note: Note): string {
     row('Before', chips(before)),
     row(note.kind === 'actor' ? 'Can' : 'Then', note.port ? '' : chips(after)),
     row('Offered by', note.step.main === note ? offersOf(wall, note) : ''),
-    row('Refusals of access', escaped((sticky?.rights ?? []).join(', '))),
+    row('Access refusals', escaped((sticky?.rights ?? []).join(', '))),
     row('Source', sourceOf(note)),
   ]
   const conditions = wall.edges
