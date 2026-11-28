@@ -14,6 +14,22 @@
     ],
     "stickies": [
         {
+            "id": "actor:ROLE_PERSONAL_DATA",
+            "slug": "actor:ROLE_PERSONAL_DATA",
+            "type": "actor",
+            "label": "Personal data manager",
+            "feature": null,
+            "name": "ROLE_PERSONAL_DATA",
+            "class": null,
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [],
+            "rights": []
+        },
+        {
             "id": "actor:ROLE_PROSPECTOR",
             "slug": "actor:ROLE_PROSPECTOR",
             "type": "actor",
@@ -26,7 +42,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:mcp",
@@ -41,7 +58,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:operator",
@@ -56,7 +74,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:schedule",
@@ -71,7 +90,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
@@ -86,7 +106,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Exchange",
@@ -101,7 +122,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization",
@@ -116,7 +138,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo",
@@ -131,7 +154,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
@@ -146,7 +170,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DiscardAttachmentsOfErasedExchange\\DiscardAttachmentsOfErasedExchange",
@@ -161,7 +188,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DiscardRemovedAttachment\\DiscardRemovedAttachment",
@@ -176,7 +204,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\KeepImportedAttachment\\KeepImportedAttachment",
@@ -191,7 +220,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
@@ -206,7 +236,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
@@ -221,7 +254,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachCollectedContact\\AttachCollectedContact",
@@ -236,7 +270,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AttachContactToAttach\\AttachContactToAttach",
@@ -251,7 +286,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\DetachForgottenContact\\DetachForgottenContact",
@@ -266,7 +302,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
@@ -281,7 +318,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\PushBackErasureOfContactToAttach\\PushBackErasureOfContactToAttach",
@@ -296,7 +334,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
@@ -311,7 +350,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
@@ -326,7 +366,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
@@ -341,7 +382,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
@@ -356,7 +398,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
@@ -371,7 +414,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
@@ -386,7 +430,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
@@ -401,7 +448,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
@@ -416,7 +466,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
@@ -431,7 +484,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangeLeftWithoutOrganization\\EraseExchangeLeftWithoutOrganization",
@@ -446,7 +502,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
@@ -461,7 +520,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchangesOfContactLeftUnattached\\EraseExchangesOfContactLeftUnattached",
@@ -476,7 +538,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ForgetFingerprintsOfForgottenContact\\ForgetFingerprintsOfForgottenContact",
@@ -491,7 +556,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepCreatedVideoCallLink\\KeepCreatedVideoCallLink",
@@ -506,7 +572,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfAttachedContact\\KeepExchangesOfAttachedContact",
@@ -521,7 +588,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContact",
@@ -536,7 +604,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
@@ -551,7 +620,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
@@ -566,7 +638,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
@@ -581,7 +656,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
@@ -596,7 +674,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
@@ -611,7 +690,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteImportedEmail\\NoteImportedEmail",
@@ -626,7 +706,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the holder"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
@@ -641,7 +724,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanBookedAppointment\\PlanBookedAppointment",
@@ -656,7 +740,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
@@ -671,7 +756,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
@@ -686,7 +772,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\StopKeepingExchanges\\StopKeepingExchanges",
@@ -701,7 +788,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
@@ -716,7 +804,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
@@ -731,7 +820,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
@@ -746,7 +836,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\CompleteOrganization\\CompleteOrganization",
@@ -761,7 +852,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
@@ -776,7 +868,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DiscardRemovedLogo\\DiscardRemovedLogo",
@@ -791,7 +884,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\LocateAgain\\LocateAgain",
@@ -806,7 +900,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
@@ -821,7 +916,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
@@ -836,7 +932,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
@@ -851,7 +948,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StartProspecting\\StartProspecting",
@@ -866,7 +964,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
@@ -881,7 +980,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
@@ -896,7 +996,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDoLeftWithoutOrganization\\EraseToDoLeftWithoutOrganization",
@@ -911,7 +1012,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
@@ -926,7 +1028,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDosOfForgottenContact\\EraseToDosOfForgottenContact",
@@ -941,7 +1044,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\KeepToDosOfAttachedContact\\KeepToDosOfAttachedContact",
@@ -956,7 +1060,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
@@ -971,7 +1076,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
@@ -986,7 +1092,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
@@ -1001,7 +1108,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\StopKeepingToDos\\StopKeepingToDos",
@@ -1016,7 +1124,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
@@ -1031,7 +1140,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
@@ -1046,7 +1156,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
@@ -1061,7 +1172,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
@@ -1076,7 +1188,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
@@ -1091,7 +1204,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
@@ -1106,7 +1220,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
@@ -1121,7 +1236,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
@@ -1136,7 +1252,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
@@ -1151,7 +1268,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
@@ -1166,7 +1284,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
@@ -1181,7 +1300,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachedToHolding",
@@ -1196,7 +1316,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentImported",
@@ -1211,7 +1332,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\AttachmentRemoved",
@@ -1226,7 +1348,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactAdded",
@@ -1241,7 +1364,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactDetailsChanged",
@@ -1256,7 +1380,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactLeftUnattached",
@@ -1271,7 +1396,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactRemoved",
@@ -1286,7 +1412,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachAttached",
@@ -1301,7 +1428,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachHandedOver",
@@ -1316,7 +1444,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachMet",
@@ -1331,7 +1460,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactToAttachMetAgain",
@@ -1346,7 +1476,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ContactsLeftWithoutOrganization",
@@ -1361,7 +1492,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DetachedFromHolding",
@@ -1376,7 +1508,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspected",
@@ -1391,7 +1524,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionDismissed",
@@ -1406,7 +1540,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\DuplicateSuspicionLifted",
@@ -1421,7 +1556,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCancelled",
@@ -1436,7 +1572,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeContactForgotten",
@@ -1451,7 +1588,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeCorrected",
@@ -1466,7 +1604,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeErased",
@@ -1481,7 +1620,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeEvent",
@@ -1496,7 +1636,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeJoinedCampaign",
@@ -1511,7 +1652,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeKeptFor",
@@ -1526,7 +1668,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeLeftWithoutOrganization",
@@ -1541,7 +1684,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMarkedDone",
@@ -1556,7 +1700,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMarkedMissed",
@@ -1571,7 +1716,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeMoved",
@@ -1586,7 +1732,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeNoLongerKeptFor",
@@ -1601,7 +1748,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeNoted",
@@ -1616,7 +1764,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangePlanned",
@@ -1631,7 +1780,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeRedacted",
@@ -1646,7 +1796,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeTextCorrected",
@@ -1661,7 +1812,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ExchangeVenueCorrected",
@@ -1676,7 +1828,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\FileAttached",
@@ -1691,7 +1844,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LegalIdentityRevised",
@@ -1706,7 +1860,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LocatedAgain",
@@ -1721,7 +1876,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LogoChanged",
@@ -1736,7 +1892,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\LogoRemoved",
@@ -1751,7 +1908,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ObservationsWritten",
@@ -1766,7 +1924,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\OrganizationCompleted",
@@ -1781,7 +1940,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\OrganizationEvent",
@@ -1796,7 +1956,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStarted",
@@ -1811,7 +1972,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ProspectingStopped",
@@ -1826,7 +1988,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\Relocated",
@@ -1841,7 +2004,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoErased",
@@ -1856,7 +2020,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoKeptFor",
@@ -1871,7 +2036,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoLeftWithoutOrganization",
@@ -1886,7 +2052,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoNoLongerKeptFor",
@@ -1901,7 +2068,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoNoted",
@@ -1916,7 +2084,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoRevised",
@@ -1931,7 +2100,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoTickedOff",
@@ -1946,7 +2116,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\ToDoUnticked",
@@ -1961,7 +2132,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Domain\\Event\\VideoCallLinkReceived",
@@ -1976,7 +2148,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\BookedAppointments",
@@ -1999,7 +2172,8 @@
                     "label": "Appointments"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignNames",
@@ -2022,7 +2196,8 @@
                     "label": "Name campaigns"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignRecipients",
@@ -2045,7 +2220,8 @@
                     "label": "Pending recipients response"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\EstablishmentDirectory",
@@ -2060,7 +2236,8 @@
             "detail": "RechercheEntreprisesDirectory",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\KnownContacts",
@@ -2083,7 +2260,8 @@
                     "label": "Which are contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
@@ -2106,7 +2284,8 @@
                     "label": "Members"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
@@ -2121,7 +2300,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
@@ -2136,7 +2316,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
@@ -2151,7 +2332,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
@@ -2166,7 +2348,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
@@ -2181,7 +2364,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
@@ -2196,7 +2380,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
@@ -2211,7 +2396,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
@@ -2226,7 +2412,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactLeftUnattached\\PublishContactLeftUnattachedHandler",
@@ -2241,7 +2428,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Contact\\PublishContactsLeftWithoutOrganization\\PublishContactsLeftWithoutOrganizationHandler",
@@ -2256,7 +2444,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishExchangeFacts\\PublishExchangeFactsHandler",
@@ -2271,7 +2460,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Facts\\PublishOrganizationFacts\\PublishOrganizationFactsHandler",
@@ -2286,7 +2476,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
@@ -2301,7 +2492,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachContactToAttachPolicy",
@@ -2316,7 +2508,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
@@ -2331,7 +2524,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardAttachmentsOfErasedExchangePolicy",
@@ -2346,7 +2540,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedAttachmentPolicy",
@@ -2361,7 +2556,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedLogoPolicy",
@@ -2376,7 +2572,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DismissSuspicionInReturnPolicy",
@@ -2391,7 +2588,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangeLeftWithoutOrganizationPolicy",
@@ -2406,7 +2604,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangesOfContactLeftUnattachedPolicy",
@@ -2421,7 +2620,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDoLeftWithoutOrganizationPolicy",
@@ -2436,7 +2636,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
@@ -2451,7 +2652,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
@@ -2466,7 +2668,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
@@ -2481,7 +2684,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfAttachedContactPolicy",
@@ -2496,7 +2700,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
@@ -2511,7 +2716,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepImportedAttachmentPolicy",
@@ -2526,7 +2732,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepToDosOfAttachedContactPolicy",
@@ -2541,7 +2748,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\LiftSuspicionInReturnPolicy",
@@ -2556,7 +2764,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
@@ -2571,7 +2780,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
@@ -2586,7 +2796,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
@@ -2601,7 +2812,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingExchangesPolicy",
@@ -2616,7 +2828,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingToDosPolicy",
@@ -2631,7 +2844,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
@@ -2646,7 +2860,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
@@ -2661,7 +2876,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
@@ -2676,7 +2892,8 @@
             "detail": "Calendar",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
@@ -2691,7 +2908,8 @@
             "detail": "MyDay",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
@@ -2706,7 +2924,8 @@
             "detail": "OverlappingExchanges",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
@@ -2721,7 +2940,8 @@
             "detail": "WhatIsToProcess",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
@@ -2736,7 +2956,8 @@
             "detail": "AttachmentDownloadResponse",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultContactToAttach\\ConsultContactToAttach",
@@ -2751,7 +2972,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
@@ -2766,7 +2988,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ListOrganizationContacts\\ListOrganizationContacts",
@@ -2781,7 +3004,8 @@
             "detail": "OrganizationContacts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
@@ -2796,7 +3020,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
@@ -2811,7 +3036,8 @@
             "detail": "ExchangeDetail",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ProposeMeetingPlace\\ProposeMeetingPlace",
@@ -2826,7 +3052,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\SendingNoted\\SendingNoted",
@@ -2841,7 +3068,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
@@ -2856,7 +3084,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\CompareWithOrganization\\CompareWithOrganization",
@@ -2871,7 +3100,8 @@
             "detail": "Comparison",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
@@ -2886,7 +3116,8 @@
             "detail": "OrganizationSheet",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchEstablishments\\SearchEstablishments",
@@ -2901,7 +3132,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
@@ -2916,7 +3148,8 @@
             "detail": "FoundOrganizationPage",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
@@ -2931,7 +3164,8 @@
             "detail": "OrganizationTimeline",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
@@ -2946,7 +3180,8 @@
             "detail": "OrganizationTimeline",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
@@ -2961,7 +3196,8 @@
             "detail": "OrganizationTimeline",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimelineIntents\\ConsultTimelineIntents",
@@ -2976,7 +3212,8 @@
             "detail": "TimelineIntentsResponse",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
@@ -2991,7 +3228,8 @@
             "detail": "Timeline",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
@@ -3006,7 +3244,8 @@
             "detail": "Timeline",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
@@ -3021,7 +3260,8 @@
             "detail": "ToDoList",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
@@ -3036,7 +3276,8 @@
             "detail": "ToDoList",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
@@ -3051,7 +3292,8 @@
             "detail": "ToDoInList",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
@@ -3066,7 +3308,8 @@
             "detail": "ToDoList",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\ConsultHeldExchanges\\ConsultHeldExchanges",
@@ -3087,7 +3330,8 @@
                     "slug": "externalSystem:HeldExchanges",
                     "label": "Held exchanges"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\ConsultHeldExchanges\\ConsultPlannedExchanges",
@@ -3113,7 +3357,8 @@
                     "slug": "externalSystem:HeldExchanges",
                     "label": "Held exchanges"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
@@ -3134,7 +3379,8 @@
                     "slug": null,
                     "label": "ProspectingOrganizationIdentifications"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\ListExchangeFacts\\ListExchangeFacts",
@@ -3155,7 +3401,8 @@
                     "slug": "externalSystem:ProspectingFacts",
                     "label": "Prospecting facts"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\ListOrganizationFacts\\ListOrganizationFacts",
@@ -3181,7 +3428,8 @@
                     "slug": "externalSystem:ProspectingFacts",
                     "label": "Prospecting facts"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\NameOrganizationsOfContacts\\NameOrganizationsOfContacts",
@@ -3202,7 +3450,8 @@
                     "slug": "externalSystem:AddresseeOrganizations",
                     "label": "Addressee organizations"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\WhichAreProspected\\WhichAreProspected",
@@ -3228,7 +3477,8 @@
                     "slug": "externalSystem:ProspectedOrganizations",
                     "label": "Prospected organizations"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\WhichContactsHaveExchangesOfCampaign\\WhichContactsHaveExchangesOfCampaign",
@@ -3249,7 +3499,8 @@
                     "slug": "externalSystem:CampaignExchanges",
                     "label": "Campaign exchanges"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\WhichEmailsHaveTheseOrganizations\\WhichEmailsHaveTheseOrganizations",
@@ -3270,7 +3521,8 @@
                     "slug": "externalSystem:OrganizationAddresses",
                     "label": "Organization addresses"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\WhichOrganizationsHaveTheseEmails\\WhichOrganizationsHaveTheseEmails",
@@ -3291,7 +3543,8 @@
                     "slug": "externalSystem:OrganizationCorrespondents",
                     "label": "Organization correspondents"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\WhichOrganizationsNameTheseContacts\\WhichOrganizationsNameTheseContacts",
@@ -3312,10 +3565,193 @@
                     "slug": "externalSystem:OrganizationsOfContacts",
                     "label": "Organizations of contacts"
                 }
-            ]
+            ],
+            "rights": []
         }
     ],
     "links": [
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\RemoveContact\\RemoveContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteCampaignExchange\\NoteCampaignExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteOrganizationToDo\\NoteOrganizationToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\NoteToDo\\NoteToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Attachment\\DownloadAttachment\\DownloadAttachment",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ConsultOrganizationsOfContacts\\ConsultOrganizationsOfContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Contact\\ProposeOrganizationToAttach\\ProposeOrganizationToAttach",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultMyToDos\\ConsultMyToDos",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultOrganizationToDos\\ConsultOrganizationToDos",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDo\\ConsultToDo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",

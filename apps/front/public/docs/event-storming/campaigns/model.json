@@ -7,6 +7,22 @@
     ],
     "stickies": [
         {
+            "id": "actor:ROLE_PERSONAL_DATA",
+            "slug": "actor:ROLE_PERSONAL_DATA",
+            "type": "actor",
+            "label": "Personal data manager",
+            "feature": null,
+            "name": "ROLE_PERSONAL_DATA",
+            "class": null,
+            "context": "Campaigns",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [],
+            "rights": []
+        },
+        {
             "id": "actor:ROLE_PROSPECTOR",
             "slug": "actor:ROLE_PROSPECTOR",
             "type": "actor",
@@ -19,7 +35,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:mcp",
@@ -34,7 +51,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:operator",
@@ -49,7 +67,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
@@ -64,7 +83,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
@@ -79,7 +99,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
@@ -94,7 +115,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\EraseCampaign\\EraseCampaign",
@@ -109,7 +131,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
@@ -124,7 +147,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
@@ -139,7 +163,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
@@ -154,7 +179,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
@@ -169,7 +195,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
@@ -184,7 +211,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
@@ -199,7 +227,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
@@ -214,7 +243,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
@@ -229,7 +259,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
@@ -244,7 +275,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContact",
@@ -259,7 +291,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchange",
@@ -274,7 +307,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
@@ -289,7 +323,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
@@ -304,7 +339,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ForgetTagsOfForgottenContact\\ForgetTagsOfForgottenContact",
@@ -319,7 +355,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ForgetTagsOfUnprospectedOrganization\\ForgetTagsOfUnprospectedOrganization",
@@ -334,7 +371,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
@@ -349,7 +387,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
@@ -364,7 +403,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
@@ -379,7 +419,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
@@ -394,7 +435,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
@@ -409,7 +451,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignDiscarded",
@@ -424,7 +467,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignFrozen",
@@ -439,7 +483,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignPrepared",
@@ -454,7 +499,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRecipientsChanged",
@@ -469,7 +515,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignRevised",
@@ -484,7 +531,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignStarted",
@@ -499,7 +547,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignStopped",
@@ -514,7 +563,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\ContactTagsChanged",
@@ -529,7 +579,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\DailyCapSet",
@@ -544,7 +595,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\OrganizationTagsChanged",
@@ -559,7 +611,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\RecipientDismissed",
@@ -574,7 +627,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
@@ -589,7 +643,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
@@ -604,7 +659,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
@@ -619,7 +675,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
@@ -634,7 +691,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeNames",
@@ -657,7 +715,8 @@
                     "label": "Name contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\AddresseeOrganizations",
@@ -680,7 +739,8 @@
                     "label": "Name organizations of contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\CampaignExchanges",
@@ -703,7 +763,8 @@
                     "label": "Which contacts have exchanges of campaign"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
@@ -726,7 +787,8 @@
                     "label": "Members"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\ContactsReach",
@@ -749,7 +811,8 @@
                     "label": "List contact facts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\OrganizationsAndTheirContacts",
@@ -772,7 +835,8 @@
                     "label": "List organization facts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
@@ -795,7 +859,8 @@
                     "label": "Which are contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableOrganizations",
@@ -818,7 +883,8 @@
                     "label": "Which are prospected"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggedAccounts",
@@ -841,7 +907,8 @@
                     "label": "List accounts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
@@ -864,7 +931,8 @@
                     "label": "Members"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
@@ -879,7 +947,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
@@ -894,7 +963,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
@@ -909,7 +979,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
@@ -924,7 +995,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
@@ -939,7 +1011,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
@@ -954,7 +1027,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
@@ -969,7 +1043,8 @@
             "detail": "CampaignSheet",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
@@ -984,7 +1059,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
@@ -999,7 +1075,8 @@
             "detail": "CampaignMessage",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
@@ -1014,7 +1091,8 @@
             "detail": "CampaignRecipients",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
@@ -1029,7 +1107,8 @@
             "detail": "RecipientToHandle",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
@@ -1044,7 +1123,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
@@ -1059,7 +1139,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
@@ -1074,7 +1155,8 @@
             "detail": "SuggestedTags",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
@@ -1089,7 +1171,8 @@
             "detail": "TaggedContactPage",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Contract\\Service\\NameCampaigns\\NameCampaigns",
@@ -1110,7 +1193,8 @@
                     "slug": "externalSystem:CampaignNames",
                     "label": "Campaign names"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Contract\\Service\\WhichRecipientsArePending\\WhichRecipientsArePending",
@@ -1131,10 +1215,123 @@
                     "slug": "externalSystem:CampaignRecipients",
                     "label": "Campaign recipients"
                 }
-            ]
+            ],
+            "rights": []
         }
     ],
     "links": [
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",

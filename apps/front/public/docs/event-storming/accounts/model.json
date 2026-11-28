@@ -7,6 +7,22 @@
     ],
     "stickies": [
         {
+            "id": "actor:ROLE_PERSONAL_DATA",
+            "slug": "actor:ROLE_PERSONAL_DATA",
+            "type": "actor",
+            "label": "Personal data manager",
+            "feature": null,
+            "name": "ROLE_PERSONAL_DATA",
+            "class": null,
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [],
+            "rights": []
+        },
+        {
             "id": "actor:ROLE_PROSPECTOR",
             "slug": "actor:ROLE_PROSPECTOR",
             "type": "actor",
@@ -19,7 +35,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:ROLE_USER",
@@ -34,7 +51,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:mcp",
@@ -49,7 +67,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:operator",
@@ -64,7 +83,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
@@ -79,7 +99,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
@@ -94,7 +115,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
@@ -109,7 +131,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
@@ -124,7 +147,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
@@ -139,7 +163,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
@@ -154,7 +179,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
@@ -169,7 +195,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Administrators only"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
@@ -184,7 +213,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
@@ -199,7 +229,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
@@ -214,7 +245,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
@@ -229,7 +261,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountIdentityRevised",
@@ -244,7 +277,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountLogoChanged",
@@ -259,7 +293,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
@@ -274,7 +309,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountRelocated",
@@ -289,7 +325,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
@@ -304,7 +341,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\RemindersChanged",
@@ -319,7 +357,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
@@ -334,7 +373,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
@@ -349,7 +389,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
@@ -364,7 +405,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
@@ -379,7 +421,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
@@ -394,7 +437,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
@@ -409,7 +453,8 @@
             "detail": "MyAccount",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
@@ -424,7 +469,8 @@
             "detail": "MyReminders",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
@@ -480,7 +526,8 @@
                     "slug": "externalSystem:SourceAccounts",
                     "label": "Source accounts"
                 }
-            ]
+            ],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ListAccounts\\ListAccounts",
@@ -506,10 +553,18 @@
                     "slug": "externalSystem:SourceAccounts",
                     "label": "Source accounts"
                 }
-            ]
+            ],
+            "rights": []
         }
     ],
     "links": [
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
