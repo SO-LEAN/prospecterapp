@@ -64,7 +64,7 @@ export function chipOf(wall: Wall, note: Note, text = note.label): string {
 
 /**
  * The card of a pinned post-it: what it is, where it stands, its feature, what comes before and after it, who
- * sends it and from which view, its source, and the link to copy.
+ * sends it and from which view, the rights its aggregates check, its source, and the link to copy.
  */
 export function cardOf(wall: Wall, note: Note): string {
   const { sticky } = note
@@ -79,6 +79,7 @@ export function cardOf(wall: Wall, note: Note): string {
     row('Before', chips(before)),
     row(note.kind === 'actor' ? 'Can' : 'Then', note.port ? '' : chips(after)),
     row('Offered by', note.step.main === note ? offersOf(wall, note) : ''),
+    row('Refusals of access', escaped((sticky?.rights ?? []).join(', '))),
     row('Source', sourceOf(note)),
   ]
   const conditions = wall.edges
