@@ -61,7 +61,7 @@ final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
         $subject = ['id' => $organizationTimeline->organization->id];
 
         foreach ($timeline->exchanges as $exchange) {
-            $this->exchanges[$exchange->id] = $this->timelineResourceFactory->createExchange($exchange);
+            $this->exchanges[$exchange->id] = $this->timelineResourceFactory->createExchange($exchange, $timeline->exchangeIntents[$exchange->id] ?? []);
         }
 
         $links = $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline);

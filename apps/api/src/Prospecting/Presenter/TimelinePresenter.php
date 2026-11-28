@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Presenter;
 
+use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineResource;
 use App\Prospecting\TimelineResourceFactory;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
 
@@ -40,7 +42,7 @@ final class TimelinePresenter implements TimelineOutput
     public function present(Timeline $timeline): void
     {
         $this->resource = new TimelineResource(
-            items: array_map($this->timelineResourceFactory->createExchange(...), $timeline->exchanges),
+            items: array_map(fn (ExchangeInTimeline $exchange): ExchangeResource => $this->timelineResourceFactory->createExchange($exchange, $timeline->exchangeIntents[$exchange->id] ?? []), $timeline->exchanges),
             links: $this->timelineResourceFactory->createLinks($this->routes, ['id' => $this->contactId], $timeline),
         );
     }
