@@ -28,6 +28,8 @@ export interface Sticky {
   answers: Elsewhere[]
   /** What takes a published service in the other contexts. */
   readBy: Elsewhere[]
+  /** The refusals of access the aggregates a command changes may raise, in English: the rights they check. */
+  rights: string[]
 }
 
 /** A post-it of another wall: its context and its slug there. A class of the delivery stands on no wall. */

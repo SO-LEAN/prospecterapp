@@ -89,6 +89,24 @@ describe('the story of a post-it', () => {
     expect(termOf(card, 'Offered by')).toBe('My booking page link open, only while the page is closed')
   })
 
+  it('names in the card of a command the rights its aggregates check', () => {
+    const accounts = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/accounts/model.json', 'utf8')) as Model,
+    )
+    const register = accounts.notes.find(
+      (note) => note.slug === 'command:RegisterAMember' && note.kind === 'command' && !note.badge,
+    )
+    const card = cardIn(register === undefined ? '' : cardOf(accounts, register))
+
+    expect(termOf(card, 'Refusals of access')).toBe('Administrators only')
+  })
+
+  it('names no right in the card of a command whose aggregates check none', () => {
+    const card = cardIn(cardOf(wall, noteOf('command:BookSlot', 'command')))
+
+    expect(termOf(card, 'Refusals of access')).toBeUndefined()
+  })
+
   it('tells a step in one sentence', () => {
     const step = noteOf('command:BookSlot', 'command').step
 

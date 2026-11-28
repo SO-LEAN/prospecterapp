@@ -46,6 +46,7 @@ function sticky(
     answeredBy: [],
     answers,
     readBy: [],
+    rights: [],
   }
 }
 
