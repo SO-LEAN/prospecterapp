@@ -11,7 +11,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
     - a project's checks when its files change;
     - the API and the contract when the core changes;
     - the contract when the API or the front changes;
-    - the walls of the event storming when the core, the API, their generator or the walls change (`make check-event-storming`: the generator's lint and tests, every wall written again, and the files that differ from the committed ones named). A change to the generator or the walls needs that check only, not the front's: the SPA neither imports nor reads them. A file of the front that both read (`package.json`, its lock file, `vite.config.ts`, `tsconfig.json`, `biome.json`, the front's `Makefile`) needs both checks;
+    - the walls of the event storming when the core, the API, their generator or the walls change (`make check-event-storming`: the generator's lint and tests, every wall written again, and the files that differ from the committed ones named). A change to the generator or the walls needs that check only, not the front's: the SPA neither imports nor reads them (ADR 0227). A file of the front that both read (`package.json`, its lock file, `vite.config.ts`, `tsconfig.json`, `biome.json`, the front's `Makefile`) needs both checks;
     - the front's check, besides Terraform's, when the CloudFront function changes (`apps/front/infra/functions`), since the front's tests run it;
     - every check when a Makefile, a command-line image, `docker-compose.yml` or the workflow changes;
     - only the secrets check for documentation;
