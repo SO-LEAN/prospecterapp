@@ -9,6 +9,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\PHPStan\EventStorming\Arm;
 use Prospecter\PHPStan\EventStorming\Call;
 use Prospecter\PHPStan\EventStorming\ClassFacts;
 use Prospecter\PHPStan\EventStorming\Facts;
@@ -26,6 +27,24 @@ final class FactsTest extends TestCase
             new Facts([new ClassFacts('A', ['I'], [['B']], ['C'], true, ['D'], ['ROLE_USER'], ['E'], ['api_a'], ['open' => 'Offered only while it is closed'], ['G'], console: true, changes: ['h'], offers: ['open' => ['api_open', 'api_reopen'], 'close' => ['api_close']], holds: ['H'], grants: ['ROLE_I'], parents: ['J'])], [new Call('A', '__invoke', 'F', 'g', true)]),
             $facts,
         );
+    }
+
+    public function testACallTellsTheArmOfTheChoiceItHappensIn(): void
+    {
+        $facts = Facts::read([
+            'calls' => [['caller' => 'A', 'callerMethod' => 'b', 'target' => 'F', 'targetMethod' => 'g', 'conditional' => true, 'arm' => ['choice' => 'A::b#0', 'index' => 1]]],
+        ]);
+
+        self::assertEquals([new Call('A', 'b', 'F', 'g', true, new Arm('A::b#0', 1))], $facts->calls);
+    }
+
+    public function testAnArmWithoutItsRankIsNone(): void
+    {
+        $facts = Facts::read([
+            'calls' => [['caller' => 'A', 'callerMethod' => 'b', 'target' => 'F', 'targetMethod' => 'g', 'conditional' => true, 'arm' => ['choice' => 'A::b#0']]],
+        ]);
+
+        self::assertEquals([new Call('A', 'b', 'F', 'g', true)], $facts->calls);
     }
 
     public function testTheContextsAreThoseWhoseApplicationHandlesAMessageSorted(): void

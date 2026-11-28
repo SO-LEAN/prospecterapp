@@ -52,7 +52,7 @@ final readonly class Facts
                 self::records($collected['classes'] ?? null),
             ),
             array_map(
-                static fn (array $call): Call => new Call(self::text($call['caller'] ?? null), self::text($call['callerMethod'] ?? null), self::text($call['target'] ?? null), self::text($call['targetMethod'] ?? null), true === ($call['conditional'] ?? null)),
+                static fn (array $call): Call => new Call(self::text($call['caller'] ?? null), self::text($call['callerMethod'] ?? null), self::text($call['target'] ?? null), self::text($call['targetMethod'] ?? null), true === ($call['conditional'] ?? null), self::arm($call['arm'] ?? null)),
                 self::records($collected['calls'] ?? null),
             ),
         );
@@ -95,6 +95,11 @@ final readonly class Facts
         }
 
         return $byName;
+    }
+
+    private static function arm(mixed $arm): ?Arm
+    {
+        return \is_array($arm) && \is_int($arm['index'] ?? null) ? new Arm(self::text($arm['choice'] ?? null), $arm['index']) : null;
     }
 
     private static function text(mixed $text): string
