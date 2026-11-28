@@ -98,7 +98,7 @@ describe('the story of a post-it', () => {
     )
     const card = cardIn(register === undefined ? '' : cardOf(accounts, register))
 
-    expect(termOf(card, 'Refusals of access')).toBe('Administrators only')
+    expect(termOf(card, 'Access refusals')).toBe('Administrators only')
   })
 
   it('names each right apart in the card of a command whose aggregates check several', () => {
@@ -110,7 +110,7 @@ describe('the story of a post-it', () => {
     )
     const card = cardIn(complete === undefined ? '' : cardOf(personalData, complete))
 
-    expect(termOf(card, 'Refusals of access')).toBe(
+    expect(termOf(card, 'Access refusals')).toBe(
       'Personal data managers only, The person or a personal data manager only',
     )
   })
@@ -118,7 +118,7 @@ describe('the story of a post-it', () => {
   it('names no right in the card of a command whose aggregates check none', () => {
     const card = cardIn(cardOf(wall, noteOf('command:BookSlot', 'command')))
 
-    expect(termOf(card, 'Refusals of access')).toBeUndefined()
+    expect(termOf(card, 'Access refusals')).toBeUndefined()
   })
 
   it('tells a step in one sentence', () => {
