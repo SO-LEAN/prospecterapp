@@ -20,7 +20,40 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
+        },
+        {
+            "id": "actor:ROLE_GMAIL_PUSHER",
+            "slug": "actor:ROLE_GMAIL_PUSHER",
+            "type": "actor",
+            "label": "Google",
+            "feature": null,
+            "name": "ROLE_GMAIL_PUSHER",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [],
+            "rights": []
+        },
+        {
+            "id": "actor:ROLE_PERSONAL_DATA",
+            "slug": "actor:ROLE_PERSONAL_DATA",
+            "type": "actor",
+            "label": "Personal data manager",
+            "feature": null,
+            "name": "ROLE_PERSONAL_DATA",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:ROLE_PROSPECTOR",
@@ -35,7 +68,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:ROLE_USER",
@@ -50,7 +84,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:mcp",
@@ -65,7 +100,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:operator",
@@ -80,22 +116,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
-        },
-        {
-            "id": "actor:public",
-            "slug": "actor:public",
-            "type": "actor",
-            "label": "Anyone with the link",
-            "feature": null,
-            "name": "public",
-            "class": null,
-            "context": "Connectors",
-            "module": null,
-            "detail": null,
-            "answeredBy": [],
-            "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:schedule",
@@ -110,7 +132,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
@@ -125,7 +148,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
@@ -140,7 +164,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
@@ -155,7 +180,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
@@ -170,7 +196,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
@@ -185,7 +212,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
@@ -200,7 +228,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
@@ -215,7 +244,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
@@ -230,7 +260,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
@@ -245,7 +276,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the administrator"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
@@ -260,7 +294,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the administrator"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
@@ -275,7 +312,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the administrator"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
@@ -290,7 +330,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Not the administrator"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
@@ -305,7 +348,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
@@ -320,7 +364,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
@@ -335,7 +380,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
@@ -350,7 +396,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
@@ -365,7 +412,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
@@ -380,7 +428,10 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": [
+                "Personal data managers only"
+            ]
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
@@ -395,7 +446,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
@@ -410,7 +462,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
@@ -425,7 +478,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
@@ -440,7 +494,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
@@ -455,7 +510,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
@@ -470,7 +526,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
@@ -485,7 +542,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
@@ -500,7 +558,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
@@ -515,7 +574,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientRemoved",
@@ -530,7 +590,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
@@ -545,7 +606,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
@@ -560,7 +622,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Disconnected",
@@ -575,7 +638,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
@@ -590,7 +654,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStarted",
@@ -605,7 +670,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
@@ -620,7 +686,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
@@ -635,7 +702,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
@@ -650,7 +718,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
@@ -665,7 +734,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
@@ -680,7 +750,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
@@ -695,7 +766,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
@@ -710,7 +782,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\AccountMembers",
@@ -733,7 +806,8 @@
                     "label": "Members"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactAddresses",
@@ -756,7 +830,8 @@
                     "label": "Which emails have these contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactCorrespondents",
@@ -779,7 +854,8 @@
                     "label": "Which contacts have these emails"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
@@ -802,7 +878,8 @@
                     "label": "Name contacts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
@@ -830,7 +907,8 @@
                     "label": "Planned exchanges"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\MemberFirstNames",
@@ -853,7 +931,8 @@
                     "label": "Present members"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationAddresses",
@@ -876,7 +955,8 @@
                     "label": "Which emails have these organizations"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\OrganizationCorrespondents",
@@ -899,7 +979,8 @@
                     "label": "Which organizations have these emails"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
@@ -914,7 +995,8 @@
             "detail": "GoogleProviderAccess",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
@@ -929,7 +1011,8 @@
             "detail": "GoogleCalendar",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
@@ -944,7 +1027,8 @@
             "detail": "GoogleMailbox",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
@@ -959,7 +1043,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
@@ -974,7 +1059,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
@@ -989,7 +1075,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
@@ -1004,7 +1091,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
@@ -1019,7 +1107,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
@@ -1034,7 +1123,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
@@ -1049,7 +1139,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
@@ -1064,7 +1155,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
@@ -1079,7 +1171,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMailboxPusher\\ConsultMailboxPusher",
@@ -1094,7 +1187,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
@@ -1109,7 +1203,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
@@ -1124,7 +1219,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
@@ -1139,7 +1235,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Connectors\\Contract\\Service\\WhichHaveAConnectedCalendar\\WhichHaveAConnectedCalendar",
@@ -1160,7 +1257,8 @@
                     "slug": "externalSystem:ConnectedCalendars",
                     "label": "Connected calendars"
                 }
-            ]
+            ],
+            "rights": []
         }
     ],
     "links": [
@@ -1195,6 +1293,48 @@
         {
             "from": "actor:ROLE_ADMIN",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_GMAIL_PUSHER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_GMAIL_PUSHER",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMailboxPusher\\ConsultMailboxPusher",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PERSONAL_DATA",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "via": null,
             "certain": true,
             "when": null
@@ -1335,27 +1475,6 @@
         {
             "from": "actor:operator",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "actor:public",
-            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "actor:public",
-            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "actor:public",
-            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "via": null,
             "certain": true,
             "when": null

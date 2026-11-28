@@ -206,10 +206,10 @@ const GAP_ROOM = 10
 const TOOLS = new Set(['mcp'])
 
 /**
- * The actors that stand on the wall but look at no screen: the platform operator at the console, and the daily
- * schedule. No view has to offer what they send.
+ * The actors that stand on the wall but look at no screen: the platform operator at the console, the daily
+ * schedule, and Google, which pushes the Gmail notifications. No view has to offer what they send.
  */
-const SCREENLESS_ORDER = ['operator', 'schedule']
+const SCREENLESS_ORDER = ['operator', 'schedule', 'ROLE_GMAIL_PUSHER']
 const SCREENLESS = new Set(SCREENLESS_ORDER)
 
 /**
@@ -854,7 +854,7 @@ class WallUnderConstruction {
 
   /**
    * A command a person sends asks where it is offered when no view of the wall links to it, while that person reads
-   * views on this wall. The platform operator and the daily schedule look at no screen.
+   * views on this wall. The platform operator, the daily schedule and Google look at no screen.
    */
   private asksWhereItIsOffered(command: Sticky, actors: Sticky[]): Sticky | null {
     if (this.into(command.id, 'readModel').length > 0) return null

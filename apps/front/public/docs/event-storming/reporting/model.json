@@ -15,7 +15,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:mcp",
@@ -30,7 +31,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "actor:operator",
@@ -45,7 +47,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
@@ -60,7 +63,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
@@ -75,7 +79,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
@@ -90,7 +95,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
@@ -105,7 +111,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
@@ -120,7 +127,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
@@ -135,7 +143,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
@@ -150,7 +159,8 @@
             "detail": "Published to the other contexts",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
@@ -173,7 +183,8 @@
                     "label": "List contact facts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\ProspectingFacts",
@@ -201,7 +212,8 @@
                     "label": "List organization facts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
@@ -229,7 +241,8 @@
                     "label": "List accounts"
                 }
             ],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
@@ -244,7 +257,8 @@
             "detail": null,
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
@@ -259,7 +273,8 @@
             "detail": "FiguresResponse",
             "answeredBy": [],
             "answers": [],
-            "readBy": []
+            "readBy": [],
+            "rights": []
         }
     ],
     "links": [

@@ -272,18 +272,42 @@ describe('the wall of a context', () => {
     ])
   })
 
-  it('asks where a command is offered when no view of the wall offers it, though its actor reads none in its lane', () => {
+  it('never asks where a command Google sends is offered, though Google reads a view on the wall', () => {
     const connectors = wallOf(modelOf('connectors'))
     const notification = connectors.notes.find(
       (note) => note.slug === 'command:NoteMailboxNotification' && note.kind === 'command',
     )
-    const [actor] = actorsBefore(notification)
+
+    expect([actorsBefore(notification).map((actor) => actor.label), notification?.step.gap]).toEqual([
+      ['Google'],
+      null,
+    ])
+  })
+
+  it('asks where a command is offered when no view of the wall offers it, though its actor reads none in its lane', () => {
+    const windows =
+      'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows'
+    const unoffered = wallOf({
+      ...BOOKING,
+      links: [
+        ...BOOKING.links.filter((link) => link.to !== windows),
+        { from: 'actor:public', to: windows, via: null, certain: true, when: null },
+      ],
+    })
+    const command = unoffered.notes.find((note) => note.slug === 'command:SetWeeklyWindows')
+    const [actor] = actorsBefore(command)
+    const lane = command?.step.lane
 
     expect([
-      notification?.step.gap?.label,
-      notification?.step.gap?.why,
-      (notification?.step.gap?.x ?? 0) + (notification?.step.gap?.w ?? 0) <= (actor?.x ?? 0),
+      unoffered.notes.some(
+        (note) =>
+          note.kind === 'readModel' && note.step.lane === lane && note.step.senders.includes(actor as Note),
+      ),
+      command?.step.gap?.label,
+      command?.step.gap?.why,
+      (command?.step.gap?.x ?? 0) + (command?.step.gap?.w ?? 0) <= (actor?.x ?? 0),
     ]).toEqual([
+      false,
       'Offered where?',
       'Anyone with the link reads views on this wall, and none carries a link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.',
       true,
