@@ -46,7 +46,7 @@ describe('schoolHolidaysOn', () => {
   })
 
   it.each(ZONE_B)(
-    'names no school holidays once the %s holidays end, on %s',
+    'names no school holidays once the %s holidays from %s end',
     (_holidays, _first, _last, back) => {
       expect(schoolHolidaysOn(day(back))).toBeNull()
     },
