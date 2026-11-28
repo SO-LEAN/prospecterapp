@@ -1,5 +1,5 @@
 import { type Font, linesOf, widthOf } from './ink.ts'
-import type { Note } from './wall.ts'
+import { type Note, sentenceOf } from './wall.ts'
 
 /** What a piece of text says on its post-it. */
 export type Role = 'label' | 'whenever' | 'via' | 'cap' | 'stamp' | 'answered' | 'bang'
@@ -127,7 +127,16 @@ function portLetters(note: Note): Letters[] {
   const label = line('label', note.label, SIZES.port, 'hand', PORT.top)
   const answeredBy = note.sticky?.answeredBy ?? []
   if (answeredBy.length === 0) return [label]
-  return [label, line('answered', `asks ${answeredBy.join(' · ')}`, SIZES.answered, 'ui', PORT.top + label.h)]
+  return [
+    label,
+    line(
+      'answered',
+      `asks ${answeredBy.map(sentenceOf).join(' · ')}`,
+      SIZES.answered,
+      'ui',
+      PORT.top + label.h,
+    ),
+  ]
 }
 
 /** A block of text, centred in the width of its post-it, its lines wrapped to it. */
