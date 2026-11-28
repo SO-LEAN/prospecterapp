@@ -97,7 +97,7 @@ export const fr = {
     unlocated: 'Non géolocalisée',
     unlocatedExplanation:
       'Adresse introuvable sur la carte : vérifiez-la pour la voir sur la carte et dans les itinéraires.',
-    mcp: 'MCP',
+    ai: 'IA',
     createdByAnAI: 'Créé par une IA',
   },
   dates: {

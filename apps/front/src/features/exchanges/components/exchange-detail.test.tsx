@@ -183,7 +183,7 @@ describe('ExchangeDetailSheet', () => {
   it('badges an exchange an AI noted, its member its author', async () => {
     await renderTheDetail(anExchange({ createdByAnAI: true }))
 
-    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('MCP')
+    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('IA')
     expect(screen.getByText(/^Noté le jeu\. 15 oct\. · .* par Michel Maier$/)).toBeInTheDocument()
   })
 
