@@ -118,6 +118,21 @@ Fonctionnalité: Noter un échange avec un contact
       | noter un échange      |
       | planifier un échange  |
 
+  Scénario: Depuis la timeline du contact, son titulaire marque fait ou manqué l'échange dont l'heure est venue
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et j'ai planifié une visio avec "Ada Lovelace" le 19/10/2026 à 9h00
+    Et nous sommes le 19/10/2026 à 10h00
+    Alors dans la timeline de "Ada Lovelace", je peux sur cet échange :
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | marquer fait                |
+      | marquer manqué              |
+      | déplacer                    |
+      | annuler                     |
+
   Scénario: La fiche d'un contact mène à sa timeline
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je regarde ce que je peux faire de la timeline de "Ada Lovelace"
