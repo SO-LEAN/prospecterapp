@@ -180,6 +180,35 @@ describe('ExchangeLine', () => {
     expect(screen.getByText('Pauline Martin · ACME')).toHaveClass('line-through')
   })
 
+  it('strikes through a cancelled exchange, and says who cancelled it', async () => {
+    await renderInARouter(
+      <ExchangeLine
+        exchange={anExchange({
+          channel: 'call',
+          status: 'cancelled',
+          canceller: 'contact',
+          occurredAt: new Date(2026, 10, 16, 14, 30).toISOString(),
+        })}
+      />,
+    )
+
+    expect(screen.getByText('lun. 16 nov. · 14h30')).toHaveClass('line-through')
+    expect(screen.getByText('Appel, Annulé')).toHaveClass('line-through')
+    expect(screen.getByText('Annulé par le contact')).toBeInTheDocument()
+  })
+
+  it('strikes through nothing on an exchange done, and names no one who cancelled it', async () => {
+    await renderInARouter(
+      <ExchangeLine
+        exchange={anExchange({ channel: 'call', occurredAt: new Date(2026, 10, 16, 14, 30).toISOString() })}
+      />,
+    )
+
+    expect(screen.getByText('lun. 16 nov. · 14h30')).not.toHaveClass('line-through')
+    expect(screen.getByText('Appel, Émis')).not.toHaveClass('line-through')
+    expect(screen.queryByText(/Annulé par/)).not.toBeInTheDocument()
+  })
+
   it('says the campaign of the exchange was erased', async () => {
     await renderInARouter(<ExchangeLine exchange={anExchange({ campaign: { id: CAMPAIGN, name: null } })} />)
 
