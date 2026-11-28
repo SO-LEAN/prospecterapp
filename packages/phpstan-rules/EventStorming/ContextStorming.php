@@ -108,8 +108,8 @@ final readonly class ContextStorming
     }
 
     /**
-     * The rights the intentions a handler reaches check: each refusal of access (NotAllowed) they may raise, named
-     * after its class.
+     * The rights that a handler's intentions check: each access refusal (a NotAllowed) that they may raise, named after
+     * its class.
      *
      * @return list<string>
      */
@@ -418,7 +418,7 @@ final readonly class ContextStorming
     /**
      * An actor sends a use case through an entrance of the delivery: the role a controller requires, anyone when it
      * requires none, the member's AI through a tool of the MCP server, the platform operator through a command of the
-     * console, the daily schedule through a daily task, and the roles of the user an authenticator of the security
+     * console, the daily schedule through a daily task, and the roles of the user that a security authenticator
      * creates.
      */
     private function stickTheActors(Board $board, string $context): void
@@ -543,7 +543,7 @@ final readonly class ContextStorming
     }
 
     /**
-     * An authenticator of the security stands for the one it authenticates: the roles of the user it creates.
+     * A security authenticator stands for the user it authenticates: the roles of the user it creates.
      *
      * @return list<string>
      */
@@ -557,7 +557,7 @@ final readonly class ContextStorming
     }
 
     /**
-     * The generator names no class of the delivery nor of Symfony: it recognizes an interface by its short name.
+     * The generator names no delivery class and no Symfony class: it recognizes an interface by its short name.
      */
     private static function implementsNamed(ClassFacts $class, string $shortName): bool
     {

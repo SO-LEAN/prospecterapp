@@ -9,7 +9,7 @@ namespace Prospecter\PHPStan\EventStorming;
  * that of its class or role. Its feature is the title of its use case's feature, in French. A post-it of another
  * context, or of none of the context's modules, shows where a chain comes from or goes to. An external system is
  * answered by the contexts its adapters read, and by the published services they take. A published service is read by
- * what takes it in the other contexts. A command names the rights the aggregates it changes check (ADR 0193).
+ * what takes it in the other contexts. A command names the rights that its aggregates check (ADR 0193).
  */
 final readonly class Sticky implements \JsonSerializable
 {

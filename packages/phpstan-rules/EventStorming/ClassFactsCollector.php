@@ -171,8 +171,9 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * The roles the IsGranted attributes of a class and of its methods require, written or given by a constant. An
-     * attribute a voter grants is no role: Symfony's role voter grants only what starts with ROLE_.
+     * The roles that a class's IsGranted attributes and its methods' attributes require, written or given by a
+     * constant. An attribute that a voter grants is not a role: Symfony's role voter grants only the values that start
+     * with ROLE_.
      *
      * @return list<string>
      */
@@ -188,7 +189,7 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * A user of the security: the analysis recognizes Symfony's interface by its short name.
+     * A security user: the analysis recognizes Symfony's interface by its short name.
      */
     private static function isAUser(ClassReflection $class): bool
     {
@@ -196,7 +197,7 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * The roles the constants of a class name: those a user of the security holds.
+     * The roles that a class's constants name: the roles that a security user holds.
      *
      * @return list<string>
      */

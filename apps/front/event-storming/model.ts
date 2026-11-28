@@ -28,7 +28,7 @@ export interface Sticky {
   answers: Elsewhere[]
   /** What takes a published service in the other contexts. */
   readBy: Elsewhere[]
-  /** The refusals of access the aggregates a command changes may raise, in English: the rights they check. */
+  /** The access refusals that a command's aggregates may raise, in English: the rights they check. */
   rights: string[]
 }
 
