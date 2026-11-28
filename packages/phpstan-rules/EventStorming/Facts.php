@@ -46,6 +46,7 @@ final readonly class Facts
                     self::texts($class['changes'] ?? null),
                     self::listsOfTextsByName($class['offers'] ?? null),
                     self::texts($class['holds'] ?? null),
+                    self::texts($class['grants'] ?? null),
                 ),
                 self::records($collected['classes'] ?? null),
             ),
