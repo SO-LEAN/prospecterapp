@@ -36,7 +36,7 @@ export function holidayCalendarOf(address: Address | null | undefined): HolidayC
   return ALSACE_MOSELLE_DEPARTMENTS.includes(department) ? 'alsaceMoselle' : 'national'
 }
 
-/** A day of the sales calendar, in the public holidays' calendar of the account and in zone B. */
+/** A day's worth for selling, under the account's public holidays and zone B's school holidays. */
 export function salesDayOf(day: Date, calendar: HolidayCalendar): SalesDay {
   const holiday = publicHolidayOn(day, calendar)
   if (isWeekend(day)) return { nature: 'weekend', holiday }

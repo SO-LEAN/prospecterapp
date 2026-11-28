@@ -16,7 +16,7 @@ describe('holidayCalendarOf', () => {
     ['Metz', METZ],
     ['Strasbourg', STRASBOURG],
     ['Mulhouse', MULHOUSE],
-  ])('keeps the public holidays of Alsace-Moselle for an account in %s', (_city, address) => {
+  ])("keeps Alsace-Moselle's public holidays for an account in %s", (_city, address) => {
     expect(holidayCalendarOf(address)).toBe('alsaceMoselle')
   })
 
