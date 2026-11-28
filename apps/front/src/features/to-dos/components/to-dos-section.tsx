@@ -183,7 +183,7 @@ type LinesProps = {
   onTickedOff?: OnTickedOff
 }
 
-/** Each to-do by the line every list shows. The card names who holds it, and its contact on an organization's card. */
+/** Shows each to-do on the line every list shares. The card names who holds it, and its contact on an organization's card. */
 function ToDoLines({ label, toDos, withTheirContact, onTickedOff }: LinesProps) {
   return (
     <ul className="space-y-2" aria-label={label}>
