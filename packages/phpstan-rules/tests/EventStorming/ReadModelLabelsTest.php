@@ -51,6 +51,14 @@ final class ReadModelLabelsTest extends TestCase
         self::assertEquals([new Elsewhere('Till', 'readModel:ConsultUpcomingExchanges', 'Upcoming exchanges')], $models[1]->stickies[0]->answers);
     }
 
+    public function testAPostItOfAnotherWallLeadsToAViewWithALabelOfItsOwnByThatLabel(): void
+    {
+        $port = new Sticky('externalSystem:Agenda', 'externalSystem:Agenda', StickyType::ExternalSystem, 'Agenda', null, 'Agenda', 'Agenda', 'Shop', null, answers: [new Elsewhere('Till', 'readModel:ConsultMyDay', 'My agenda')]);
+        $models = ReadModelLabels::distinct([self::modelOf('Till', self::readModel('Till', 'ConsultMyDay', 'My agenda'), self::readModel('Till', 'ConsultTimeline', 'Timeline'), self::readModel('Till', 'ConsultUpcomingExchanges', 'Timeline')), self::modelOf('Shop', $port)]);
+
+        self::assertEquals([new Elsewhere('Till', 'readModel:ConsultMyDay', 'My agenda')], $models[1]->stickies[0]->answers);
+    }
+
     public function testViewsOfTwoContextsMayShareALabel(): void
     {
         $models = ReadModelLabels::distinct([self::modelOf('Till', self::readModel('Till', 'CompareWithContact', 'Comparison')), self::modelOf('Shop', self::readModel('Shop', 'CompareWithOrganization', 'Comparison'))]);
