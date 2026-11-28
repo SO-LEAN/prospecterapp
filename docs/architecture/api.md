@@ -69,6 +69,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
       - Both are refused once the campaign no longer runs (`campaignNotRunning`) or once the recipient is handled (`recipientAlreadyProcessed`, 409), ADR 0145.
     - A processed recipient links the exchange logged for them, `exchange` (`GET /api/exchanges/{id}`), ADR 0152.
     - Once a campaign has ended (`endedAt`) or stopped, it links only itself and its recipients.
+    - An exchange in a contact's or an organization's timeline, or among their upcoming exchanges, carries the `markDone`, `markMissed`, `move` and `cancel` links that its state offers the reader, as an exchange to process does.
     - An exchange in a timeline and an exchange's detail name the exchange's `campaign` (`id`, `name`). They name none once the campaign is erased, and none for an exchange outside any campaign. The detail links it as `campaign` for a member with the right to manage personal data, while the campaign is kept (ADR 0152).
     - An exchange in a timeline and an exchange's detail name the provider of the mailbox that the exchange was imported from, `importedFrom` (`google`). They name none for an exchange logged by hand. The detail links the exchange's Gmail message, `openInMailbox` (`https://mail.google.com/mail/#all/<id>`, opened in a new tab). It does so for a member with the right to manage personal data, once the message's mailbox id is kept (ADR 0174).
     - Only operations erase a campaign, whatever its status: `bin/console app:campaign:erase <id>`.

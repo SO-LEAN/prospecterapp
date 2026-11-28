@@ -233,6 +233,7 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
 - Reading exchanges. A view of Prospecting answers with the ids of the contacts it shows and of the members who hold or wrote what it shows. The API names them through Accounts and PersonalData, next to the view (ADR 0217):
   - `ConsultTimeline` reads up to the moment of reading, most recent first. `TimelineIntent` says what it offers. `ConsultOrganizationTimeline` reads an organization's exchanges and its contacts' (`OrganizationTimeline`). `ConsultOrganizationUpcomingExchanges` and `ConsultExchangesToMakeConform` read the same way;
   - `ConsultUpcomingExchanges` and `ConsultOrganizationUpcomingExchanges` read after that moment, soonest first;
+  - these four timelines say what each exchange offers its reader at the moment of reading (`Timeline::offeringOnEachExchange()`, `ExchangePossibilities`). Only its holder handles a planned exchange;
   - `ConsultOverlappingExchanges` reads the exchanges in a prospector's agenda that a `Slot` overlaps, through the `AgendaRetriever` port;
   - `ConsultCalendar` (ADR 0115, 0119, 0134):
     - the exchanges a prospector holds in a `CalendarPeriod`, whatever their status, read through the `CalendarRetriever` port;

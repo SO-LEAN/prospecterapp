@@ -61,6 +61,37 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertSame('notYetDue', $tooSoon['reason']);
     }
 
+    /**
+     * The lines of the contact's and the organization's upcoming exchanges offer what its detail offers.
+     */
+    public function testBeforeItsTimeItsHolderMovesOrCancelsItFromItsLines(): void
+    {
+        $offered = [
+            'move' => ['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'],
+            'cancel' => ['href' => '/api/exchanges/'.$this->planned.'/cancellation', 'method' => 'POST'],
+        ];
+
+        $this->assertSame($offered, self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges'), 'items', 0)));
+        $this->assertSame($offered, self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/organizations/'.$this->organization.'/upcoming-exchanges'), 'items', 0, 'exchange')));
+    }
+
+    /**
+     * The lines of the contact's and the organization's timelines offer what its detail offers.
+     */
+    public function testOnceItsTimeHasComeItsHolderHandlesItFromItsLines(): void
+    {
+        $this->theClockShows('2026-10-20 15:00 UTC');
+        $offered = [
+            'move' => ['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'],
+            'markDone' => ['href' => '/api/exchanges/'.$this->planned.'/done', 'method' => 'POST'],
+            'markMissed' => ['href' => '/api/exchanges/'.$this->planned.'/missed', 'method' => 'POST'],
+            'cancel' => ['href' => '/api/exchanges/'.$this->planned.'/cancellation', 'method' => 'POST'],
+        ];
+
+        $this->assertSame($offered, self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges'), 'items', 0)));
+        $this->assertSame($offered, self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/organizations/'.$this->organization.'/exchanges'), 'items', 0, 'exchange')));
+    }
+
     public function testOnceItsTimeHasComeItsHolderMarksItDoneWithItsReport(): void
     {
         $this->theClockShows('2026-10-20 15:00 UTC');
@@ -250,6 +281,31 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
             $this->assertResponseStatusCodeSame(403, $gesture);
             $this->assertSame('notTheHolder', $refused['reason'], $gesture);
         }
+    }
+
+    /**
+     * No colleague is offered a gesture on its lines, in the contact's or the organization's timeline.
+     */
+    #[DataProvider('colleagues')]
+    public function testAColleagueIsOfferedNoGestureOnItsLines(string $reference, Role ...$roles): void
+    {
+        $this->theClockShows('2026-10-20 15:00 UTC');
+        $colleague = $this->aMemberOfTheFixtures($reference, ...$roles);
+        $this->theTokensAreCheckedNow();
+        $this->login($colleague);
+
+        $this->assertSame([], self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges'), 'items', 0)));
+        $this->assertSame([], self::gesturesOf(self::recordAt($this->requestJson('GET', '/api/organizations/'.$this->organization.'/exchanges'), 'items', 0, 'exchange')));
+    }
+
+    /**
+     * @param array<string, mixed> $exchange
+     *
+     * @return array<string, mixed> the links that handle it
+     */
+    private static function gesturesOf(array $exchange): array
+    {
+        return array_intersect_key(self::recordAt($exchange, '_links'), array_flip(['move', 'markDone', 'markMissed', 'cancel']));
     }
 
     /**

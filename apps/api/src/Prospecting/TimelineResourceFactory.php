@@ -48,9 +48,24 @@ final readonly class TimelineResourceFactory
         );
     }
 
-    public function createExchange(ExchangeInTimeline $exchange): ExchangeResource
+    /**
+     * The reader handles an exchange from its line: they mark it done or missed, move it or cancel it, as its state
+     * allows.
+     *
+     * @param list<string> $offered the names of what the exchange offers its reader
+     */
+    public function createExchange(ExchangeInTimeline $exchange, array $offered = []): ExchangeResource
     {
-        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), campaign: $this->campaignOf($exchange)));
+        $link = fn (string $intent, string $route): ?LinkResource => $this->intents->shows($intent, $offered) ? $this->links->to($route, ['id' => $exchange->id]) : null;
+
+        return $this->exchangeWith($exchange, new ExchangeLinksResource(
+            $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
+            move: $link('MoveExchange', 'api_exchanges_move'),
+            markDone: $link('MarkExchangeDone', 'api_exchanges_mark_done'),
+            markMissed: $link('MarkExchangeMissed', 'api_exchanges_mark_missed'),
+            cancel: $link('CancelExchange', 'api_exchanges_cancel'),
+            campaign: $this->campaignOf($exchange),
+        ));
     }
 
     /**
@@ -79,22 +94,11 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * Among the exchanges to process, the holder handles an exchange from there. They mark it done or missed, move it
-     * or cancel it, as its state allows.
+     * Among the exchanges to process, the holder handles an exchange from there, as from any line.
      */
     public function createExchangeToProcess(ExchangeInTimeline $exchange, WhatIsToProcess $toProcess): ExchangeResource
     {
-        $offered = $toProcess->possibleIntents[$exchange->id] ?? [];
-        $link = fn (string $intent, string $route): ?LinkResource => $this->intents->shows($intent, $offered) ? $this->links->to($route, ['id' => $exchange->id]) : null;
-
-        return $this->exchangeWith($exchange, new ExchangeLinksResource(
-            $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
-            move: $link('MoveExchange', 'api_exchanges_move'),
-            markDone: $link('MarkExchangeDone', 'api_exchanges_mark_done'),
-            markMissed: $link('MarkExchangeMissed', 'api_exchanges_mark_missed'),
-            cancel: $link('CancelExchange', 'api_exchanges_cancel'),
-            campaign: $this->campaignOf($exchange),
-        ));
+        return $this->createExchange($exchange, $toProcess->possibleIntents[$exchange->id] ?? []);
     }
 
     /**
