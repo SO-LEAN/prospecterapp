@@ -39,6 +39,16 @@ final class WordingTest extends TestCase
         self::assertSame('Appointments', Wording::ofReadModel('ConsultAppointments', null));
     }
 
+    public function testAReadModelDropsTheSuffixOfAPresenterNamedAfterTheResponse(): void
+    {
+        self::assertSame('Figures', Wording::ofReadModel('ConsultFigures', 'FiguresResponse'));
+    }
+
+    public function testAPresenterKeepsResponseWhenItDoesNotEndItsName(): void
+    {
+        self::assertSame('Response times', Wording::ofReadModel('ConsultResponseTimes', 'ResponseTimes'));
+    }
+
     public function testAMemberIsTheActorOfTheirRole(): void
     {
         self::assertSame('Member', Wording::ofActor('ROLE_USER'));

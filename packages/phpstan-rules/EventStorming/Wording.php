@@ -17,6 +17,9 @@ final readonly class Wording
     /** A query asks to view something: the read model is that thing. */
     private const string QUERY_PREFIX = '/^Consult(?=[A-Z])/';
 
+    /** A presenter named after the HTTP response presents that response's resource. */
+    private const string PRESENTER_SUFFIX = '/Response\b/';
+
     private const string ROLE_PREFIX = '/^ROLE_/';
 
     /** Who stands behind an entrance of the delivery (ContextStorming::actorsEntering()). */
@@ -44,7 +47,7 @@ final readonly class Wording
 
     public static function ofReadModel(string $query, ?string $presented): string
     {
-        return self::ofIntention($presented ?? self::without(self::QUERY_PREFIX, $query));
+        return self::ofIntention(null === $presented ? self::without(self::QUERY_PREFIX, $query) : self::without(self::PRESENTER_SUFFIX, $presented));
     }
 
     public static function ofActor(string $role): string
