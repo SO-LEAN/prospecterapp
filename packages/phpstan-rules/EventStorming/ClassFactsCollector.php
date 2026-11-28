@@ -28,13 +28,14 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
+use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, list<string>>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, list<string>>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>, grants: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -46,6 +47,10 @@ final readonly class ClassFactsCollector implements Collector
     private const string PRESENT = 'present';
 
     private const string IS_GRANTED = 'IsGranted';
+
+    private const string ROLE_PREFIX = 'ROLE_';
+
+    private const string USER = 'UserInterface';
 
     private const string ROUTE = 'Route';
 
@@ -83,7 +88,7 @@ final readonly class ClassFactsCollector implements Collector
             'returns' => null === $returned ? [] : self::classesOf(TypeCombinator::removeNull($returned)),
             'mayReturnNothing' => null !== $returned && TypeCombinator::containsNull($returned),
             'dependencies' => self::dependenciesOf($class),
-            'roles' => self::rolesRequiredBy($node->getOriginalNode()),
+            'roles' => self::rolesRequiredBy($node->getOriginalNode(), $scope),
             'routes' => self::routesDeclaredBy($node->getOriginalNode()),
             'optionalParameters' => self::optionalParametersOf($node->getOriginalNode()),
             'offers' => self::offersOf($node->getOriginalNode()),
@@ -92,6 +97,7 @@ final readonly class ClassFactsCollector implements Collector
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
             'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
             'changes' => self::changesOf($class, $node->getOriginalNode()),
+            'grants' => self::isAUser($class) ? self::rolesNamedBy($node->getOriginalNode(), $scope) : [],
         ];
     }
 
@@ -164,16 +170,56 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * The roles the IsGranted attributes of a class and of its methods require.
+     * The roles the IsGranted attributes of a class and of its methods require, written or given by a constant. An
+     * attribute a voter grants is no role: Symfony's role voter grants only what starts with ROLE_.
      *
      * @return list<string>
      */
-    private static function rolesRequiredBy(ClassLike $class): array
+    private static function rolesRequiredBy(ClassLike $class, Scope $scope): array
     {
-        return array_values(array_filter(array_map(
-            static fn (Attribute $attribute): ?string => self::textOf($attribute->args[0] ?? null),
-            self::attributesOf($class, self::IS_GRANTED),
-        )));
+        $required = [];
+        foreach (self::attributesOf($class, self::IS_GRANTED) as $attribute) {
+            $value = $attribute->args[0]->value ?? null;
+            $required = [...$required, ...(null === $value ? [] : self::rolesIn($scope->getType($value)))];
+        }
+
+        return $required;
+    }
+
+    /**
+     * A user of the security: the analysis recognizes Symfony's interface by its short name.
+     */
+    private static function isAUser(ClassReflection $class): bool
+    {
+        return array_any(array_keys($class->getInterfaces()), static fn (string $interface): bool => self::USER === new ClassName($interface)->short());
+    }
+
+    /**
+     * The roles the constants of a class name: those a user of the security holds.
+     *
+     * @return list<string>
+     */
+    private static function rolesNamedBy(ClassLike $class, Scope $scope): array
+    {
+        $named = [];
+        foreach ($class->getConstants() as $constants) {
+            foreach ($constants->consts as $constant) {
+                $named = [...$named, ...self::rolesIn($scope->getType($constant->value))];
+            }
+        }
+
+        return $named;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function rolesIn(Type $type): array
+    {
+        return array_values(array_filter(
+            array_map(static fn (ConstantStringType $text): string => $text->getValue(), $type->getConstantStrings()),
+            static fn (string $text): bool => str_starts_with($text, self::ROLE_PREFIX),
+        ));
     }
 
     /**

@@ -6,11 +6,14 @@ namespace Tests\PHPStan\EventStorming;
 
 use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
+use App\Shop\Controller\CheckOutController;
 use App\Shop\Resource\CartLineLinksResource;
 use App\Shop\Resource\CartLineResource;
 use App\Shop\Resource\CartLinksResource;
 use App\Shop\Resource\CartResource;
 use App\Shop\Resource\CartSecretResource;
+use App\Shop\Security\Buyer;
+use App\Shop\Security\CartVoter;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Collectors\Collector;
@@ -63,7 +66,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'offers' => [], 'holds' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'offers' => [], 'holds' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => [], 'grants' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -138,6 +141,21 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAClassTellsTheRolesItsAttributesRequire(): void
     {
         self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
+    }
+
+    public function testAClassTellsTheRoleAClassConstantGivesItsAttributeAndNoAttributeOfAVoter(): void
+    {
+        self::assertSame(['ROLE_BUYER'], $this->classFactsOf(CheckOutController::class)['roles'] ?? null);
+    }
+
+    public function testAUserOfTheSecurityTellsTheRolesItsConstantsName(): void
+    {
+        self::assertSame(['ROLE_BUYER'], $this->classFactsOf(Buyer::class)['grants'] ?? null);
+    }
+
+    public function testAClassThatIsNoUserGrantsNoRole(): void
+    {
+        self::assertSame([], $this->classFactsOf(CartVoter::class)['grants'] ?? null);
     }
 
     public function testAClassTellsItIsACommandOfTheConsole(): void
