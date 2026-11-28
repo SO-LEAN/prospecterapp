@@ -102,7 +102,7 @@ AI (Claude)                         API (api.<domain>)                          
 - A tool that creates an organization, a contact or an exchange says that an AI creates it (ADR 0185).
   - Some tools set `byAnAI: true` on their command: `log-contact-exchange`, `log-organization-exchange`, `log-sent-message`, `schedule-contact-exchange`, `schedule-organization-exchange`.
   - Others use the input's command built for an AI (`StartProspectingInput::commandOfAnAI()`, `CollectContactInput::commandOfAnAI()`): `start-prospecting`, `create-contact`, `record-contact`.
-  - Controllers never do. What the tool creates reads `createdByAnAI` in its resource and shows « MCP » on the screens. A new tool that creates something does the same.
+  - Controllers never do. What the tool creates reads `createdByAnAI` in its resource and shows « IA » on the screens (ADR 0226). A new tool that creates something does the same.
 - A file (an organization's logo, the member's picture, a file attached to an exchange) is given by its web address, and the API downloads it (ADR 0168, 0172). It goes through `Shared\Mcp\WebAddressInput` (`url`, http or https) and `Shared\Mcp\FilesOnTheWeb::whileDownloaded()`. The API downloads it:
   - only once the member has been checked;
   - never from a private network (`app.files_on_the_web_http`, a `NoPrivateNetworkHttpClient`);

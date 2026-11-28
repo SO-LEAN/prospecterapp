@@ -123,7 +123,7 @@ export function BookedByLinkMarker() {
   )
 }
 
-/** « IA » on what an AI created for the member through the MCP server. Prospecter never knows which AI. */
+/** « IA » on what an AI created for the member through the MCP server. Prospecter never knows which AI (ADR 0226). */
 export function AIMarker() {
   const { t } = useTranslation()
 

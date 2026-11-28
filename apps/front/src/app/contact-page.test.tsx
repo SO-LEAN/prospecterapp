@@ -155,7 +155,7 @@ describe('the card of a contact', () => {
 
     await renderTheSpaAt(`/contacts/${ADA}`)
 
-    expect(await screen.findByTitle('Créé par une IA')).toHaveTextContent('MCP')
+    expect(await screen.findByTitle('Créé par une IA')).toHaveTextContent('IA')
   })
 
   it('does not badge a contact collected by hand', async () => {

@@ -15,7 +15,7 @@ describe('OrganizationBadges', () => {
   it('badges an organization an AI started prospecting, without naming the AI', () => {
     render(<OrganizationBadges organization={{ legalIdentity: identity, createdByAnAI: true }} />)
 
-    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('MCP')
+    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('IA')
   })
 
   it('does not badge an organization started by hand', () => {

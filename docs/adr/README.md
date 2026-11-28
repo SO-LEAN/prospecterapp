@@ -227,3 +227,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0222](0222-the-ci-mutates-a-part-in-shards-and-the-scenarios-stay-a-test-per-feature.md) | The CI mutates a part in shards, and the core's scenarios stay a test per feature | architecture | Accepted | 2026-11-27 |
 | [0223](0223-an-anticorruption-adapter-asks-one-context-and-only-a-composition-joins-several.md) | An anticorruption adapter asks one context, and only a composition joins several | architecture | Accepted | 2026-11-27 |
 | [0225](0225-the-event-storming-reads-role-constants-authenticators-and-the-rights-aggregates-check.md) | The event storming reads role constants, authenticators and the rights aggregates check | architecture | Accepted | 2026-11-28 |
+| [0226](0226-what-an-ai-created-reads-ia-on-every-screen.md) | What an AI created reads « IA » on every screen | domain | Accepted | 2026-11-28 |
