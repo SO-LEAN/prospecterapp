@@ -8,6 +8,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
  * Tells one context's event storming from the facts the analysis read in its code.
@@ -21,6 +22,8 @@ final readonly class ContextStorming
     private const string QUERY_HANDLER = QueryHandler::class;
 
     private const string POLICY = Policy::class;
+
+    private const string NOT_ALLOWED = NotAllowed::class;
 
     private const string CONTROLLERS = '\\Controller\\';
 
@@ -76,7 +79,7 @@ final readonly class ContextStorming
     {
         foreach ($this->handlersOf($context, self::COMMAND_HANDLER) as $handler) {
             foreach ($handler->firstParameter() as $command) {
-                $sticky = $this->useCaseOf(StickyType::Command, $command, $context);
+                $sticky = $this->useCaseOf(StickyType::Command, $command, $context, rights: $this->rightsCheckedBy($handler->name, $context));
                 $board->stick($sticky);
                 $this->tellWhatItChanges($board, $sticky, $handler->name, $context);
                 $this->tellWhatItAsks($board, $sticky, $handler, $context);
@@ -105,6 +108,29 @@ final readonly class ContextStorming
     }
 
     /**
+     * The rights the intentions a handler reaches check: each refusal of access (NotAllowed) they may raise, named
+     * after its class.
+     *
+     * @return list<string>
+     */
+    private function rightsCheckedBy(string $handler, string $context): array
+    {
+        $rights = [];
+        foreach ($this->reachedFrom($handler, self::ENTRY, $context, Layer::Application) as $intention) {
+            foreach ($this->reachedFrom($intention->class, $intention->method, $context, Layer::Domain, sought: $this->refusesAccess(...)) as $refusal) {
+                $rights[] = Wording::ofIntention(new ClassName($refusal->class)->short());
+            }
+        }
+
+        return array_values(array_unique($rights));
+    }
+
+    private function refusesAccess(ClassName $target): bool
+    {
+        return \in_array(self::NOT_ALLOWED, $this->facts->find($target->value)->parents ?? [], true);
+    }
+
+    /**
      * A method of an aggregate that returns nothing changes it, by command-query separation, whether it records an
      * event or not.
      */
@@ -114,15 +140,18 @@ final readonly class ContextStorming
     }
 
     /**
-     * Follows the calls from a method through the classes of the context the layer goes through, up to what that
-     * layer reaches: the intentions of the aggregates from the application, the events from the domain.
+     * Follows the calls from a method through the classes of the context the layer goes through, up to what is
+     * sought there, by default what that layer reaches: the intentions of the aggregates from the application, the
+     * events from the domain.
      *
-     * @param array<string, true> $visited
+     * @param (\Closure(ClassName, Call): bool)|null $sought
+     * @param array<string, true>                    $visited
      *
      * @return list<Reached>
      */
-    private function reachedFrom(string $class, string $method, string $context, Layer $layer, bool $certain = true, array $visited = []): array
+    private function reachedFrom(string $class, string $method, string $context, Layer $layer, bool $certain = true, array $visited = [], ?\Closure $sought = null): array
     {
+        $sought ??= $layer->reaches(...);
         $visited[$class.'::'.$method] = true;
         $reached = [];
         foreach ($this->facts->callsFrom($class, $method) as $call) {
@@ -131,10 +160,10 @@ final readonly class ContextStorming
             }
             $certainOnTheWay = $certain && !$call->conditional;
             $target = new ClassName($call->target);
-            if ($layer->reaches($target, $call)) {
+            if ($sought($target, $call)) {
                 $reached[] = new Reached($call->target, $call->targetMethod, $certainOnTheWay);
             } elseif ($target->isOf($context) && $layer->goesThrough($target)) {
-                $reached = [...$reached, ...$this->reachedFrom($call->target, $call->targetMethod, $context, $layer, $certainOnTheWay, $visited)];
+                $reached = [...$reached, ...$this->reachedFrom($call->target, $call->targetMethod, $context, $layer, $certainOnTheWay, $visited, $sought)];
             }
         }
 
@@ -588,13 +617,14 @@ final readonly class ContextStorming
 
     /**
      * @param list<Elsewhere> $readBy
+     * @param list<string>    $rights
      */
-    private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null, array $readBy = []): Sticky
+    private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null, array $readBy = [], array $rights = []): Sticky
     {
         $name = new ClassName($class);
         $label = StickyType::ReadModel === $type ? Wording::ofReadModel($name->short(), $detail) : Wording::ofIntention($name->short());
 
-        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $this->titleOf($name), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail, readBy: $readBy);
+        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $this->titleOf($name), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail, readBy: $readBy, rights: $rights);
     }
 
     private function stickyOf(StickyType $type, string $class, string $context): Sticky
