@@ -41,6 +41,23 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   ...exchange,
 })
 
+/** The exchange's detail, as Ada Lovelace's exchange that Michel logged. */
+const theDetailOf = (exchange: Exchange): ExchangeDetail => ({
+  ...exchange,
+  revision: 1,
+  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
+  linkAwaited: false,
+  noted: {
+    at: '2026-10-15T12:35:00+00:00',
+    by: { name: { firstName: 'Michel' }, email: 'michel@solean-it.io' },
+  },
+  corrected: null,
+  redacted: null,
+  attachments: [],
+  hiddenAttachments: 0,
+  _links: { ...exchange._links, interlocutor: timelineLink },
+})
+
 const upcomingLink = { href: `/api/contacts/${ADA}/upcoming-exchanges`, method: 'GET' }
 const nothingToCome: Timeline = { items: [], _links: { self: upcomingLink } }
 
@@ -127,7 +144,7 @@ describe('ExchangesSection', () => {
 
     const upcoming = screen.getByRole('list', { name: 'À venir' })
     expect(within(upcoming).getByText('Visio, À venir')).toBeInTheDocument()
-    expect(within(upcoming).getByText(/, 1 h$/)).toBeInTheDocument()
+    expect(within(upcoming).getByText(/^mar\. 17 nov\. 2099 · \d+h00$/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Charger plus' })).toBeInTheDocument()
     expect(
       within(screen.getByRole('list', { name: 'Échanges' })).getByText('Appel, Reçu'),
@@ -151,6 +168,40 @@ describe('ExchangesSection', () => {
 
     const upcoming = screen.getByRole('list', { name: 'À venir' })
     expect(within(upcoming).getByRole('link', { name: 'Rejoindre' })).toHaveAttribute('href', meet)
+  })
+
+  it('offers on its line the gestures a planned exchange links, and opens its detail on the report to mark it done', async () => {
+    const id = '0190a1c0-0000-7000-8000-000000000020'
+    const planned = anExchange({
+      id,
+      channel: 'call',
+      status: 'planned',
+      occurredAt: '2099-11-17T13:00:00+00:00',
+      _links: {
+        self: { href: `/api/exchanges/${id}`, method: 'GET' },
+        markDone: { href: `/api/exchanges/${id}/done`, method: 'POST' },
+        markMissed: { href: `/api/exchanges/${id}/missed`, method: 'POST' },
+        cancel: { href: `/api/exchanges/${id}/cancellation`, method: 'POST' },
+        move: { href: `/api/exchanges/${id}/moment`, method: 'PATCH' },
+      },
+    })
+    await renderTheSection(
+      { items: [], _links: { self: timelineLink } },
+      theDetailOf({ ...planned, durationInMinutes: 30 }),
+      { items: [planned], _links: { self: upcomingLink } },
+    )
+
+    const line = within(screen.getByRole('list', { name: 'À venir' })).getByRole('listitem')
+    expect(
+      within(line)
+        .getAllByRole('button')
+        .map((button) => button.textContent?.trim()),
+    ).toEqual(['Appel, À venir', 'Fait', 'Manqué', 'Annulé', 'Déplacer'])
+    await userEvent.setup().click(within(line).getByRole('button', { name: 'Fait' }))
+
+    expect(
+      await within(await screen.findByRole('dialog', { name: 'Échange' })).findByText('Compte rendu'),
+    ).toBeInTheDocument()
   })
 
   it('shows how many files are joined to an exchange', async () => {

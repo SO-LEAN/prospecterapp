@@ -11,13 +11,14 @@ import {
   PhoneMissed,
   UserRound,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { type ReactNode, useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { CreatedByAnAIBadge } from '@/shared/ui/created-by-an-ai-badge'
 import { CHANNEL_ICONS } from '@/shared/ui/event/channel'
-import { ToAttachMarker } from '@/shared/ui/event/markers'
+import { ExchangeMarkers, ToAttachMarker } from '@/shared/ui/event/markers'
+import { TypeTile } from '@/shared/ui/event/type-tile'
 import { GmailLogo } from '@/shared/ui/gmail-logo'
 import { directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
@@ -44,40 +45,146 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 }
 
 /**
- * One exchange in the timeline. It shows who communicated, in an organization's timeline, its summary, the start of
- * its text and how many files are attached to it. Once its contact is forgotten, it shows what is to redact. It shows
- * the campaign it was logged in, unless that campaign shows beside the line, outside the button that opens its
- * detail.
+ * One exchange, the same in every timeline: its full moment on the left, its type tile, its title and its markers,
+ * then who it is with and their organization. Then the start of its text and how many files are attached to it. Once
+ * its contact is forgotten, it shows what is to redact. A click on the line opens its detail. Its actions, its
+ * campaign and its markers stay outside the button that opens it.
  */
 export function ExchangeLine({
   exchange,
   interlocutor,
-  campaignAside = false,
+  organization,
+  onOpen,
+  actions,
 }: {
   exchange: Exchange
   interlocutor?: Interlocutor
-  campaignAside?: boolean
+  /** The name of the interlocutor's organization, when the timeline knows it. */
+  organization?: string | null
+  onOpen?: () => void
+  /** What the line offers at hand: its gestures, joining its video call. */
+  actions?: ReactNode
 }) {
+  const { t } = useTranslation()
+  const id = useId()
+  const parts = { when: `${id}-when`, title: `${id}-title`, who: `${id}-who` }
+  const cancelled = exchange.status === 'cancelled'
+
   return (
-    <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
-      {exchange.text && (
-        <ExchangeText
-          text={exchange.text}
-          flagged={exchange.textFlagged}
-          toMakeConform={exchange.textToRedact}
-          className="truncate"
-        />
-      )}
-      {exchange.toRedact && !exchange.textToRedact && <ToMakeConform />}
-      {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
-      {!campaignAside && exchange.campaign && (
-        <div className="mt-1">
-          <CampaignOfTheLine exchange={exchange} />
-        </div>
-      )}
-    </ExchangeSummary>
+    <div className="relative flex flex-wrap items-start gap-x-3 gap-y-2 rounded-row px-2 py-2 transition-colors hover:bg-accent has-[[data-opens]:focus-visible]:ring-[3px] has-[[data-opens]:focus-visible]:ring-ring/50">
+      <time
+        id={parts.when}
+        dateTime={exchange.occurredAt}
+        className={cn('w-24 shrink-0 pt-1 text-muted-foreground text-xs', cancelled && 'line-through')}
+      >
+        {formatMoment(exchange.occurredAt)}
+      </time>
+      <TypeTile channel={exchange.channel} direction={exchange.direction} />
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-1.5">
+          <LineTitle
+            id={parts.title}
+            labelledBy={`${parts.when} ${parts.title} ${parts.who}`}
+            cancelled={cancelled}
+            onOpen={onOpen}
+          >
+            {titleOf(exchange, t)}
+          </LineTitle>
+          <span className="relative z-10 inline-flex flex-wrap items-center gap-1.5">
+            <ExchangeMarkers exchange={withoutItsCampaign(exchange)} />
+            <CampaignOfTheLine exchange={exchange} />
+          </span>
+        </p>
+        {exchange.canceller && (
+          <p className="text-muted-foreground text-xs">{t(`exchanges.cancelledBy.${exchange.canceller}`)}</p>
+        )}
+        <WhoAndWhere id={parts.who} interlocutor={interlocutor} organization={organization} />
+        {exchange.text && (
+          <ExchangeText
+            text={exchange.text}
+            flagged={exchange.textFlagged}
+            toMakeConform={exchange.textToRedact}
+            className="truncate"
+          />
+        )}
+        {exchange.toRedact && !exchange.textToRedact && <ToMakeConform />}
+        {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
+      </div>
+      {actions && <div className="relative z-10 flex flex-wrap items-center gap-2">{actions}</div>}
+    </div>
   )
 }
+
+/** Its channel and how it went: its direction once done, or its status. */
+function titleOf(exchange: Pick<Exchange, 'channel' | 'direction' | 'status'>, t: TFunction) {
+  const direction =
+    exchange.status === 'done'
+      ? t(`exchanges.directions.${directionWordsOf(exchange.channel)}.${exchange.direction}`)
+      : t(`exchanges.statuses.${exchange.status}`)
+
+  return t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })
+}
+
+/** The line's campaign shows apart, as a link to the campaign when the API gives it. */
+const withoutItsCampaign = (exchange: Exchange) => ({ ...exchange, campaign: null })
+
+type TitleProps = {
+  id: string
+  /** The parts of the line that name the button: its moment, its title and who it is with. */
+  labelledBy: string
+  cancelled: boolean
+  onOpen?: () => void
+  children: ReactNode
+}
+
+/** The line's title. When the line opens a detail, it is the button that covers the whole line. */
+function LineTitle({ id, labelledBy, cancelled, onOpen, children }: TitleProps) {
+  const className = cn('font-medium', cancelled && 'text-muted-foreground line-through')
+
+  if (!onOpen) {
+    return (
+      <span id={id} className={className}>
+        {children}
+      </span>
+    )
+  }
+  return (
+    <button
+      type="button"
+      data-opens
+      aria-labelledby={labelledBy}
+      onClick={onOpen}
+      className={cn(className, "text-left outline-none after:absolute after:inset-0 after:content-['']")}
+    >
+      <span id={id}>{children}</span>
+    </button>
+  )
+}
+
+type WhoProps = { id: string; interlocutor?: Interlocutor; organization?: string | null }
+
+/**
+ * Who the exchange is with and their organization. The line is struck through once the contact has left the
+ * organization. The name reads « Contact effacé » once the contact is forgotten.
+ */
+function WhoAndWhere({ id, interlocutor, organization }: WhoProps) {
+  const { t } = useTranslation()
+  const removed = interlocutor?.presence === 'removed'
+  const name = interlocutor && nameOf(interlocutor, t)
+  const who = [name, organization].filter(Boolean).join(' · ')
+
+  if (!who) return null
+  return (
+    <p id={id} className={cn('truncate text-muted-foreground text-xs', removed && 'line-through')}>
+      {interlocutor && <span className="sr-only">{t(`exchanges.interlocutors.${interlocutor.kind}`)}</span>}{' '}
+      {who}
+      {removed && <span className="sr-only">{t('exchanges.removedContact')}</span>}
+    </p>
+  )
+}
+
+const nameOf = (interlocutor: Interlocutor, t: TFunction) =>
+  (interlocutor.presence === 'forgotten' ? null : interlocutor.name) ?? t('exchanges.unknownPerson')
 
 /**
  * Who communicated, when known, with a link to their card when given. Then the exchange's channel and direction, or

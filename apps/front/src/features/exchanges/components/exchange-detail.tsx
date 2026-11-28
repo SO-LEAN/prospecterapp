@@ -46,10 +46,15 @@ import { MoveForm, PlannedExchangeActions, ReportForm } from './planned-exchange
 import { TextCorrectionForm } from './text-correction-form'
 import { VenueCorrectionForm } from './venue-correction-form'
 
-type Props = { exchangeId: string | null; onClose: () => void }
+type Props = {
+  exchangeId: string | null
+  onClose: () => void
+  /** A line's gesture opens it on its report, to mark it done, or on its move. */
+  startWith?: StartWith
+}
 
 /** The whole exchange, beside the card it was opened from. That card stays where it was. */
-export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
+export function ExchangeDetailSheet({ exchangeId, onClose, startWith }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -59,7 +64,14 @@ export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
           <SheetTitle>{t('exchanges.detail.title')}</SheetTitle>
           <SheetDescription className="sr-only">{t('exchanges.detail.description')}</SheetDescription>
         </SheetHeader>
-        {exchangeId && <ExchangePanel exchangeId={exchangeId} onErased={onClose} />}
+        {exchangeId && (
+          <ExchangePanel
+            key={`${exchangeId} ${startWith}`}
+            exchangeId={exchangeId}
+            onErased={onClose}
+            startWith={startWith}
+          />
+        )}
       </SheetContent>
     </Sheet>
   )
