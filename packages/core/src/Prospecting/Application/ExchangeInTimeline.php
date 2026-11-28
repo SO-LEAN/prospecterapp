@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+
 /**
  * An exchange in a timeline. Its channel, direction and status take the values of `Channel`, `Direction` and
  * `ExchangeStatus`. A cancelled exchange names who called it off, when someone said so, by the values of `Canceller`.
@@ -15,7 +20,7 @@ namespace Prospecter\Core\Prospecting\Application;
  * It names the campaign it was logged in, under the campaign's current name in Campaigns. It names none once the
  * campaign is erased (ADR 0145). It says whether its contact booked it through its holder's public link (ADR 0164).
  * It names the provider of the mailbox it was imported from, or none when it was not imported (ADR 0174).
- * It says whether an AI created it.
+ * It says whether an AI created it, and names the member who holds it.
  */
 final readonly class ExchangeInTimeline
 {
@@ -42,6 +47,7 @@ final readonly class ExchangeInTimeline
         public array $organizationIds,
         public int $attachmentCount,
         public bool $withAContactToAttach,
+        public string $holderId,
         public ?string $campaignId = null,
         public ?string $campaignName = null,
         public bool $bookedByLink = false,
@@ -57,5 +63,14 @@ final readonly class ExchangeInTimeline
     public function withCampaignNamed(array $names): self
     {
         return null === $this->campaignId ? $this : clone ($this, ['campaignName' => $names[$this->campaignId] ?? null]);
+    }
+
+    /**
+     * What decides what the exchange offers the member at that moment: its state, and whether the member holds it.
+     */
+    #[\NoDiscard]
+    public function situationFor(MemberId $member, \DateTimeImmutable $at): ExchangeSituation
+    {
+        return new ExchangeSituation($this->attachmentCount, $this->toMakeConform, ExchangeStatus::from($this->status), $this->occurredAt <= $at, $member->value === $this->holderId, Channel::from($this->channel));
     }
 }

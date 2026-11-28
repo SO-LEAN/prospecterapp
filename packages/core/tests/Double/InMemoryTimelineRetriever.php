@@ -24,6 +24,7 @@ use Prospecter\Core\Prospecting\Domain\Rule\ExchangeChronology;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items. The timeline
@@ -195,6 +196,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             attachmentCount: count($exchange->attachments()),
             campaignId: $state->objectOrNull('campaign', CampaignId::class)?->value,
             withAContactToAttach: null !== $exchange->contactToAttach(),
+            holderId: $state->object('createdBy', MemberId::class)->value,
             bookedByLink: $exchange->isBookedByLink(),
             importedFrom: $state->objectOrNull('importedFrom', ImportedEmail::class)?->provider,
             createdByAnAI: Origin::Ai === $state->object('origin', Origin::class),

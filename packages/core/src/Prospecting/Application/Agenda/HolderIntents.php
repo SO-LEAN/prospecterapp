@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Agenda;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
-use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * What the exchanges a prospector holds offer them at a given moment. Each exchange's state decides what it offers
@@ -44,6 +43,6 @@ final class HolderIntents
 
     private static function situationOf(ExchangeInTimeline $exchange, \DateTimeImmutable $at): ExchangeSituation
     {
-        return new ExchangeSituation($exchange->attachmentCount, $exchange->toMakeConform, ExchangeStatus::from($exchange->status), $exchange->occurredAt <= $at, heldByTheMember: true, channel: Channel::from($exchange->channel));
+        return $exchange->situationFor(new MemberId($exchange->holderId), $at);
     }
 }
