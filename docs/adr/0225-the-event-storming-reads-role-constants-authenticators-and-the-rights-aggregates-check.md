@@ -32,7 +32,7 @@ ADR 0215 reads an actor from the role that a controller's `#[IsGranted]` require
 
 ## Alternatives considered
 
-The ticket left the way the aggregate's check reaches the wall to the developer: a parameter typed `Reader`, a guard method, or an attribute. A parameter typed `Reader` would miss `Member::registerBy()`, whose administrator is a `Member`. An attribute in the core would be metadata written by hand for a tool, which ADR 0215 refused. The refusal of access that the code raises was kept.
+The ticket let the developer choose how the aggregate's check reaches the wall: a parameter typed `Reader`, a guard method, or an attribute. A parameter typed `Reader` would miss `Member::registerBy()`, whose administrator is a `Member`. An attribute in the core would be metadata written by hand for a tool, which ADR 0215 refused. The refusal of access that the code raises was kept.
 
 ## Revisit when
 
