@@ -97,7 +97,34 @@ function contextOf(model: Model): string {
   const count = (type: Sticky['type']): number =>
     model.stickies.filter((sticky) => sticky.type === type && sticky.context === model.context).length
   const lanes = model.modules.length === 0 ? 1 : model.modules.length
-  return `<li><a class="wall" href="${folderOf(model.context)}/">${escaped(sentenceOf(model.context))}</a><span class="counts">${lanes} ${lanes === 1 ? 'lane' : 'lanes'} · ${count('command')} commands · ${count('readModel')} read models · ${count('event')} events · ${count('policy')} policies</span></li>`
+  const counts = [
+    countOf(lanes, 'lane', 'lanes'),
+    countOf(count('command'), 'command', 'commands'),
+    countOf(count('readModel'), 'read model', 'read models'),
+    countOf(count('event'), 'event', 'events'),
+    countOf(heardIn(model), 'event heard', 'events heard'),
+    countOf(count('policy'), 'policy', 'policies'),
+  ]
+  return `<li><a class="wall" href="${folderOf(model.context)}/">${escaped(sentenceOf(model.context))}</a><span class="counts">${counts.filter((text) => text !== '').join(' · ')}</span></li>`
+}
+
+/** The events of the other contexts that the policies of this one hear. */
+function heardIn(model: Model): number {
+  const own = (id: string): boolean =>
+    model.stickies.some((sticky) => sticky.id === id && sticky.context === model.context)
+  const heard = model.stickies.filter(
+    (sticky) =>
+      sticky.type === 'event' &&
+      sticky.context !== model.context &&
+      model.links.some((link) => link.from === sticky.id && own(link.to)),
+  )
+  return heard.length
+}
+
+/** A count in words, or nothing when there is none. */
+function countOf(count: number, one: string, many: string): string {
+  if (count === 0) return ''
+  return `${count} ${count === 1 ? one : many}`
 }
 
 function publishedRow(relation: Published): string[] {

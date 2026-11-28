@@ -63,6 +63,8 @@ const ALPHA: Model = {
     sticky('policy', 'Beta', 'Beta/policy:Hear'),
     sticky('policy', 'Alpha', 'policy:Own'),
     sticky('event', 'Beta', 'Beta/published:Theirs'),
+    sticky('event', 'Beta', 'Beta/published:Heard'),
+    sticky('event', 'Gamma', 'Gamma/published:Heard'),
     sticky('command', 'Alpha', 'command:Send'),
     sticky('externalSystem', 'Alpha', 'externalSystem:Zebras', [
       { context: 'Beta', slug: 'readModel:Z', label: 'Z' },
@@ -81,6 +83,8 @@ const ALPHA: Model = {
     link('published:Eta', 'Beta/policy:Hear'),
     link('published:Eta', 'policy:Own'),
     link('Beta/published:Theirs', 'Beta/policy:Hear'),
+    link('Beta/published:Heard', 'policy:Own'),
+    link('Gamma/published:Heard', 'policy:Own'),
     link('command:Send', 'Beta/policy:Hear'),
   ],
 }
@@ -98,6 +102,12 @@ describe('the overview of a made-up wall', () => {
 
   it('lists only the ports of the wall that a service of another context answers, by their label', () => {
     expect(rows('services')).toEqual(['Alpha | Ants | Beta | A', 'Alpha | Zebras | Beta | Z'])
+  })
+
+  it('counts the post-its of the wall and the events its policies hear, in the singular when there is one', () => {
+    expect(made.querySelector('#contexts .counts')?.textContent).toBe(
+      '1 lane · 1 command · 1 read model · 2 events · 2 events heard · 1 policy',
+    )
   })
 })
 
@@ -117,6 +127,16 @@ describe('the overview of the contexts', () => {
       ['Prospecting', 'prospecting/'],
       ['Reporting', 'reporting/'],
     ])
+  })
+
+  it('leaves out a count of none', () => {
+    const reporting = [...document.querySelectorAll('#contexts li')].find(
+      (context) => context.querySelector('a.wall')?.textContent === 'Reporting',
+    )
+
+    expect(reporting?.querySelector('.counts')?.textContent).toBe(
+      '1 lane · 4 commands · 1 read model · 3 events heard · 1 policy',
+    )
   })
 
   it('lists the events a context publishes that the policies of another one hear', () => {
