@@ -223,16 +223,40 @@ function changesIn(wall: Wall, step: Step): string[] {
   const aggregates = step.notes.filter((note) => note.kind === 'aggregate')
   return onceEach(aggregates, (aggregate) => aggregate.sticky).map((first) => {
     const copies = aggregates.filter((aggregate) => aggregate.sticky === first.sticky)
-    const recorded = wall.edges
-      .filter((edge) => copies.includes(edge.from) && edge.to.kind === 'event')
-      .map((edge) => edge.to)
-    const events = onceEach(recorded, (event) => event.sticky)
+    const recorded = wall.edges.filter((edge) => copies.includes(edge.from) && edge.to.kind === 'event')
+    const edges = recorded.filter(
+      (edge, index) => recorded.findIndex((other) => other.to.sticky === edge.to.sticky) === index,
+    )
     const aggregate = chipOf(wall, first)
-    if (events.length > 0)
-      return `${aggregate} records ${inWords(events.map((event) => chipOf(wall, event)))}.`
+    if (edges.length > 0) return `${aggregate} ${whatItRecords(wall, edges)}.`
     const methods = inWords(copies.map((copy) => escaped(`${copy.via ?? ''}()`)))
     return `${aggregate} changes through ${methods}, and records no event.`
   })
+}
+
+/**
+ * The events an aggregate always records, the arms of a choice that record one event or another, and the events it
+ * may record: "records a and b or c, and may record d". A choice of which only one arm records is a condition.
+ */
+function whatItRecords(wall: Wall, edges: Edge[]): string {
+  const choices = Map.groupBy(
+    edges.filter((edge) => edge.arm !== null),
+    (edge) => edge.arm?.choice,
+  )
+  const alternatives = [...choices.values()].filter(
+    (arms) => new Set(arms.map((edge) => edge.arm?.index)).size > 1,
+  )
+  const chips = (some: Edge[]): string => inWords(some.map((edge) => chipOf(wall, edge.to)))
+  const always = [
+    ...edges.filter((edge) => edge.certain).map((edge) => chipOf(wall, edge.to)),
+    ...alternatives.map((arms) =>
+      [...Map.groupBy(arms, (edge) => edge.arm?.index).values()].map(chips).join(' or '),
+    ),
+  ]
+  const maybe = edges.filter((edge) => !edge.certain && !alternatives.flat().includes(edge))
+  const records = always.length > 0 ? `records ${inWords(always)}` : ''
+  const mayRecord = maybe.length > 0 ? `may record ${chips(maybe)}` : ''
+  return [records, mayRecord].filter((part) => part !== '').join(', and ')
 }
 
 /** The first of the notes that share a key, in their order. */

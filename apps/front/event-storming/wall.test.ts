@@ -203,7 +203,14 @@ describe('the wall of a context', () => {
       stickies: [...screenless, ...BOOKING.stickies],
       links: [
         ...BOOKING.links,
-        ...screenless.map((actor) => ({ from: actor.id, to: open, via: null, certain: true, when: null })),
+        ...screenless.map((actor) => ({
+          from: actor.id,
+          to: open,
+          via: null,
+          certain: true,
+          when: null,
+          arm: null,
+        })),
       ],
     })
     const command = sentByThree.notes.find(
@@ -291,7 +298,7 @@ describe('the wall of a context', () => {
       ...BOOKING,
       links: [
         ...BOOKING.links.filter((link) => link.to !== windows),
-        { from: 'actor:public', to: windows, via: null, certain: true, when: null },
+        { from: 'actor:public', to: windows, via: null, certain: true, when: null, arm: null },
       ],
     })
     const command = unoffered.notes.find((note) => note.slug === 'command:SetWeeklyWindows')
@@ -385,7 +392,7 @@ describe('the wall of a context', () => {
       'readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage'
     const projected = wallOf({
       ...BOOKING,
-      links: [...BOOKING.links, { from: forget, to: page, via: null, certain: true, when: null }],
+      links: [...BOOKING.links, { from: forget, to: page, via: null, certain: true, when: null, arm: null }],
     })
     const command = projected.notes.find((note) => note.slug === 'command:ForgetAppointmentOfErasedExchange')
     const kept = command?.step.notes.find((note) => note.kind === 'readModel')
@@ -438,7 +445,14 @@ describe('the wall of a context', () => {
       ...BOOKING,
       links: [
         ...BOOKING.links,
-        ...views.map((view) => ({ from: open, to: view.id, via: null, certain: true, when: null })),
+        ...views.map((view) => ({
+          from: open,
+          to: view.id,
+          via: null,
+          certain: true,
+          when: null,
+          arm: null,
+        })),
       ],
     })
     const command = projected.notes.find((note) => note.slug === 'command:OpenBooking')
@@ -476,8 +490,8 @@ describe('the wall of a context', () => {
       ],
       links: [
         ...BOOKING.links.filter((link) => link.to !== windows),
-        { from: actor, to: windows, via: null, certain: true, when: null },
-        { from: actor, to: page, via: null, certain: true, when: null },
+        { from: actor, to: windows, via: null, certain: true, when: null, arm: null },
+        { from: actor, to: page, via: null, certain: true, when: null, arm: null },
       ],
     })
     const command = unoffered.notes.find((note) => note.slug === 'command:SetWeeklyWindows')

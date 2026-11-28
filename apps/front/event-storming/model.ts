@@ -46,6 +46,13 @@ export interface Link {
   certain: boolean
   /** When an uncertain link happens, in English, if the code writes it. */
   when: string | null
+  /** The arm of an exclusive choice that records an event: another arm of its choice never comes with it. */
+  arm: Arm | null
+}
+
+export interface Arm {
+  choice: string
+  index: number
 }
 
 /** What the analysis of the whole code writes: every context's model, and what it warns of. */
