@@ -160,6 +160,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             attachmentCount: count($attachments),
             campaignId: Typed::stringOrNull($document['campaignId'] ?? null),
             withAContactToAttach: Exchange::isWithAContactToAttach(null !== $contact, [] !== $keptFor),
+            holderId: Typed::string($document['createdBy']),
             bookedByLink: Typed::bool($document['bookedByLink'] ?? false),
             importedFrom: null === $importedFrom ? null : Typed::string(Typed::document($importedFrom)['provider']),
             createdByAnAI: Origin::Ai === Documents::originOf($document),

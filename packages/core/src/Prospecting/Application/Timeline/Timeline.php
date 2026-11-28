@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Timeline;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A slice of the exchanges with a contact or with an organization. The past ones come most recent first, and those to
@@ -13,16 +16,18 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 final readonly class Timeline
 {
     /**
-     * @param list<ExchangeInTimeline> $exchanges
-     * @param string|null              $next            the next slice's cursor, null when this one is the last
-     * @param list<string>             $possibleIntents the names of what the timeline offers: ConsultTimeline, NoteExchange, PlanExchange
-     * @param int                      $toMakeConform   how many of its exchanges still need redacting, counting all of them and not only the slice's. It is known while the timeline is read, and is zero in a contact's timeline
+     * @param list<ExchangeInTimeline>    $exchanges
+     * @param string|null                 $next            the next slice's cursor, null when this one is the last
+     * @param list<string>                $possibleIntents the names of what the timeline offers: ConsultTimeline, NoteExchange, PlanExchange
+     * @param int                         $toMakeConform   how many of its exchanges still need redacting, counting all of them and not only the slice's. It is known while the timeline is read, and is zero in a contact's timeline
+     * @param array<string, list<string>> $exchangeIntents by exchange id, the names of what each exchange offers its reader: MarkExchangeDone, MarkExchangeMissed, MoveExchange, CancelExchange and so on
      */
     public function __construct(
         public array $exchanges,
         public ?string $next,
         public array $possibleIntents,
         public int $toMakeConform,
+        public array $exchangeIntents = [],
     ) {
     }
 
@@ -51,5 +56,18 @@ final readonly class Timeline
     public function offering(array $possibleIntents): self
     {
         return clone ($this, ['possibleIntents' => $possibleIntents]);
+    }
+
+    /**
+     * Each exchange offers its reader what its state allows at the reading moment. Only its holder handles a planned
+     * exchange.
+     */
+    #[\NoDiscard]
+    public function offeringOnEachExchange(MemberId $reader, \DateTimeImmutable $at): self
+    {
+        return clone ($this, ['exchangeIntents' => array_combine(
+            array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $this->exchanges),
+            array_map(static fn (ExchangeInTimeline $exchange): array => array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given($exchange->situationFor($reader, $at))), $this->exchanges),
+        )]);
     }
 }

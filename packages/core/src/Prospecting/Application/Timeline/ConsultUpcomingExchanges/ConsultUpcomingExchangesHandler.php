@@ -31,6 +31,6 @@ final readonly class ConsultUpcomingExchangesHandler implements QueryHandler
         $timeline = $this->timelineRetriever->upcomingWithContact($contact, $prospector, $query->asOf, $query->after, $query->max);
         $offered = array_map(static fn (TimelineIntent $intent): string => $intent->name, $this->contactOrganizations->timelineIntentsOf($contact, $prospector));
 
-        $output->present($timeline->offering($offered));
+        $output->present($timeline->offering($offered)->offeringOnEachExchange($prospector->id, $query->asOf));
     }
 }

@@ -414,6 +414,15 @@ final class ExchangeContext implements Context
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->offeredOnTheTimeline()));
     }
 
+    #[Then('/^dans (?<list>la timeline|les échanges à venir) de "(?<name>[^"]+)", je peux sur cet échange :$/')]
+    public function iMayOnTheExchangeInTheList(string $list, string $name, TableNode $table): void
+    {
+        $timeline = 'la timeline' === $list ? $this->consultTimelineOf($name) : $this->consultUpcomingOf($name);
+        $timeline = Expect::present($timeline, sprintf('The list was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($timeline->exchangeIntents[$this->scenario->theExchange()] ?? []));
+    }
+
     #[Then('je ne peux rien sur la timeline')]
     public function iMayDoNothingOnTheTimeline(): void
     {
@@ -466,13 +475,18 @@ final class ExchangeContext implements Context
      */
     private function upcomingOf(string $name): array
     {
-        $prospector = $this->application->signedIn();
-        $upcoming = $this->scenario->isAnOrganization($name)
-            ? $this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now()))?->timeline
-            : $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($prospector, $this->scenario->personIdOf($name), $this->application->now()));
-        $upcoming = Expect::present($upcoming, sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $upcoming = Expect::present($this->consultUpcomingOf($name), sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $upcoming->exchanges;
+    }
+
+    private function consultUpcomingOf(string $name): ?Timeline
+    {
+        $prospector = $this->application->signedIn();
+
+        return $this->scenario->isAnOrganization($name)
+            ? $this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now()))?->timeline
+            : $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($prospector, $this->scenario->personIdOf($name), $this->application->now()));
     }
 
     private function noteFrom(string $organization, ?string $personId, string $channel, string $direction, \DateTimeImmutable $occurredAt): void
