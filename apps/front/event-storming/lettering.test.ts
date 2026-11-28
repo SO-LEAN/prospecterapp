@@ -46,6 +46,14 @@ describe('the lettering of a post-it', () => {
     expect(whenever?.lines.join(' ')).toBe('whenever exchange facts changed')
   })
 
+  it('names under a port the contexts that answer it, in words', () => {
+    const answered = lettersOf(noteOf('externalSystem:HostPresentations', 'externalSystem')).find(
+      (letters) => letters.role === 'answered',
+    )
+
+    expect(answered?.lines).toEqual(['asks Personal data'])
+  })
+
   it('stamps an event published to the other contexts', () => {
     const roles = lettersOf(noteOf('published:SlotBooked', 'event')).map((letters) => letters.role)
 
