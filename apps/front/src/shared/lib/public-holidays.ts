@@ -39,7 +39,7 @@ const FIXED_DATES_OF: Record<HolidayCalendar, Record<string, PublicHoliday>> = {
   alsaceMoselle: IN_ALSACE_MOSELLE_ON_A_FIXED_DATE,
 }
 
-/** The movable feasts, by the number of days between Easter Sunday and them. */
+/** The movable feasts, keyed by how many days they fall after Easter Sunday. */
 const AFTER_EASTER: Record<number, PublicHoliday> = {
   1: 'easterMonday',
   39: 'ascension',
