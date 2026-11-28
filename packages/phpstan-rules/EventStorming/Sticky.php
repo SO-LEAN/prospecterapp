@@ -9,7 +9,7 @@ namespace Prospecter\PHPStan\EventStorming;
  * that of its class or role. Its feature is the title of its use case's feature, in French. A post-it of another
  * context, or of none of the context's modules, shows where a chain comes from or goes to. An external system is
  * answered by the contexts its adapters read, and by the published services they take. A published service is read by
- * what takes it in the other contexts.
+ * what takes it in the other contexts. A command names the rights the aggregates it changes check (ADR 0193).
  */
 final readonly class Sticky implements \JsonSerializable
 {
@@ -17,6 +17,7 @@ final readonly class Sticky implements \JsonSerializable
      * @param list<string>    $answeredBy
      * @param list<Elsewhere> $answers
      * @param list<Elsewhere> $readBy
+     * @param list<string>    $rights
      */
     public function __construct(
         public string $id,
@@ -32,6 +33,7 @@ final readonly class Sticky implements \JsonSerializable
         public array $answeredBy = [],
         public array $answers = [],
         public array $readBy = [],
+        public array $rights = [],
     ) {
     }
 
@@ -59,6 +61,7 @@ final readonly class Sticky implements \JsonSerializable
             'answeredBy' => $this->answeredBy,
             'answers' => $this->answers,
             'readBy' => $this->readBy,
+            'rights' => $this->rights,
         ];
     }
 }
