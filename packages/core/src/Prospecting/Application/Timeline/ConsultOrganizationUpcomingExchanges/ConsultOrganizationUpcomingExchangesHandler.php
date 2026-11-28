@@ -29,6 +29,6 @@ final readonly class ConsultOrganizationUpcomingExchangesHandler implements Quer
 
         $timeline = $this->timelineRetriever->upcomingInOrganization($organization, $prospector, $query->asOf, $query->after, $query->max);
 
-        $output->present(new OrganizationTimeline($timeline, $organization));
+        $output->present(new OrganizationTimeline($timeline->offeringOnEachExchange($prospector->id, $query->asOf), $organization));
     }
 }
