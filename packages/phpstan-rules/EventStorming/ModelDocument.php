@@ -7,7 +7,7 @@ namespace Prospecter\PHPStan\EventStorming;
 /**
  * The JSON document of every context's model, written from the facts the analysis read in the whole code. An analysis
  * that read no facts, or could not read the code, gives no document. Neither does a use case no feature names: its
- * post-it would have no French title.
+ * post-it would have no French title. Nor do two views of a context that their queries cannot name apart.
  */
 final readonly class ModelDocument
 {
@@ -23,6 +23,7 @@ final readonly class ModelDocument
      *
      * @throws UnreadableCode
      * @throws UntitledUseCases
+     * @throws SharedReadModelLabels
      */
     public function of(?array $facts, array $failures): string
     {
@@ -32,7 +33,7 @@ final readonly class ModelDocument
         $facts = Facts::read($facts);
         $features = new FeatureTitles($this->features);
         $storming = new ContextStorming($facts, $features->byUseCase(), $this->readSubscriptions());
-        $models = array_map($storming->model(...), $facts->contexts());
+        $models = ReadModelLabels::distinct(array_map($storming->model(...), $facts->contexts()));
         $untitled = array_merge(...array_map(self::untitledIn(...), $models));
         if ([] !== $untitled) {
             throw UntitledUseCases::named($untitled);

@@ -6,6 +6,7 @@ namespace Tests\PHPStan\EventStorming;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
 use Prospecter\PHPStan\EventStorming\ModelDocument;
 use Prospecter\PHPStan\EventStorming\UnreadableCode;
@@ -23,11 +24,20 @@ final class ModelDocumentTest extends TestCase
 
     private const string EXCHANGE = 'Prospecter\Core\Till\Application\Exchange\Exchange';
 
+    private const string TIMELINE_MODULE = 'Prospecter\Core\Till\Application\Timeline\\';
+
     public function testTheDocumentHoldsTheModelOfEachContextOfTheFacts(): void
     {
         $document = (array) json_decode(self::document()->of(self::facts(), []), true, flags: \JSON_THROW_ON_ERROR);
 
         self::assertSame([['Shop', 'command:'.self::ADD_ITEM], ['Till', 'command:'.self::PAY]], self::contextsAndFirstStickiesOf($document));
+    }
+
+    public function testTwoViewsSharingAPresenterAreEachNamedAfterTheirQuery(): void
+    {
+        $document = (array) json_decode(self::viewsDocument()->of(self::viewsOf('ConsultTimeline', 'ConsultUpcomingExchanges'), []), true, flags: \JSON_THROW_ON_ERROR);
+
+        self::assertSame(['Timeline', 'Upcoming exchanges'], self::readModelLabelsOf($document));
     }
 
     public function testAUseCaseNoFeatureNamesGivesNoDocumentAndIsNamed(): void
@@ -81,6 +91,41 @@ final class ModelDocumentTest extends TestCase
     private static function document(): ModelDocument
     {
         return new ModelDocument(self::FIXTURES.'/features', self::FIXTURES.'/subscriptions.json');
+    }
+
+    private static function viewsDocument(): ModelDocument
+    {
+        return new ModelDocument(self::FIXTURES.'/views', self::FIXTURES.'/subscriptions.json');
+    }
+
+    /**
+     * @return array<string, mixed> the facts of a query handler for each query, all presenting the timeline
+     */
+    private static function viewsOf(string ...$queries): array
+    {
+        return ['classes' => array_map(static fn (string $query): array => [
+            'name' => self::TIMELINE_MODULE.$query.'Handler', 'interfaces' => [QueryHandler::class], 'parameters' => [[self::TIMELINE_MODULE.$query]],
+            'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [], 'roles' => [], 'presents' => [self::TIMELINE_MODULE.'Timeline'],
+        ], $queries), 'calls' => []];
+    }
+
+    /**
+     * @param array<mixed> $document
+     *
+     * @return list<mixed> the label of each read model of the document's models
+     */
+    private static function readModelLabelsOf(array $document): array
+    {
+        $labels = [];
+        foreach (\is_array($document['models'] ?? null) ? $document['models'] : [] as $model) {
+            foreach (\is_array($model) && \is_array($model['stickies'] ?? null) ? $model['stickies'] : [] as $sticky) {
+                if (\is_array($sticky) && 'readModel' === ($sticky['type'] ?? null)) {
+                    $labels[] = $sticky['label'] ?? null;
+                }
+            }
+        }
+
+        return $labels;
     }
 
     /**
