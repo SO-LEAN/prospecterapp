@@ -37,6 +37,8 @@ final readonly class ContextStorming
     /** The short name of the delivery's interface of a daily task: the generator names no class of the delivery. */
     private const string SCHEDULED_TASK = 'ScheduledTask';
 
+    private const string AUTHENTICATOR = 'AuthenticatorInterface';
+
     private const string SOURCE = 'prospecter.';
 
     private const string PUBLISHED = 'Published to the other contexts';
@@ -387,12 +389,13 @@ final readonly class ContextStorming
     /**
      * An actor sends a use case through an entrance of the delivery: the role a controller requires, anyone when it
      * requires none, the member's AI through a tool of the MCP server, the platform operator through a command of the
-     * console, and the daily schedule through a daily task.
+     * console, the daily schedule through a daily task, and the roles of the user an authenticator of the security
+     * creates.
      */
     private function stickTheActors(Board $board, string $context): void
     {
         foreach ($this->facts->classes() as $entrance) {
-            $actors = self::actorsEntering($entrance);
+            $actors = $this->actorsEntering($entrance);
             $calls = array_values(array_filter($this->facts->calls, static fn (Call $call): bool => $call->caller === $entrance->name));
             foreach ([] === $actors ? [] : $this->useCasesSentBy($board, $calls) as $useCase) {
                 foreach ($actors as $role) {
@@ -489,24 +492,45 @@ final readonly class ContextStorming
      *
      * @return list<string>
      */
-    private static function actorsEntering(ClassFacts $entrance): array
+    private function actorsEntering(ClassFacts $entrance): array
     {
-        $scheduled = array_any($entrance->interfaces, static fn (string $interface): bool => self::SCHEDULED_TASK === new ClassName($interface)->short());
+        $scheduled = self::implementsNamed($entrance, self::SCHEDULED_TASK);
 
-        return [...($scheduled ? [self::SCHEDULE] : []), ...self::actorsAsking($entrance)];
+        return [...($scheduled ? [self::SCHEDULE] : []), ...$this->actorsAsking($entrance)];
     }
 
     /**
      * @return list<string>
      */
-    private static function actorsAsking(ClassFacts $entrance): array
+    private function actorsAsking(ClassFacts $entrance): array
     {
         return match (true) {
             $entrance->console => [self::OPERATOR],
+            self::implementsNamed($entrance, self::AUTHENTICATOR) => $this->rolesOfTheUsersCreatedBy($entrance),
             str_contains($entrance->name, self::CONTROLLERS) => [] === $entrance->roles ? [self::ANYONE] : $entrance->roles,
             str_contains($entrance->name, self::TOOLS) => [self::AI],
             default => [],
         };
+    }
+
+    /**
+     * An authenticator of the security stands for the one it authenticates: the roles of the user it creates.
+     *
+     * @return list<string>
+     */
+    private function rolesOfTheUsersCreatedBy(ClassFacts $authenticator): array
+    {
+        $created = array_filter($this->facts->calls, static fn (Call $call): bool => $call->caller === $authenticator->name && $call->isCreation());
+
+        return array_values(array_unique(array_merge(...array_values(array_map(fn (Call $call): array => $this->facts->find($call->target)->grants ?? [], $created)))));
+    }
+
+    /**
+     * The generator names no class of the delivery nor of Symfony: it recognizes an interface by its short name.
+     */
+    private static function implementsNamed(ClassFacts $class, string $shortName): bool
+    {
+        return array_any($class->interfaces, static fn (string $interface): bool => $shortName === new ClassName($interface)->short());
     }
 
     /**

@@ -80,6 +80,14 @@ final class ContextStormingTest extends TestCase
 
     private const string SCHEDULED_TASK = 'App\Shared\ScheduledTask';
 
+    private const string AUTHENTICATOR = 'Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface';
+
+    private const string USER = 'Symfony\Component\Security\Core\User\UserInterface';
+
+    private const string HOST_AUTHENTICATOR = 'App\Booking\Security\HostAuthenticator';
+
+    private const string HOST = 'App\Booking\Security\Host';
+
     private const string IDENTIFY_BOOKER = IdentifyBookerPolicy::class;
 
     private const string BOOKING_PAGE = BookingPage::class;
@@ -489,6 +497,37 @@ final class ContextStormingTest extends TestCase
             ],
             [self::stickyOf($model, 'actor:schedule')['label'] ?? null, ...self::linksOf($model)],
         );
+    }
+
+    public function testAnAuthenticatorReadsAsTheRolesOfTheUserItCreates(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE]]),
+            new ClassFacts(self::HOST_AUTHENTICATOR, interfaces: [self::AUTHENTICATOR]),
+            new ClassFacts(self::HOST, interfaces: [self::USER], grants: ['ROLE_GMAIL_PUSHER']),
+        ], [
+            new Call(self::HOST_AUTHENTICATOR, 'authenticate', self::CONSULT_MY_BOOKING_PAGE, Call::CREATION),
+            new Call(self::HOST_AUTHENTICATOR, 'authenticate', self::HOST, Call::CREATION),
+        ]));
+
+        self::assertSame(
+            ['Google', ['from' => 'actor:ROLE_GMAIL_PUSHER', 'to' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'via' => null, 'certain' => true, 'when' => null]],
+            [self::stickyOf($model, 'actor:ROLE_GMAIL_PUSHER')['label'] ?? null, ...self::linksOf($model)],
+        );
+    }
+
+    public function testAnAuthenticatorStandsForNoUserItOnlyCalls(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE]]),
+            new ClassFacts(self::HOST_AUTHENTICATOR, interfaces: [self::AUTHENTICATOR]),
+            new ClassFacts(self::HOST, interfaces: [self::USER], grants: ['ROLE_GMAIL_PUSHER']),
+        ], [
+            new Call(self::HOST_AUTHENTICATOR, 'authenticate', self::CONSULT_MY_BOOKING_PAGE, Call::CREATION),
+            new Call(self::HOST_AUTHENTICATOR, 'authenticate', self::HOST, 'getRoles'),
+        ]));
+
+        self::assertSame([], self::linksOf($model));
     }
 
     public function testAnEntranceSendsTheCommandANamedConstructorOfTheCommandCreates(): void
