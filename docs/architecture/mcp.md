@@ -54,7 +54,7 @@ AI (Claude)                         API (api.<domain>)                          
 
 ## Every endpoint has its tool
 
-- Every endpoint a member calls has its tool (ADR 0163). A member's endpoint is a route whose controller declares `#[IsGranted]`. An AI reads and does what its member reads and does on the screens, and the server never lags behind the application. The public routes are not member endpoints: the facade below, the public booking page, the Gmail push, the user pool and the documentation.
+- Every endpoint a member calls has its tool (ADR 0163). A member's endpoint is a route whose controller declares `#[IsGranted]` for someone other than Google's Gmail pusher. An AI reads and does what its member reads and does on the screens, and the server never lags behind the application. The public routes are not member endpoints: the facade below, the public booking page, the Gmail push, the user pool and the documentation.
 - Two lists in `tests/Architecture/EveryEndpointHasItsToolTest` hold the exceptions. The test fails and names each member endpoint that has no tool and is on neither list.
   - `NEVER`, what stays on the screen:
     - forgetting a contact (GDPR, `api_contacts_forget`);
