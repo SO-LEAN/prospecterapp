@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Shop\Domain\Model;
 
+use Prospecter\Core\Shop\Domain\Event\CartAbandoned;
 use Prospecter\Core\Shop\Domain\Event\CartClosed;
 use Prospecter\Core\Shop\Domain\Event\CartEmptied;
+use Prospecter\Core\Shop\Domain\Event\CartPaid;
 use Prospecter\Core\Shop\Domain\Event\ItemAdded;
 
 final class Cart
@@ -36,6 +38,76 @@ final class Cart
             return;
         }
         $this->events[] = new CartClosed();
+    }
+
+    public function settle(bool $paid): void
+    {
+        $this->events[] = match ($paid) {
+            true => new CartPaid(),
+            false => new CartAbandoned(),
+        };
+    }
+
+    public function abandon(bool $soon): void
+    {
+        if ($soon) {
+            $this->forget();
+        } else {
+            $this->events[] = new CartAbandoned();
+        }
+    }
+
+    /**
+     * @param list<bool> $payments
+     */
+    public function settleAll(array $payments): void
+    {
+        foreach ($payments as $paid) {
+            $this->events[] = match ($paid) {
+                true => new CartPaid(),
+                false => new CartAbandoned(),
+            };
+        }
+    }
+
+    public function decide(bool $paid, bool $soon): void
+    {
+        if ($soon) {
+            $this->events[] = match ($paid) {
+                true => new CartPaid(),
+                false => new CartAbandoned(),
+            };
+        } else {
+            $this->forget();
+        }
+    }
+
+    public function settleLater(bool $paid, bool $soon): void
+    {
+        if ($soon) {
+            $this->forget();
+        } else {
+            $this->reopen();
+        }
+        $this->events[] = $paid
+            ? new CartPaid()
+            : new CartAbandoned();
+    }
+
+    public function emptyUnless(?object $event): void
+    {
+        $this->events[] = $event ?: new CartEmptied();
+    }
+
+    public function settleBy(int $balance): void
+    {
+        if ($balance > 0) {
+            $this->forget();
+        } elseif ($balance < 0) {
+            $this->events[] = new CartPaid();
+        } else {
+            $this->reopen();
+        }
     }
 
     public function ensureOpen(): void

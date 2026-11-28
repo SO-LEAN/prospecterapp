@@ -29,8 +29,10 @@ use Prospecter\Core\Shop\Application\Cart\ConsultCart\CartView;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCart;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCartOutput;
 use Prospecter\Core\Shop\Application\Policy\AddAgainPolicy;
+use Prospecter\Core\Shop\Domain\Event\CartAbandoned;
 use Prospecter\Core\Shop\Domain\Event\CartClosed;
 use Prospecter\Core\Shop\Domain\Event\CartEmptied;
+use Prospecter\Core\Shop\Domain\Event\CartPaid;
 use Prospecter\Core\Shop\Domain\Exception\BuyersOnly;
 use Prospecter\Core\Shop\Domain\Model\Cart;
 use Prospecter\Core\Shop\Domain\Port\Stock;
@@ -79,7 +81,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAMethodCallsTheMethodOfTheTypeItCallsItOn(): void
     {
         self::assertContains(
-            ['caller' => self::ADD_ITEM.'Handler', 'callerMethod' => '__invoke', 'target' => self::CART, 'targetMethod' => 'add', 'conditional' => false],
+            ['caller' => self::ADD_ITEM.'Handler', 'callerMethod' => '__invoke', 'target' => self::CART, 'targetMethod' => 'add', 'conditional' => false, 'arm' => null],
             $this->shopFacts()['calls'],
         );
     }
@@ -87,7 +89,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testANamedConstructorCreatesItsOwnClass(): void
     {
         self::assertContains(
-            ['caller' => self::ADD_ITEM, 'callerMethod' => 'ofABook', 'target' => self::ADD_ITEM, 'targetMethod' => '__construct', 'conditional' => false],
+            ['caller' => self::ADD_ITEM, 'callerMethod' => 'ofABook', 'target' => self::ADD_ITEM, 'targetMethod' => '__construct', 'conditional' => false, 'arm' => null],
             $this->shopFacts()['calls'],
         );
     }
@@ -95,7 +97,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAnObjectCreatedInABranchIsCreatedUnderACondition(): void
     {
         self::assertContains(
-            ['caller' => self::CART, 'callerMethod' => 'empty', 'target' => CartEmptied::class, 'targetMethod' => '__construct', 'conditional' => true],
+            ['caller' => self::CART, 'callerMethod' => 'empty', 'target' => CartEmptied::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => null],
             $this->shopFacts()['calls'],
         );
     }
@@ -103,14 +105,78 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAnObjectCreatedAfterAnEarlyReturnIsCreatedUnderACondition(): void
     {
         self::assertContains(
-            ['caller' => self::CART, 'callerMethod' => 'close', 'target' => CartClosed::class, 'targetMethod' => '__construct', 'conditional' => true],
+            ['caller' => self::CART, 'callerMethod' => 'close', 'target' => CartClosed::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => null],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInAnArmOfAMatchTellsTheChoiceAndTheArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'settle', 'target' => CartPaid::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => ['choice' => self::CART.'::settle#0', 'index' => 0]],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInTheElseOfAnIfTellsItsSecondArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'abandon', 'target' => CartAbandoned::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => ['choice' => self::CART.'::abandon#0', 'index' => 1]],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testACallInTheFirstBranchOfAnIfThatHasAnElseTellsItsFirstArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'abandon', 'target' => self::CART, 'targetMethod' => 'forget', 'conditional' => true, 'arm' => ['choice' => self::CART.'::abandon#0', 'index' => 0]],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInAnArmUnderALoneConditionTellsNoArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'settleAll', 'target' => CartPaid::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => null],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInAnArmOfAChoiceInAnArmOfAnotherTellsNoArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'decide', 'target' => CartPaid::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => null],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInATernarysElseTellsTheSecondArmOfItsMethodsSecondChoice(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'settleLater', 'target' => CartAbandoned::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => ['choice' => self::CART.'::settleLater#1', 'index' => 1]],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedOnTheRightOfAShortTernaryIsCreatedUnderALoneCondition(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'emptyUnless', 'target' => CartEmptied::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => null],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testAnObjectCreatedInAnElseifTellsItsArm(): void
+    {
+        self::assertContains(
+            ['caller' => self::CART, 'callerMethod' => 'settleBy', 'target' => CartPaid::class, 'targetMethod' => '__construct', 'conditional' => true, 'arm' => ['choice' => self::CART.'::settleBy#0', 'index' => 1]],
             $this->shopFacts()['calls'],
         );
     }
 
     public function testAClassTellsItsPublicMethodsThatReturnNothingAndWriteItsPropertiesThemselvesOrThroughItsOtherMethods(): void
     {
-        self::assertSame(['add', 'empty', 'close', 'reopen'], $this->classFactsOf(self::CART)['changes'] ?? null);
+        self::assertSame(['add', 'empty', 'close', 'settle', 'abandon', 'settleAll', 'decide', 'settleLater', 'emptyUnless', 'settleBy', 'reopen'], $this->classFactsOf(self::CART)['changes'] ?? null);
     }
 
     public function testAQueryHandlerTellsWhatItsOutputPortPresents(): void
