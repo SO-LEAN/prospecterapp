@@ -551,7 +551,9 @@ final readonly class ContextStorming
     {
         $created = array_filter($this->facts->calls, static fn (Call $call): bool => $call->caller === $authenticator->name && $call->isCreation());
 
-        return array_values(array_unique(array_merge(...array_values(array_map(fn (Call $call): array => $this->facts->find($call->target)->grants ?? [], $created)))));
+        $rolesOfEachUser = array_values(array_map(fn (Call $call): array => $this->facts->find($call->target)->grants ?? [], $created));
+
+        return array_values(array_unique(array_merge(...$rolesOfEachUser)));
     }
 
     /**
