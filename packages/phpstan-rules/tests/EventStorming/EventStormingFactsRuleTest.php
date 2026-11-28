@@ -20,6 +20,9 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\CartView;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCart;
@@ -27,6 +30,7 @@ use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCartOutput;
 use Prospecter\Core\Shop\Application\Policy\AddAgainPolicy;
 use Prospecter\Core\Shop\Domain\Event\CartClosed;
 use Prospecter\Core\Shop\Domain\Event\CartEmptied;
+use Prospecter\Core\Shop\Domain\Exception\BuyersOnly;
 use Prospecter\Core\Shop\Domain\Model\Cart;
 use Prospecter\Core\Shop\Domain\Port\Stock;
 use Prospecter\PHPStan\EventStorming\CallsCollector;
@@ -66,7 +70,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'offers' => [], 'holds' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => [], 'grants' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'offers' => [], 'holds' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => [], 'grants' => [], 'parents' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -156,6 +160,11 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAClassThatIsNoUserGrantsNoRole(): void
     {
         self::assertSame([], $this->classFactsOf(CartVoter::class)['grants'] ?? null);
+    }
+
+    public function testAClassTellsTheClassesItExtends(): void
+    {
+        self::assertSame([NotAllowed::class, BusinessRuleViolation::class, BusinessException::class, \DomainException::class, \LogicException::class, \Exception::class], $this->classFactsOf(BuyersOnly::class)['parents'] ?? null);
     }
 
     public function testAClassTellsItIsACommandOfTheConsole(): void
