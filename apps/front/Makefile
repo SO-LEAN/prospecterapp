@@ -1,14 +1,14 @@
 include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: install test mutation mutation-spa mutation-event-storming mutation-spa-shards mutation-event-storming-shards lint fix build api-types event-storming-page e2e shell package release
+.PHONY: install test mutation mutation-spa mutation-event-storming mutation-spa-shards mutation-event-storming-shards lint lint-event-storming fix build api-types event-storming-page e2e shell package release
 
 ##@ Front
 install: ## Install the pnpm dependencies of the front
 	@echo "Front/Installing pnpm dependencies..."
 	@$(NODE) pnpm install
 
-test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; FAIL_FAST=1 stops at the first failure; TEST_WORKERS= the workers (a number or a share of the processors; by default, one processor fewer than the container has)
-	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FAIL_FAST),--bail=1) $(if $(TEST_WORKERS),--maxWorkers=$(TEST_WORKERS)) $(if $(FILTER),'$(FILTER)')
+test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; PROJECTS= only these Vitest projects (spa, tools, event-storming); FAIL_FAST=1 stops at the first failure; TEST_WORKERS= the workers (a number or a share of the processors; by default, one processor fewer than the container has)
+	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(foreach project,$(PROJECTS),--project $(project)) $(if $(FAIL_FAST),--bail=1) $(if $(TEST_WORKERS),--maxWorkers=$(TEST_WORKERS)) $(if $(FILTER),'$(FILTER)')
 
 # the files a generator wrote and nobody changed since (mutation/generated-files): the router's tree, and the shadcn
 # components still as shadcn wrote them, whose class names no test reads
@@ -56,6 +56,10 @@ mutation-event-storming-shards: ## Print how many shards the CI mutates the even
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome
 	@$(NODE) sh -c 'pnpm exec biome check $(or $(FILTER),.) && pnpm typecheck'
+
+# the generator's own TypeScript configuration (event-storming/tsconfig.json), which leaves the SPA out
+lint-event-storming: ## Check the code of the event storming's generator: Biome, TypeScript
+	@$(NODE) sh -c 'pnpm exec biome check event-storming && pnpm exec tsc --noEmit --project event-storming'
 
 fix: ## Fix the style of the code of the front: Biome and its rules; FILTER= paths of the project
 	@$(NODE) pnpm exec biome check --write $(or $(FILTER),.)
